@@ -1,0 +1,3 @@
+[submodule "lib/relay"]
+	path = lib/relay
+	url = ssh://git@github.com/clevertree/relay-kernel
