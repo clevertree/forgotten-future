@@ -7,7 +7,6 @@
     var Util = Config.util;
     Config.fragment.Sprite = Sprite;
 
-    var PROGRAM;
     
     function Sprite(gl, pathSpriteSheet, flags, mModelView, mVelocity, mAcceleration) {
         if(typeof flags === 'undefined') flags = Sprite.FLAG_DEFAULTS;
@@ -22,14 +21,14 @@
         var scale = [1, 1];
         var spriteSheetRatio = 1;
 
-        mModelView =            mModelView || defaultModelViewMatrix;
-        var mVertexCoordinates =   getVertexCoordinates(1,1); // getVertexPositions(scale, scale);
-        var vColor =            defaultColor;
-        var vActiveColor =      vColor.slice(0);
+        mModelView =                mModelView || defaultModelViewMatrix;
+        var mVertexCoordinates =    getVertexCoordinates(1,1); // getVertexPositions(scale, scale);
+        var vColor =                defaultColor;
+        var vActiveColor =          vColor.slice(0);
 
         // Initiate Shaders
         if(!PROGRAM)
-            initProgram(gl);
+            Sprite.RENDER_INIT(gl);
 
         // Create a texture.
         var tSpriteSheet = gl.createTexture();
@@ -55,33 +54,14 @@
             this.update(t, stage, flags);
 
             // Render
-            gl.useProgram(PROGRAM);
-
-            // Bind Vertex Coordinate
-            gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
-            gl.bufferData(gl.ARRAY_BUFFER, mVertexCoordinates, gl.DYNAMIC_DRAW);
-            gl.vertexAttribPointer(aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-
-            // Bind Texture Coordinate
-            gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
-            if(frameUpdated) {
-                gl.bufferData(gl.ARRAY_BUFFER, this.frames[currentFrame], gl.DYNAMIC_DRAW);
-                frameUpdated = false;
-            }
-            gl.vertexAttribPointer(aTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
-
-            // Set the projection and viewport.
-            gl.uniformMatrix4fv(uPMatrix, false, stage.mProjection);
-            gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
-            gl.uniform4fv(uColor, vActiveColor);
-
-            // Tell the shader to get the texture from texture unit 0
-            gl.activeTexture(gl.TEXTURE0 + 0);
-            gl.bindTexture(gl.TEXTURE_2D, tSpriteSheet);
-            gl.uniform1i(uSampler, 0);
-
-            // draw the quad (2 triangles, 6 vertices)
-            gl.drawArrays(glLineMode, 0, 6);
+            Sprite.RENDER_DEFAULT(gl,
+                tSpriteSheet,
+                mModelView,
+                stage.mProjection,
+                mVertexCoordinates,
+                this.frames[currentFrame],
+                vActiveColor,
+                glLineMode);
         };
 
         this.setScale = function(sx, sy) {
@@ -124,6 +104,12 @@
 
         this.move = function(mDistance) {
             mModelView = Util.translate(mModelView, mDistance[0], mDistance[1], mDistance[2]);
+        };
+
+        this.rotate = function(aX, aY, aZ) {
+            if(aX) mModelView = Util.xRotate(mModelView, aX);
+            if(aY) mModelView = Util.yRotate(mModelView, aY);
+            if(aZ) mModelView = Util.zRotate(mModelView, aZ);
         };
 
         function reset() {
@@ -192,45 +178,6 @@
             spriteSheetRatio = iSpriteSheet.height / iSpriteSheet.width;
 
         }
-
-        // Program
-
-        function initProgram(gl) {
-
-            // Init Program
-            var program = Util.compileProgram(gl, Sprite.VS, Sprite.FS);
-            gl.useProgram(program);
-
-            // Enable Vertex Position Attribute.
-            aVertexPosition = gl.getAttribLocation(program, "aVertexPosition");
-            gl.enableVertexAttribArray(aVertexPosition);
-
-            // Enable Texture Position Attribute.
-            aTextureCoordinate = gl.getAttribLocation(program, "aTextureCoordinate");
-            gl.enableVertexAttribArray(aTextureCoordinate);
-
-            // Lookup Uniforms
-            uPMatrix = gl.getUniformLocation(program, "uPMatrix");
-            uMVMatrix = gl.getUniformLocation(program, "uMVMatrix");
-            uSampler = gl.getUniformLocation(program, "uSampler");
-            uColor = gl.getUniformLocation(program, "uColor");
-
-            // Create a Vertex Position Buffer.
-            bufVertexPosition = gl.createBuffer();
-
-            // Create a Texture Coordinates Buffer
-            bufTextureCoordinate = gl.createBuffer();
-            // gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
-            // gl.bufferData(gl.ARRAY_BUFFER, mTextureCoordinates, gl.STATIC_DRAW);
-
-            // use texture unit 0
-            gl.activeTexture(gl.TEXTURE0 + 0);
-
-            // bind to the TEXTURE_2D bind point of texture unit 0
-            gl.bindTexture(gl.TEXTURE_2D, tSpriteSheet);
-
-            PROGRAM = program;
-        }
     }
 
     // Static
@@ -269,9 +216,74 @@
     var defaultColor = new Float32Array([1,1,1,1]);
     // Texture Program
 
+
+    // Program
+
+    var PROGRAM;
     var aVertexPosition, bufVertexPosition;
     var aTextureCoordinate, bufTextureCoordinate;
     var uPMatrix, uMVMatrix, uSampler, uColor;
+
+
+    Sprite.RENDER_INIT = function(gl) {
+
+        // Init Program
+        var program = Util.compileProgram(gl, Sprite.VS, Sprite.FS);
+        gl.useProgram(program);
+
+        // Enable Vertex Position Attribute.
+        aVertexPosition = gl.getAttribLocation(program, "aVertexPosition");
+        gl.enableVertexAttribArray(aVertexPosition);
+
+        // Enable Texture Position Attribute.
+        aTextureCoordinate = gl.getAttribLocation(program, "aTextureCoordinate");
+        gl.enableVertexAttribArray(aTextureCoordinate);
+
+        // Lookup Uniforms
+        uPMatrix = gl.getUniformLocation(program, "uPMatrix");
+        uMVMatrix = gl.getUniformLocation(program, "uMVMatrix");
+        uSampler = gl.getUniformLocation(program, "uSampler");
+        uColor = gl.getUniformLocation(program, "uColor");
+
+        // Create a Vertex Position Buffer.
+        bufVertexPosition = gl.createBuffer();
+
+        // Create a Texture Coordinates Buffer
+        bufTextureCoordinate = gl.createBuffer();
+
+        PROGRAM = program;
+    };
+
+    Sprite.RENDER_DEFAULT = function(gl, tSpriteSheet, mModelView, mProjection, mVertexCoordinates, mTextureCoordinates, vColor, glLineMode) {
+
+        // Render
+        gl.useProgram(PROGRAM);
+
+        // Bind Vertex Coordinate
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
+        if(mVertexCoordinates)
+            gl.bufferData(gl.ARRAY_BUFFER, mVertexCoordinates, gl.DYNAMIC_DRAW);
+        gl.vertexAttribPointer(aVertexPosition, 2, gl.FLOAT, false, 0, 0);
+
+        // Bind Texture Coordinate
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
+        if(mTextureCoordinates)
+            gl.bufferData(gl.ARRAY_BUFFER, mTextureCoordinates, gl.DYNAMIC_DRAW);
+        gl.vertexAttribPointer(aTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+
+        // Set the projection and viewport.
+        gl.uniformMatrix4fv(uPMatrix, false, mProjection);
+        gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
+        gl.uniform4fv(uColor, vColor);
+
+        // Tell the shader to get the texture from texture unit 0
+        gl.activeTexture(gl.TEXTURE0 + 0);
+        gl.bindTexture(gl.TEXTURE_2D, tSpriteSheet);
+        gl.uniform1i(uSampler, 0);
+
+        // draw the quad (2 triangles, 6 vertices)
+        gl.drawArrays(glLineMode, 0, 6);
+    };
 
     Sprite.VS = [
         "attribute vec4 aVertexPosition;",

@@ -21,14 +21,16 @@
         mVelocity = mVelocity || [0.1 * Math.random(), 0, 0];
         mAcceleration = mAcceleration || null;
         var scale = 1;
+        var rotation = 0;
 
         // Sprite Sheet
-        var fSpriteSheet = new Fragment.Sprite(gl, DIR_SPRITESHEET);
-        fSpriteSheet.setScale(5, 2);
+        this.sprite = new Fragment.Sprite(gl, DIR_SPRITESHEET);
+        this.sprite.setScale(5, 2);
+        this.sprite.rotate(0, 0, -0.1);
         // move(0, 12, 0);
 
         this.render = function(t, gl, stage, flags) {
-            fSpriteSheet.render(t, gl, stage, flags);
+            this.sprite.render(t, gl, stage, flags);
         };
 
         this.update = function(t, stage, flags) {
@@ -43,12 +45,12 @@
             mPosition[0] += mDistance[0];
             mPosition[1] += mDistance[1];
             mPosition[2] += mDistance[2];
-            fSpriteSheet.move(mDistance);
+            this.sprite.move(mDistance);
         };
 
         this.setScale = function(newScale) {
             scale = newScale;
-            fSpriteSheet.setScale(newScale);
+            this.sprite.setScale(newScale);
         };
 
         this.setAcceleration = function (mNewAcceleration) {
