@@ -8,7 +8,6 @@
     var Config = window.games.game1;
     var DIR = Config.path.root + 'sprite/vehicle/RAV/';
     var DIR_SPRITESHEET = DIR + 'RAV.spritesheet.png';
-    var SPRITE_RESOLUTION = 128;
     Config.sprite.vehicle.RAV = RAV;
 
     function RAV(gl, input, mPosition, mVelocity, mAcceleration) {
@@ -21,31 +20,17 @@
         mPosition = mPosition || [0, 0, 0];
         mVelocity = mVelocity || [0.1 * Math.random(), 0, 0];
         mAcceleration = mAcceleration || null;
-        // var scale = 1;
+        var scale = 1;
 
         // Sprite Sheet
-        var fSpriteSheet = new Fragment.SpriteSheet(gl, DIR_SPRITESHEET, SPRITE_RESOLUTION, (1/16 * 1000));
-        // setScale(scale);
+        var fSpriteSheet = new Fragment.Sprite(gl, DIR_SPRITESHEET);
+        fSpriteSheet.setScale(5, 2);
         // move(0, 12, 0);
 
-
-        /**
-         * Render Sprite
-         * @param t time elapsed
-         * @param gl WebGL Instance
-         * @param stage
-         * @param flags
-         */
         this.render = function(t, gl, stage, flags) {
             fSpriteSheet.render(t, gl, stage, flags);
         };
 
-        /**
-         * Update Sprite Logic
-         * @param t
-         * @param stage
-         * @param flags
-         */
         this.update = function(t, stage, flags) {
             if(flags & Config.flags.RENDER_SELECTED) {
                 updateEditor(t, stage, flags);
@@ -62,6 +47,7 @@
         };
 
         this.setScale = function(newScale) {
+            scale = newScale;
             fSpriteSheet.setScale(newScale);
         };
 

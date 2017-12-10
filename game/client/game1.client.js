@@ -14,7 +14,7 @@
     var Config = {}, Util = {};
     var pressedKeys = {}, keyCount = {};
     Config.fragment = {editor:{}};
-    Config.character = {};
+    Config.sprite = {character:{}, vehicle:{}};
     Config.level = {};
     Config.input = { pressedKeys:pressedKeys, keyCount: keyCount, keyEvents: 0, lastKey: null, keyConstants: {
         CHAR_SHIFT: 16, CHAR_CTRL: 17, CHAR_ALT: 18

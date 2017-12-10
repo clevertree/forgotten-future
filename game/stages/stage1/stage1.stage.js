@@ -19,6 +19,7 @@
         ROOT + 'fragment/color.fragment.js',
         ROOT + 'fragment/texture.fragment.js',
         ROOT + 'fragment/spritesheet.fragment.js',
+        ROOT + 'fragment/sprite.fragment.js',
 
         ROOT + 'fragment/tilemap.fragment.js',
         ROOT + 'fragment/tilemap.fragment.editor.js',
@@ -27,7 +28,7 @@
         ROOT + 'fragment/heightmap.fragment.editor.js',
 
         ROOT + 'sprite/player1.sprite.js',
-        ROOT + 'sprite/player2.sprite.js',
+        ROOT + 'sprite/vehicle/RAV/RAV.sprite.js',
 
         // Levels
         // DIR_STAGE + 'level/level1.level.js',
@@ -49,16 +50,18 @@
         var stageFlags = Config.flags.MODE_DEFAULT;
 
         // Players
-        var player1 = new Config.character.Player1(gl);
+        var player1 = new Config.sprite.character.Player1(gl);
+        var RAV1 = new Config.sprite.vehicle.RAV(gl);
 
         player1.move([0, 10, 0]);
+        RAV1.move([0, 10, 0]);
 
         // Level Sprites
         var pfMain = new Config.fragment.TileMap(gl, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
         var hmMain = new Config.fragment.HeightMap(gl, 9192, DIR_HEIGHT_MAP);
 
         var renders = [
-            hmMain, player1, pfMain
+            hmMain, player1, RAV1, pfMain
         ];
         var hitBoxes = [
             pfMain, hmMain
