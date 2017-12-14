@@ -102,6 +102,10 @@
             }
         };
 
+        function reset() {
+            mModelView = defaultModelViewMatrix;
+        }
+
         this.move = function(mDistance) {
             mModelView = Util.translate(mModelView, mDistance[0], mDistance[1], mDistance[2]);
         };
@@ -112,9 +116,6 @@
             if(aZ) mModelView = Util.zRotate(mModelView, aZ);
         };
 
-        function reset() {
-            mModelView = defaultModelViewMatrix;
-        }
 
         // Frames
 
