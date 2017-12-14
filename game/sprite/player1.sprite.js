@@ -29,7 +29,7 @@
         // var scale = 1;
 
         // Sprite Sheet
-        var fSpriteSheet = new Fragment.SpriteSheet(gl, DIR_SHEET, SPRITE_RESOLUTION, (1/16 * 1000));
+        var fSpriteSheet = new Fragment.SpriteSheet(gl, stage, DIR_SHEET, SPRITE_RESOLUTION, (1/16 * 1000));
         // setScale(scale);
         // move(0, 12, 0);
 

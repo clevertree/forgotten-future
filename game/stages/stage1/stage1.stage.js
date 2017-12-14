@@ -5,6 +5,8 @@
 // Set up client-side listeners
 
 (function() {
+    var STAGE_NAME = "Stage1";
+
     var CHAR_TILDE = 192, CHAR_TAB = 9;
     var Config = window.games.game1;
 
@@ -42,14 +44,14 @@
         var player1 = new Config.sprite.character.Player1(gl, this);
         var RAV1 = new Config.sprite.vehicle.RAV(gl, this);
         RAV1.sprite.setScale(5, 2);
-        RAV1.sprite.rotate(0, 0, -0.1);
+        RAV1.sprite.setRotate(0, 0, 1);
+        RAV1.sprite.setPosition(3, 7, 0);
 
         player1.move([0, 10, 0]);
-        RAV1.move([0, 10, 0]);
 
         // Level Sprites
-        var pfMain = new Config.fragment.TileMap(gl, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
-        var hmMain = new Config.fragment.HeightMap(gl, 9192, DIR_HEIGHT_MAP);
+        var pfMain = new Config.fragment.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
+        var hmMain = new Config.fragment.HeightMap(gl, this, 9192, DIR_HEIGHT_MAP);
 
         var renders = [
             hmMain, player1, RAV1, pfMain
@@ -70,6 +72,7 @@
             frameCount++;
             window.requestAnimationFrame(onFrame);
 
+            RAV1.sprite.setRotate(0, 0, frameCount/100);
             // THIS.mProjection[3]-=0.3;
             // this.mProjection = Util.projection(frameCount, frameCount, frameCount); // [2.4142136573791504, 0, 0, 0, 0, 2.4142136573791504, 0, 0, 0, 0, -1.0020020008087158, -1, 0, 0, -0.20020020008087158, 0];
 
@@ -96,8 +99,8 @@
             for(var i=0; i<renders.length; i++) {
                 var flags = stageFlags;
                 if(selectedRender === i)    flags |= Config.flags.RENDER_SELECTED;
-                // renders[i].update(t, THIS, flags);
-                renders[i].render(t, gl, THIS, flags);
+                renders[i].update(t, flags);
+                renders[i].render(t, gl, flags);
             }
         }
 
@@ -220,6 +223,7 @@
         CONFIG.util.waitForLoadingScripts(function() {
             var stage = new Stage1(e);
             stage.startRender();
+            console.info("Stage '" + STAGE_NAME + "' is rendering");
         });
     }
 

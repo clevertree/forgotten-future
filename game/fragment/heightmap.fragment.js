@@ -10,7 +10,7 @@
 
     var PROGRAM;
 
-    function HeightMap(gl, mapLength, pathHeightMapTexture, pathColorTexture, pathHeightPatternTexture, flags) {
+    function HeightMap(gl, stage, mapLength, pathHeightMapTexture, pathColorTexture, pathHeightPatternTexture, flags) {
         if(typeof flags === 'undefined')
             flags = HeightMap.FLAG_DEFAULTS;
 
@@ -55,7 +55,7 @@
 
         // Functions
 
-        this.render = function(t, gl, stage, flags) {
+        this.render = function(t, gl, flags) {
 
             // Update
             this.update(t, stage, flags);

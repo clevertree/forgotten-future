@@ -10,7 +10,7 @@
 
     var PROGRAM;
 
-    function TileMap(gl, pathLevelMap, pathTileSheet, tileSize, flags, pixelsPerUnit, mPosition, mVelocity, mAcceleration, vColor) {
+    function TileMap(gl, stage, pathLevelMap, pathTileSheet, tileSize, flags, pixelsPerUnit, mPosition, mVelocity, mAcceleration, vColor) {
         if(typeof flags === 'undefined')
             flags = TileMap.FLAG_DEFAULTS;
 
@@ -68,7 +68,7 @@
         // Functions
 
 
-        this.render = function(t, gl, stage, flags) {
+        this.render = function(t, gl, flags) {
 
             // Update
             this.update(t, stage, flags);

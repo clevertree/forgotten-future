@@ -9,7 +9,7 @@
 
     var PROGRAM;
 
-    function SpriteSheet(gl, pathSpriteSheet, tileSize, frameRate, flags, scale, vColor, mModelView, glLineMode, mVelocity, mAcceleration) {
+    function SpriteSheet(gl, stage, pathSpriteSheet, tileSize, frameRate, flags, scale, vColor, mModelView, glLineMode, mVelocity, mAcceleration) {
         if(typeof flags === 'undefined') flags = SpriteSheet.FLAG_DEFAULTS;
         if(typeof frameRate === 'undefined') frameRate = (1/20 * 1000);
 
@@ -52,7 +52,7 @@
 
         // Functions
 
-        this.render = function(t, gl, stage, flags) {
+        this.render = function(t, gl, flags) {
 
             // Update
             this.update(t, stage, flags);

@@ -12,6 +12,8 @@
 
     Config.util.loadScript('game/fragment/sprite.fragment.js');
 
+    var editor = null;
+    var pressedKeys = Config.input.pressedKeys;
 
     function RAV(gl, stage) {
 
@@ -20,20 +22,19 @@
 
         // Rendering
         this.render = function(t, gl, flags) {
-            update(t, flags);
-            this.sprite.render(t, gl, flags);
+            this.sprite.render(t, gl, stage.mProjection, flags);
         };
 
         var CHAR_SHIFT = 16;
-        function update(t, flags) {
+        this.update = function(t, flags) {
             if(flags & Config.flags.RENDER_SELECTED) {
-                if(!Editor)
-                    Editor = new Config.script.controller.Editor(sprite);
-                Editor.update(sprite, t, flags);
+                if(!editor)
+                    editor = new Config.script.controller.Editor();
+                editor.update(this, t, flags);
                 return;
             }
 
-            var pressedKeys = input.pressedKeys;
+            this.sprite.update(t, flags);
 
             // Controls
             // if(pressedKeys[39] || pressedKeys[68])  mAcceleration = [speed, 0, 0];  // Right:
@@ -42,33 +43,21 @@
             // if(pressedKeys[38] || pressedKeys[87])  mAcceleration = [0, speed, 0];  // Up:
             // if(pressedKeys[71])                     mAcceleration = stage.mGravity;  // Up:
 
-            // Acceleration
-            if(mAcceleration) {
-                if(!mVelocity) mVelocity = [0, 0, 0];
-                mVelocity[0] += mAcceleration[0];
-                mVelocity[1] += mAcceleration[1];
-                mVelocity[2] += mAcceleration[2];
-            }
-
-            // Position
-            if(mVelocity)
-                THIS.move(mVelocity);
-
             // Collision
-            var hitFloor = stage.testHit(mPosition[0], mPosition[1], mPosition[2]);
-            if(!hitFloor) {
-                // Fall
-                if(!mAcceleration) {
-                    mAcceleration = stage.mGravity;
-                    if(!mVelocity) mVelocity = [0, 0, 0];
-                }
-
-            } else {
-                // Standing
-                if(mVelocity) // Collision
-                    handleStageCollision(t, stage, flags);
-            }
-        }
+            // var hitFloor = stage.testHit(mPosition[0], mPosition[1], mPosition[2]);
+            // if(!hitFloor) {
+            //     // Fall
+            //     if(!mAcceleration) {
+            //         mAcceleration = stage.mGravity;
+            //         if(!mVelocity) mVelocity = [0, 0, 0];
+            //     }
+            //
+            // } else {
+            //     // Standing
+            //     if(mVelocity) // Collision
+            //         handleStageCollision(t, stage, flags);
+            // }
+        };
 
         function handleStageCollision(t, stage, flags) {
             mAcceleration = null;

@@ -225,7 +225,7 @@
         var foundScript = document.head.querySelectorAll('script[src=' + scriptPathEsc + ']');
         if (foundScript.length === 0) {
 //             console.log("Including Script " + scriptPath);
-            var scriptElm = document.createElement('controller');
+            var scriptElm = document.createElement('script');
             scriptElm.src = scriptPath;
             scriptElm.onload = function(e) {
                 scriptsLoading--;

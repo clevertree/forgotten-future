@@ -8,7 +8,7 @@
     Config.fragment.Sprite = Sprite;
 
     
-    function Sprite(gl, pathSpriteSheet, flags, mModelView, mVelocity, mAcceleration) {
+    function Sprite(gl, pathSpriteSheet, flags) {
         if(typeof flags === 'undefined') flags = Sprite.FLAG_DEFAULTS;
 
         this.frames = {
@@ -21,8 +21,9 @@
         var scale = [1, 1];
         var spriteSheetRatio = 1;
 
-        mModelView =                mModelView || defaultModelViewMatrix;
+        var mModelView =            defaultModelViewMatrix;
         var mVertexCoordinates =    getVertexCoordinates(1,1); // getVertexPositions(scale, scale);
+        var vPosition = [0, 0, 0], vVelocity = null, vAcceleration = null, vRotation = null;
         var vColor =                defaultColor;
         var vActiveColor =          vColor.slice(0);
 
@@ -48,47 +49,44 @@
         // Functions
         
         var frameUpdated = true;
-        this.render = function(t, gl, stage, flags) {
-
-            // Update
-            this.update(t, stage, flags);
+        this.render = function(t, gl, mProjection, flags) {
 
             // Render
             Sprite.RENDER_DEFAULT(gl,
                 tSpriteSheet,
                 mModelView,
-                stage.mProjection,
+                mProjection,
                 mVertexCoordinates,
                 this.frames[currentFrame],
                 vActiveColor,
                 glLineMode);
         };
 
-        this.setScale = function(sx, sy) {
-            if(typeof sy === 'undefined') sy = sx;
-            mVertexCoordinates = getVertexCoordinates(sx, sy);
-        };
-
-        this.setVelocity = function(vx, vy, vz) {
-            mVelocity = Util.translation(vx, vy, vz);
-        };
-
-        this.setAcceleration = function(ax, ay, az) {
-            if(!mVelocity)
-                setVelocity(0,0,0);
-            mAcceleration = Util.translation(ax, ay, az);
-        };
-
         var lastTime = 0;
-        this.update = function(t, stage, flags) {
+        this.update = function(t, flags) {
             var elapsedTime = t - lastTime;
             lastTime = t;
 
-            if(mAcceleration)
-                mVelocity = Util.multiply(mVelocity, mAcceleration);
+            // Acceleration
+            if(vAcceleration) {
+                if(!vVelocity) vVelocity = [0, 0, 0];
+                vVelocity[0] += vAcceleration[0];
+                vVelocity[1] += vAcceleration[1];
+                vVelocity[2] += vAcceleration[2];
+            }
 
-            if(mVelocity)
-                mModelView = Util.multiply(mModelView, mVelocity);
+            if(vVelocity) {
+                vPosition[0] += vVelocity[0];
+                vPosition[1] += vVelocity[1];
+                vPosition[2] += vVelocity[2];
+            }
+
+            mModelView = Util.translate(defaultModelViewMatrix, vPosition[0], vPosition[1], vPosition[2]);
+            if(vRotation) {
+                if(vRotation[0]) mModelView = Util.xRotate(mModelView, vRotation[0]);
+                if(vRotation[1]) mModelView = Util.yRotate(mModelView, vRotation[1]);
+                if(vRotation[2]) mModelView = Util.zRotate(mModelView, vRotation[2]);
+            }
 
             if(flags & Config.flags.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
@@ -102,18 +100,33 @@
             }
         };
 
-        function reset() {
-            mModelView = defaultModelViewMatrix;
-        }
 
-        this.move = function(mDistance) {
-            mModelView = Util.translate(mModelView, mDistance[0], mDistance[1], mDistance[2]);
+
+        this.setScale = function(sx, sy) {
+            if(typeof sy === 'undefined') sy = sx;
+            mVertexCoordinates = getVertexCoordinates(sx, sy);
         };
 
-        this.rotate = function(aX, aY, aZ) {
-            if(aX) mModelView = Util.xRotate(mModelView, aX);
-            if(aY) mModelView = Util.yRotate(mModelView, aY);
-            if(aZ) mModelView = Util.zRotate(mModelView, aZ);
+        this.getVelocity = function() { return vVelocity; };
+        this.setVelocity = function(vx, vy, vz) {
+            vVelocity = [vx, vy, vz];
+        };
+
+        this.getAcceleration = function() { return vAcceleration; };
+        this.setAcceleration = function(ax, ay, az) {
+            if(!vVelocity)
+                this.setVelocity(0,0,0);
+            vAcceleration = [ax, ay, az];
+        };
+
+        this.getPosition = function () { return vPosition; };
+        this.setPosition = function(x, y, z) {
+            vPosition = [x, y, z];
+        };
+
+        this.getRotate = function () { return vRotation; };
+        this.setRotate = function(aX, aY, aZ) {
+            vRotation = [aX, aY, aZ];
         };
 
 
