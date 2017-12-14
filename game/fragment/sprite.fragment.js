@@ -81,13 +81,13 @@
                 vPosition[2] += vVelocity[2];
             }
 
-            mModelView = Util.translate(defaultModelViewMatrix, vPosition[0] - vScale[0]/2, vPosition[1] - vScale[1]/2, vPosition[2] - vScale[2]/2);
+            mModelView = Util.translate(defaultModelViewMatrix, vPosition[0] - vScale[0]/2, vPosition[1] - vScale[1]/2, vPosition[2]);
             if(vRotation) {
                 if(vRotation[0]) mModelView = Util.xRotate(mModelView, vRotation[0]);
                 if(vRotation[1]) mModelView = Util.yRotate(mModelView, vRotation[1]);
                 if(vRotation[2]) mModelView = Util.zRotate(mModelView, vRotation[2]);
             }
-            mModelView = Util.translate(mModelView,  -vScale[0]/2, - vScale[1]/2, vPosition[2]);
+            mModelView = Util.translate(mModelView,  -vScale[0]/2, - vScale[1]/2, 0);
 
             // mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
 
@@ -108,7 +108,7 @@
         this.setScale = function(sx, sy) {
             if(typeof sy === 'undefined') sy = sx;
             mVertexCoordinates = getVertexCoordinates(sx, sy);
-            vScale = [sx, sy, 1];
+            vScale = [sx, sy, 0];
         };
 
         this.getVelocity = function() { return vVelocity; };
