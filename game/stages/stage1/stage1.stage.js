@@ -45,7 +45,7 @@
         var RAV1 = new Config.sprite.vehicle.RAV(gl, this);
         RAV1.sprite.setScale(5, 2);
         RAV1.sprite.setRotate(0, 0, 1);
-        RAV1.sprite.setPosition(3, 7, 0);
+        RAV1.sprite.setPosition(7, 8, 0);
 
         player1.move([0, 10, 0]);
 

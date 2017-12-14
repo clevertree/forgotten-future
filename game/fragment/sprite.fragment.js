@@ -18,7 +18,7 @@
 
         // Variables
         var glLineMode = 4; // gl.TRIANGLES;
-        var scale = [1, 1];
+        var vScale = [1, 1, 1];
         var spriteSheetRatio = 1;
 
         var mModelView =            defaultModelViewMatrix;
@@ -81,12 +81,15 @@
                 vPosition[2] += vVelocity[2];
             }
 
-            mModelView = Util.translate(defaultModelViewMatrix, vPosition[0], vPosition[1], vPosition[2]);
+            mModelView = Util.translate(defaultModelViewMatrix, vPosition[0] - vScale[0]/2, vPosition[1] - vScale[1]/2, vPosition[2] - vScale[2]/2);
             if(vRotation) {
                 if(vRotation[0]) mModelView = Util.xRotate(mModelView, vRotation[0]);
                 if(vRotation[1]) mModelView = Util.yRotate(mModelView, vRotation[1]);
                 if(vRotation[2]) mModelView = Util.zRotate(mModelView, vRotation[2]);
             }
+            mModelView = Util.translate(mModelView,  -vScale[0]/2, - vScale[1]/2, vPosition[2]);
+
+            // mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
 
             if(flags & Config.flags.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
@@ -105,6 +108,7 @@
         this.setScale = function(sx, sy) {
             if(typeof sy === 'undefined') sy = sx;
             mVertexCoordinates = getVertexCoordinates(sx, sy);
+            vScale = [sx, sy, 1];
         };
 
         this.getVelocity = function() { return vVelocity; };
