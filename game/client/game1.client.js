@@ -15,6 +15,7 @@
     var pressedKeys = {}, keyCount = {};
     Config.fragment = {editor:{}};
     Config.sprite = {character:{}, vehicle:{}};
+    Config.script = {controller:{}, physics:{}};
     Config.level = {};
     Config.input = { pressedKeys:pressedKeys, keyCount: keyCount, keyEvents: 0, lastKey: null, keyConstants: {
         CHAR_SHIFT: 16, CHAR_CTRL: 17, CHAR_ALT: 18
@@ -210,16 +211,34 @@
 
     // Script Loading
 
+    var scriptsLoading = 0, scriptCallbacks = [];
+    Util.waitForLoadingScripts = function(callback) {
+        if(scriptsLoading > 0) {
+            scriptCallbacks.push(callback);
+        } else {
+            callback();
+        }
+    };
+
     Util.loadScript = function(scriptPath, callback) {
         var scriptPathEsc = scriptPath.replace(/[/.]/g, '\\$&');
         var foundScript = document.head.querySelectorAll('script[src=' + scriptPathEsc + ']');
         if (foundScript.length === 0) {
 //             console.log("Including Script " + scriptPath);
-            var scriptElm = document.createElement('script');
+            var scriptElm = document.createElement('controller');
             scriptElm.src = scriptPath;
-            scriptElm.onload = callback;
+            scriptElm.onload = function(e) {
+                scriptsLoading--;
+                if(callback) callback(e);
+                if(scriptsLoading === 0 && scriptCallbacks.length > 0) {
+                    var callbacks = scriptCallbacks;
+                    scriptCallbacks = [];
+                    for(var i=0; i<callbacks.length; i++)
+                        callbacks[i](e);
+                }
+            };
             document.head.appendChild(scriptElm);
-
+            scriptsLoading++;
         } else {
             if(callback) callback();
         }

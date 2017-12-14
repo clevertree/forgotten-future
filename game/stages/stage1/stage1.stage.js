@@ -7,32 +7,21 @@
 (function() {
     var CHAR_TILDE = 192, CHAR_TAB = 9;
     var Config = window.games.game1;
-    var ROOT = Config.path.root;
-    var DIR_STAGE = ROOT + 'stages/stage1/';
-    var DIR_LEVEL_MAP = DIR_STAGE + 'map/default.tilemap.png';
-    var DIR_TILE_SHEET = DIR_STAGE + 'tiles/default.tiles.png';
-    var DIR_HEIGHT_MAP = DIR_STAGE + 'map/main.heightmap.png';
 
-    var PATH_TILE_DEFAULT = DIR_STAGE + 'tiles/default.tiles.png';
-    var PATH_MAP_BKLAYER = DIR_STAGE + 'map/bklayer.map.png';
-    var SCRIPT_ASSETS = [
-        ROOT + 'fragment/color.fragment.js',
-        ROOT + 'fragment/texture.fragment.js',
-        ROOT + 'fragment/spritesheet.fragment.js',
-        ROOT + 'fragment/sprite.fragment.js',
+    var DIR_LEVEL_MAP = 'game/stages/stage1/map/default.tilemap.png';
+    var DIR_TILE_SHEET = 'game/stages/stage1/tiles/default.tiles.png';
+    var DIR_HEIGHT_MAP = 'game/stages/stage1/map/main.heightmap.png';
 
-        ROOT + 'fragment/tilemap.fragment.js',
-        ROOT + 'fragment/tilemap.fragment.editor.js',
+    var PATH_TILE_DEFAULT = 'game/stages/stage1/tiles/default.tiles.png';
+    var PATH_MAP_BKLAYER = 'game/stages/stage1/map/bklayer.map.png';
 
-        ROOT + 'fragment/heightmap.fragment.js',
-        ROOT + 'fragment/heightmap.fragment.editor.js',
+    // Level Maps
+    Config.util.loadScript('game/fragment/tilemap.fragment.js');
+    Config.util.loadScript('game/fragment/heightmap.fragment.js');
 
-        ROOT + 'sprite/player1.sprite.js',
-        ROOT + 'sprite/vehicle/RAV/RAV.sprite.js',
-
-        // Levels
-        // DIR_STAGE + 'level/level1.level.js',
-    ];
+    // Sprites
+    Config.util.loadScript('game/sprite/player1.sprite.js');
+    Config.util.loadScript('game/sprite/vehicle/RAV/RAV.sprite.js');
 
     // Load and Render
 
@@ -50,8 +39,10 @@
         var stageFlags = Config.flags.MODE_DEFAULT;
 
         // Players
-        var player1 = new Config.sprite.character.Player1(gl);
-        var RAV1 = new Config.sprite.vehicle.RAV(gl);
+        var player1 = new Config.sprite.character.Player1(gl, this);
+        var RAV1 = new Config.sprite.vehicle.RAV(gl, this);
+        RAV1.sprite.setScale(5, 2);
+        RAV1.sprite.rotate(0, 0, -0.1);
 
         player1.move([0, 10, 0]);
         RAV1.move([0, 10, 0]);
@@ -105,7 +96,7 @@
             for(var i=0; i<renders.length; i++) {
                 var flags = stageFlags;
                 if(selectedRender === i)    flags |= Config.flags.RENDER_SELECTED;
-                renders[i].update(t, THIS, flags);
+                // renders[i].update(t, THIS, flags);
                 renders[i].render(t, gl, THIS, flags);
             }
         }
@@ -215,7 +206,7 @@
             throw new Error("Invalid Map Path");
         var scriptPath = e.detail;
 
-        var PATH = DIR_STAGE + 'stage1.stage.js';
+        var PATH = 'game/stages/stage1/stage1.stage.js';
         if(scriptPath !== PATH)
             return;     // TODO: disable active maps on canvas
 
@@ -226,7 +217,7 @@
         e.preventDefault();
 
         var CONFIG = window.games.game1;
-        CONFIG.util.loadScripts(SCRIPT_ASSETS, function() {
+        CONFIG.util.waitForLoadingScripts(function() {
             var stage = new Stage1(e);
             stage.startRender();
         });

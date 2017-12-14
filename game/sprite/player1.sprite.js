@@ -14,16 +14,18 @@
     Config.sprite.character.Player1 = Player1;
     var PIXELS_PER_UNIT = Config.constants.PIXELS_PER_UNIT;
 
-    function Player1(gl, input, mPosition, mVelocity, mAcceleration) {
+    Config.util.loadScript('game/fragment/spritesheet.fragment.js');
+
+    function Player1(gl, stage) {
         var THIS = this;
         var Fragment = Config.fragment;
 
         // Local Variables
         var speed = 1/10000;
-        input = input || Config.input;
-        mPosition = mPosition || [0, 0, 0];
-        mVelocity = mVelocity || [0.1 * Math.random(), 0, 0];
-        mAcceleration = mAcceleration || null;
+        var input = Config.input;
+        var mPosition = [0, 0, 0];
+        var mVelocity = [0.1 * Math.random(), 0, 0];
+        var mAcceleration = null;
         // var scale = 1;
 
         // Sprite Sheet
@@ -39,8 +41,8 @@
          * @param stage
          * @param flags
          */
-        this.render = function(t, gl, stage, flags) {
-            fSpriteSheet.render(t, gl, stage, flags);
+        this.render = function(t, flags) {
+            fSpriteSheet.render(t, flags);
         };
 
         /**
@@ -49,11 +51,11 @@
          * @param stage
          * @param flags
          */
-        this.update = function(t, stage, flags) {
+        this.update = function(t, flags) {
             if(flags & Config.flags.RENDER_SELECTED) {
-                updateEditor(t, stage, flags);
+                updateEditor(t, flags);
             } else {
-                updateMotion(t, stage, flags);
+                updateMotion(t, flags);
             }
         };
 
@@ -76,7 +78,7 @@
         // Physics
 
         var CHAR_SHIFT = 16;
-        function updateMotion(t, stage, flags) {
+        function updateMotion(t, flags) {
             var pressedKeys = input.pressedKeys;
 
             // Controls
@@ -110,11 +112,11 @@
             } else {
                 // Standing
                 if(mVelocity) // Collision
-                    handleStageCollision(t, stage, flags);
+                    handleStageCollision(t, flags);
             }
         }
 
-        function handleStageCollision(t, stage, flags) {
+        function handleStageCollision(t, flags) {
             mAcceleration = null;
             // mVelocity = null;
 
@@ -124,7 +126,7 @@
 
         // Editor
 
-        function updateEditor(t, stage, flags) {
+        function updateEditor(t, flags) {
             var pressedKeys = input.pressedKeys;
             if(pressedKeys[39])     THIS.move([0.1,  0.0,  0.0]);  // Right:
             if(pressedKeys[37])     THIS.move([-0.1, 0.0,  0.0]);  // Left:
