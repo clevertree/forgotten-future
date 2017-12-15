@@ -7,7 +7,7 @@
 
     var PROGRAM;
 
-    ForgottenFuture.Sprite.Fragment.HeightMap = HeightMap;
+    ForgottenFuture.Shader.HeightMap = HeightMap;
     function HeightMap(gl, stage, mapLength, pathHeightMapTexture, pathColorTexture, pathHeightPatternTexture, flags) {
         if(typeof flags === 'undefined')
             flags = HeightMap.FLAG_DEFAULTS;
@@ -302,8 +302,8 @@
         // Editor
 
         var updateEditor = function(t, stage, flags) {
-            if(ForgottenFuture.Sprite.Fragment.editor.HeightMapEditor) {
-                var editor = new ForgottenFuture.Sprite.Fragment.editor.HeightMapEditor(THIS);
+            if(ForgottenFuture.Shader.editor.HeightMapEditor) {
+                var editor = new ForgottenFuture.Shader.editor.HeightMapEditor(THIS);
                 updateEditor = editor.update;
                 updateEditor(t, stage, flags);
                 THIS.editor = editor;

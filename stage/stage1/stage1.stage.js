@@ -9,20 +9,20 @@
 
     var CHAR_TILDE = 192, CHAR_TAB = 9;
 
-    var DIR_LEVEL_MAP = 'stages/stage1/map/default.tilemap.png';
-    var DIR_TILE_SHEET = 'stages/stage1/tiles/default.tiles.png';
-    var DIR_HEIGHT_MAP = 'stages/stage1/map/main.heightmap.png';
+    var DIR_LEVEL_MAP = 'stage/stage1/map/default.tilemap.png';
+    var DIR_TILE_SHEET = 'stage/stage1/tiles/default.tiles.png';
+    var DIR_HEIGHT_MAP = 'stage/stage1/map/main.heightmap.png';
 
-    var PATH_TILE_DEFAULT = 'stages/stage1/tiles/default.tiles.png';
-    var PATH_MAP_BKLAYER = 'stages/stage1/map/bklayer.map.png';
+    var PATH_TILE_DEFAULT = 'stage/stage1/tiles/default.tiles.png';
+    var PATH_MAP_BKLAYER = 'stage/stage1/map/bklayer.map.png';
 
     var Util = ForgottenFuture.Util,
         Flag = ForgottenFuture.Flag,
         Input = ForgottenFuture.Input;
 
     // Level Maps
-    Util.loadScript('sprite/fragment/tilemap.fragment.js');
-    Util.loadScript('sprite/fragment/heightmap.fragment.js');
+    Util.loadScript('shader/tilemap.shader.js');
+    Util.loadScript('shader/heightmap.shader.js');
 
     // Sprites
     Util.loadScript('sprite/character/lem/lem.sprite.js');
@@ -32,7 +32,6 @@
 
     function Stage1(e) {
         var THIS = this;
-        var Util = Util;
 
         var canvas = e.target;
 
@@ -53,8 +52,8 @@
         Lem.move([0, 10, 0]);
 
         // Level Sprites
-        var pfMain = new ForgottenFuture.Sprite.Fragment.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
-        var hmMain = new ForgottenFuture.Sprite.Fragment.HeightMap(gl, this, 9192, DIR_HEIGHT_MAP);
+        var pfMain = new ForgottenFuture.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
+        var hmMain = new ForgottenFuture.Shader.HeightMap(gl, this, 9192, DIR_HEIGHT_MAP);
 
         var renders = [
             hmMain, Lem, RAV1, pfMain
@@ -205,14 +204,14 @@
 
     // Event Listeners
 
-    document.addEventListener('render:stages', handleRenderStage);
+    document.addEventListener('render:stage', handleRenderStage);
 
     function handleRenderStage (e) {
         if(!e.detail)
             throw new Error("Invalid Map Path");
         var scriptPath = e.detail;
 
-        var PATH = 'stages/stage1/stage1.stage.js';
+        var PATH = 'stage/stage1/stage1.stage.js';
         if(scriptPath !== PATH)
             return;     // TODO: disable active maps on canvas
 

@@ -8,7 +8,7 @@
     var CHAR_SHIFT = 16;
     var lastKeyCount = 0;
     var lastHoldTime = 0, lastHoldDelay = 200;
-    var TileMap = ForgottenFuture.Sprite.Fragment.TileMap;
+    var TileMap = ForgottenFuture.Shader.TileMap;
     TileMap.prototype.updateEditor = function (t, stage, flags) {
         if(!this instanceof TileMap)
             throw new Error("Invalid Tile Map: ", this);

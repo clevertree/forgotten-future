@@ -5,22 +5,21 @@
 // Set up client-side listeners
 
 (function() {
-    var Util = ForgottenFuture.Util,
-        Flag = ForgottenFuture.Flag;
+    var Util            = ForgottenFuture.Util,
+        Flag            = ForgottenFuture.Flag,
+        pressedKeys     = ForgottenFuture.Input.pressedKeys;
 
     var DIR = 'sprite/vehicle/RAV/';
     var DIR_SPRITESHEET = DIR + 'RAV.spritesheet.png';
 
-    Util.loadScript('sprite/fragment/sprite.fragment.js');
+    Util.loadScript('shader/sprite.shader.js');
 
-    var editor = null;
-    var pressedKeys = ForgottenFuture.Input.pressedKeys;
 
     ForgottenFuture.Sprite.Vehicle.RAV = RAV;
     function RAV(gl, stage) {
 
         // Sprite Sheet
-        this.sprite = new ForgottenFuture.Sprite.Fragment.SpriteSheet2(gl, DIR_SPRITESHEET);
+        this.sprite = new ForgottenFuture.Shader.SpriteSheet2(gl, DIR_SPRITESHEET);
 
         // Rendering
         this.render = function(t, gl, flags) {
@@ -29,13 +28,6 @@
 
         var CHAR_SHIFT = 16;
         this.update = function(t, flags) {
-            if(flags & Flag.RENDER_SELECTED) {
-                if(!editor)
-                    editor = new ForgottenFuture.script.controller.Editor();
-                editor.update(this, t, flags);
-                return;
-            }
-
             this.sprite.update(t, flags);
 
             // Controls

@@ -8,7 +8,7 @@
 
     var PROGRAM;
 
-    ForgottenFuture.Sprite.Fragment.SpriteSheet = SpriteSheet;
+    ForgottenFuture.Shader.SpriteSheet = SpriteSheet;
     function SpriteSheet(gl, stage, pathSpriteSheet, tileSize, frameRate, flags, scale, vColor, mModelView, glLineMode, mVelocity, mAcceleration) {
         if(typeof flags === 'undefined') flags = SpriteSheet.FLAG_DEFAULTS;
         if(typeof frameRate === 'undefined') frameRate = (1/20 * 1000);

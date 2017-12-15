@@ -7,7 +7,7 @@
 
     var PROGRAM;
 
-    ForgottenFuture.Sprite.Fragment.TextureFragment = TextureFragment;
+    ForgottenFuture.Shader.TextureFragment = TextureFragment;
     function TextureFragment(texture, mModelView, glLineMode, mVelocity, mAcceleration, tileSize, tilePos) {
         if(!texture)
             throw new Error("Missing Texture");

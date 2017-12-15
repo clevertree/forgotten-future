@@ -4,13 +4,13 @@
 
 (function() {
     var Util = ForgottenFuture.Util, Input = ForgottenFuture.Input;
-    ForgottenFuture.Sprite.Fragment.HeightMapEditor = HeightMapEditor;
+    ForgottenFuture.Shader.HeightMapEditor = HeightMapEditor;
 
     var keyConstants = Input.keyConstants;
     var lastKeyCount = 0;
 
     function HeightMapEditor(heightMap) {
-        if(!heightMap instanceof ForgottenFuture.Sprite.Fragment.HeightMap)
+        if(!heightMap instanceof ForgottenFuture.Shader.HeightMap)
             throw new Error("Invalid Height Map: " + heightMap);
 
         var THIS = this;
@@ -363,7 +363,7 @@
             var image = texture.srcImage,
                 title = "Edit Heightmap: " + texture.srcImage.srcRelative;
 
-            var popup = window.open('sprite/fragment/editor/heightmap.html', "editor_heightmap", "titlebar=1&scrollbars=1&resizable=1", true);
+            var popup = window.open('shader/editor/heightmap.html', "editor_heightmap", "titlebar=1&scrollbars=1&resizable=1", true);
             popup.loadHeightMapEditor = function(e) {
                 console.log(e, popup.document.body);
             }

@@ -5,10 +5,10 @@
 // Set up client-side listeners
 
 var ForgottenFuture = {
+    Shader: {
+        Editor:{}
+    },
     Sprite: {
-        Fragment: {
-            Editor:{}
-        },
         Character: {},
         Vehicle: {},
         Physics: {}
@@ -26,7 +26,7 @@ var ForgottenFuture = {
         
     },
     Path: {
-        stage_default: 'stages/stage1/stage1.stage.js'
+        stage_default: 'stage/stage1/stage1.stage.js'
     },
     Flag: {
         MODE_DEFAULT: 0x00,
@@ -117,7 +117,7 @@ var ForgottenFuture = {
         }
 
         Util.loadScript(stagePath, function() {
-            var event = new CustomEvent('render:stages', {
+            var event = new CustomEvent('render:stage', {
                 'detail': stagePath,
                 'cancelable': true,
                 'bubbles': true

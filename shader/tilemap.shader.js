@@ -9,7 +9,7 @@
 
     var PROGRAM;
 
-    ForgottenFuture.Sprite.Fragment.TileMap = TileMap;
+    ForgottenFuture.Shader.TileMap = TileMap;
     function TileMap(gl, stage, pathLevelMap, pathTileSheet, tileSize, flags, mPosition, mVelocity, mAcceleration, vColor) {
         if(typeof flags === 'undefined')
             flags = TileMap.FLAG_DEFAULTS;

@@ -4,15 +4,15 @@
 
 (function() {
     var Util = ForgottenFuture.Util;
-    ForgottenFuture.Sprite.Fragment.ColorFragment = ColorFragment;
+    ForgottenFuture.Shader.ColorShader = ColorShader;
 
     var PROGRAM, PRGTexture;
 
-    function ColorFragment(mColors, mVertices, mModelView, glLineMode, mVelocity, mAcceleration) {
+    function ColorShader(mColors, mVertices, mModelView, glLineMode, mVelocity, mAcceleration) {
         // Variables
-        mVertices = mVertices   || ColorFragment.V_DEFAULT;
-        mModelView = mModelView || ColorFragment.MV_DEFAULT;
-        mColors = mColors       || ColorFragment.C_DEFAULT;
+        mVertices = mVertices   || ColorShader.V_DEFAULT;
+        mModelView = mModelView || ColorShader.MV_DEFAULT;
+        mColors = mColors       || ColorShader.C_DEFAULT;
 
         // Init Render Mode
         glLineMode = glLineMode || 4; //gl.TRIANGLES;
@@ -73,7 +73,7 @@
 
         function initProgram(gl) {
             // Init Program
-            PROGRAM = Util.compileProgram(gl, ColorFragment.VS, ColorFragment.FS);
+            PROGRAM = Util.compileProgram(gl, ColorShader.VS, ColorShader.FS);
 
             // Position Buffer
             PROGRAM.vertexPositionBuffer = gl.createBuffer();
@@ -99,28 +99,28 @@
 
 
     // Shapes
-    ColorFragment.V_TRIANGLE_ISOSCELES = new Float32Array([           // /*  2
+    ColorShader.V_TRIANGLE_ISOSCELES = new Float32Array([           // /*  2
         0.0,  1.0,  0.0,                                                //    /\
         -1.0, -1.0,  0.0,                                               //   /. \
         1.0, -1.0,  0.0                                                 // 0/____\1
     ]);                                                                 // */
-    ColorFragment.V_DEFAULT = ColorFragment.V_TRIANGLE_ISOSCELES;
+    ColorShader.V_DEFAULT = ColorShader.V_TRIANGLE_ISOSCELES;
 
 
     // Colors
-    ColorFragment.C_DEFAULT = new Float32Array([
+    ColorShader.C_DEFAULT = new Float32Array([
         1.0, 0.0, 0.0, 0.9,
         0.0, 1.0, 0.0, 0.0,
         0.0, 0.0, 1.0, 0.0
     ]);
 
-    ColorFragment.MV_DEFAULT = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1.5, 0, -7, 1];
+    ColorShader.MV_DEFAULT = [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1.5, 0, -7, 1];
     var defaultProjectionMatrix = [2.4142136573791504, 0, 0, 0, 0, 2.4142136573791504, 0, 0, 0, 0, -1.0020020008087158, -1, 0, 0, -0.20020020008087158, 0];
 
 
     // Color Program
 
-    ColorFragment.VS = [
+    ColorShader.VS = [
         "attribute vec3 aVertexPosition;",
         "attribute vec4 aVertexColor;",
 
@@ -135,7 +135,7 @@
         "}"
     ].join("\n");
 
-    ColorFragment.FS = [
+    ColorShader.FS = [
         "precision mediump float;",
 
         "varying vec4 vColor;",

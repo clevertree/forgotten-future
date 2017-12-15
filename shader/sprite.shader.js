@@ -5,7 +5,7 @@
 (function() {
     var Util = ForgottenFuture.Util;
 
-    ForgottenFuture.Sprite.Fragment.SpriteSheet2 = SpriteSheet2;
+    ForgottenFuture.Shader.SpriteSheet2 = SpriteSheet2;
     function SpriteSheet2(gl, pathSpriteSheet, flags) {
         if(typeof flags === 'undefined') flags = SpriteSheet2.FLAG_DEFAULTS;
 
