@@ -116,7 +116,7 @@
             // if(mVelocity)
             //     mModelView = Util.multiply(mModelView, mVelocity);
 
-            if(flags & ForgottenFuture.Flags.RENDER_SELECTED) {
+            if(flags & ForgottenFuture.Flag.RENDER_SELECTED) {
                 vHighlightColor[0] = Math.abs(Math.sin(t/500));
                 vHighlightColor[1] = Math.abs(Math.sin(t/1800));
                 vHighlightColor[2] = Math.abs(Math.sin(t/1000));

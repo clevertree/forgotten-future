@@ -28,7 +28,7 @@ var ForgottenFuture = {
     Path: {
         stage_default: 'stages/stage1/stage1.stage.js'
     },
-    Flags: {
+    Flag: {
         MODE_DEFAULT: 0x00,
         MODE_EDITOR: 0x01,
         MODE_CONSOLE: 0x02,

@@ -89,7 +89,7 @@
 
             // mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
 
-            if(flags & ForgottenFuture.Flags.RENDER_SELECTED) {
+            if(flags & ForgottenFuture.Flag.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
                     vActiveColor = vColor.slice(0);
                 vActiveColor[0] = vColor[0] * Math.abs(Math.sin(t/500));

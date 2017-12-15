@@ -16,7 +16,9 @@
     var PATH_TILE_DEFAULT = 'stages/stage1/tiles/default.tiles.png';
     var PATH_MAP_BKLAYER = 'stages/stage1/map/bklayer.map.png';
 
-    var Util = ForgottenFuture.Util, Flags = ForgottenFuture.Flags;
+    var Util = ForgottenFuture.Util,
+        Flag = ForgottenFuture.Flag,
+        Input = ForgottenFuture.Input;
 
     // Level Maps
     Util.loadScript('sprite/fragment/tilemap.fragment.js');
@@ -38,12 +40,12 @@
         window.addEventListener('resize', handleResize);
         handleResize();
 
-        // Flags
-        var stageFlags = Flags.MODE_DEFAULT;
+        // Flag
+        var stageFlags = Flag.MODE_DEFAULT;
 
         // Players
-        var player1 = new Config.Sprite.Character.Player1(gl, this);
-        var RAV1 = new Config.Sprite.Vehicle.RAV(gl, this);
+        var player1 = new ForgottenFuture.Sprite.Character.Player1(gl, this);
+        var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
         RAV1.sprite.setScale(5, 2);
         RAV1.sprite.setRotate(0, 0, 1);
         RAV1.sprite.setPosition(7, 8, 0);
@@ -99,7 +101,7 @@
             // Render
             for(var i=0; i<renders.length; i++) {
                 var flags = stageFlags;
-                if(selectedRender === i)    flags |= Flags.RENDER_SELECTED;
+                if(selectedRender === i)    flags |= Flag.RENDER_SELECTED;
                 renders[i].update(t, flags);
                 renders[i].render(t, gl, flags);
             }
@@ -112,19 +114,19 @@
                 lastKeyCount = Input.keyEvents;
                 if(keyTildeCount < Input.keyCount[CHAR_TILDE]) {
                     keyTildeCount = Input.keyCount[CHAR_TILDE];
-                    if(stageFlags & Flags.MODE_EDITOR) {
-                        stageFlags &= ~Flags.MODE_EDITOR;
-                        stageFlags |= Flags.MODE_CONSOLE;
+                    if(stageFlags & Flag.MODE_EDITOR) {
+                        stageFlags &= ~Flag.MODE_EDITOR;
+                        stageFlags |= Flag.MODE_CONSOLE;
                         console.log("Stage Mode changed to: Console");
 
-                    } else if(stageFlags & Flags.MODE_CONSOLE) {
-                        stageFlags &= ~Flags.MODE_CONSOLE;
-                        stageFlags |= Flags.MODE_DEFAULT;
+                    } else if(stageFlags & Flag.MODE_CONSOLE) {
+                        stageFlags &= ~Flag.MODE_CONSOLE;
+                        stageFlags |= Flag.MODE_DEFAULT;
                         console.log("Stage Mode changed to: Default");
 
                     } else {
-                        stageFlags &= ~Flags.MODE_DEFAULT;
-                        stageFlags |= Flags.MODE_EDITOR;
+                        stageFlags &= ~Flag.MODE_DEFAULT;
+                        stageFlags |= Flag.MODE_EDITOR;
                         console.log("Stage Mode changed to: Editor");
                     }
                 }

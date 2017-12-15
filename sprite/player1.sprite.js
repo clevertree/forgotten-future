@@ -5,7 +5,9 @@
 // Set up client-side listeners
 
 (function() {
-    var Util = ForgottenFuture.Util, Input = ForgottenFuture.Input;
+    var Util = ForgottenFuture.Util,
+        Input = ForgottenFuture.Input,
+        Flag = ForgottenFuture.Flag;
     var SPRITE_RESOLUTION = 128;
     var DIR_CHARACTER = 'sprite/';
         var DIR_SHEET = DIR_CHARACTER + 'sheet/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
@@ -47,7 +49,7 @@
          * @param flags
          */
         this.update = function(t, flags) {
-            if(flags & Flags.RENDER_SELECTED) {
+            if(flags & Flag.RENDER_SELECTED) {
                 updateEditor(t, flags);
             } else {
                 updateMotion(t, flags);

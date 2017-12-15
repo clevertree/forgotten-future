@@ -4,7 +4,6 @@
 
 (function() {
     var Util = ForgottenFuture.Util;
-    // var PIXELS_PER_UNIT = Config.constants.PIXELS_PER_UNIT;
 
     var CHAR_SHIFT = 16;
     var lastKeyCount = 0;
