@@ -10,12 +10,12 @@
         Flag = ForgottenFuture.Flag;
     var SPRITE_RESOLUTION = 128;
     var DIR_CHARACTER = 'sprite/';
-        var DIR_SHEET = DIR_CHARACTER + 'sheet/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
+        var DIR_SHEET = DIR_CHARACTER + 'character/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
 
     Util.loadScript('sprite/fragment/spritesheet.fragment.js');
 
-    ForgottenFuture.Sprite.Character.Player1 = Player1;
-    function Player1(gl, stage) {
+    ForgottenFuture.Sprite.Character.Lem = Lem;
+    function Lem(gl, stage) {
         var THIS = this;
 
         // Local Variables

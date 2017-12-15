@@ -25,7 +25,7 @@
     Util.loadScript('sprite/fragment/heightmap.fragment.js');
 
     // Sprites
-    Util.loadScript('sprite/player1.sprite.js');
+    Util.loadScript('sprite/character/lem/lem.sprite.js');
     Util.loadScript('sprite/vehicle/RAV/RAV.sprite.js');
 
     // Load and Render
@@ -44,20 +44,20 @@
         var stageFlags = Flag.MODE_DEFAULT;
 
         // Players
-        var player1 = new ForgottenFuture.Sprite.Character.Player1(gl, this);
+        var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
         var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
         RAV1.sprite.setScale(5, 2);
         RAV1.sprite.setRotate(0, 0, 1);
         RAV1.sprite.setPosition(7, 8, 0);
 
-        player1.move([0, 10, 0]);
+        Lem.move([0, 10, 0]);
 
         // Level Sprites
         var pfMain = new ForgottenFuture.Sprite.Fragment.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
         var hmMain = new ForgottenFuture.Sprite.Fragment.HeightMap(gl, this, 9192, DIR_HEIGHT_MAP);
 
         var renders = [
-            hmMain, player1, RAV1, pfMain
+            hmMain, Lem, RAV1, pfMain
         ];
         var hitBoxes = [
             pfMain, hmMain
