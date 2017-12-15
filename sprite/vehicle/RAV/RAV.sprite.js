@@ -6,11 +6,11 @@
 
 (function() {
     var Config = window.games.game1;
-    var DIR = Config.path.root + 'sprite/vehicle/RAV/';
+    var DIR = 'sprite/vehicle/RAV/';
     var DIR_SPRITESHEET = DIR + 'RAV.spritesheet.png';
     Config.sprite.vehicle.RAV = RAV;
 
-    Config.util.loadScript('game/fragment/sprite.fragment.js');
+    Config.util.loadScript('sprite/fragment/sprite.fragment.js');
 
     var editor = null;
     var pressedKeys = Config.input.pressedKeys;

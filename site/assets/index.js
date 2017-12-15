@@ -1,7 +1,7 @@
 
 if(urlParams.autoplay) {
     console.info("Autoplay running");
-    relay('INCLUDE game/loader.js');
+    relay('INCLUDE loader.js');
     relay('PLAY');
 }
 

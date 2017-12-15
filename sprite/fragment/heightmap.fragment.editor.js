@@ -294,7 +294,7 @@
                 }
             };
 
-            var filePath = Config.path.root + '/client/game1.interface.php';
+            var filePath = 'client/game1.interface.php';
             xhttp.open("POST", filePath, true);
             xhttp.setRequestHeader('Content-type', 'application/json');
             xhttp.send(JSON.stringify(POST));
@@ -363,12 +363,10 @@
         // Popup window
 
         this.openPopupWindow = function(texture) {
-            var ROOT = Config.path.root;
-
             var image = texture.srcImage,
                 title = "Edit Heightmap: " + texture.srcImage.srcRelative;
 
-            var popup = window.open(ROOT + 'fragment/editor/heightmap.html', "editor_heightmap", "titlebar=1&scrollbars=1&resizable=1", true);
+            var popup = window.open('sprite/fragment/editor/heightmap.html', "editor_heightmap", "titlebar=1&scrollbars=1&resizable=1", true);
             popup.loadHeightMapEditor = function(e) {
                 console.log(e, popup.document.body);
             }

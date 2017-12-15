@@ -7,7 +7,6 @@
 (function() {
     var Config = window.games.game1;
     // var Util = Config.util;
-    // var ROOT = Config.path.root;
     Config.script.controller.Editor = Editor;
 
     function Editor() {

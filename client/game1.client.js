@@ -10,7 +10,6 @@
     if(typeof window['games']['game1'] !== 'undefined')
         throw new Error("game1 already included");
 
-    var ROOT = 'game/';
     var Config = {}, Util = {};
     var pressedKeys = {}, keyCount = {};
     Config.fragment = {editor:{}};
@@ -22,8 +21,7 @@
     } };
     Config.util = Util;
     Config.path = {
-        root: ROOT,
-        stage_default: ROOT + 'stages/stage1/stage1.stage.js'
+        stage_default: 'stages/stage1/stage1.stage.js'
     };
     Config.flags = {
         MODE_DEFAULT: 0x00,
@@ -320,7 +318,7 @@
                 console.log(json);
             }
         };
-        xhttp.open("POST", ROOT + '/client/game1.interface.php', true);
+        xhttp.open("POST", 'client/game1.interface.php', true);
         xhttp.setRequestHeader('Content-type', 'application/json');
         xhttp.send(JSON.stringify(POST));
     };

@@ -10,20 +10,20 @@
     var CHAR_TILDE = 192, CHAR_TAB = 9;
     var Config = window.games.game1;
 
-    var DIR_LEVEL_MAP = 'game/stages/stage1/map/default.tilemap.png';
-    var DIR_TILE_SHEET = 'game/stages/stage1/tiles/default.tiles.png';
-    var DIR_HEIGHT_MAP = 'game/stages/stage1/map/main.heightmap.png';
+    var DIR_LEVEL_MAP = 'stages/stage1/map/default.tilemap.png';
+    var DIR_TILE_SHEET = 'stages/stage1/tiles/default.tiles.png';
+    var DIR_HEIGHT_MAP = 'stages/stage1/map/main.heightmap.png';
 
-    var PATH_TILE_DEFAULT = 'game/stages/stage1/tiles/default.tiles.png';
-    var PATH_MAP_BKLAYER = 'game/stages/stage1/map/bklayer.map.png';
+    var PATH_TILE_DEFAULT = 'stages/stage1/tiles/default.tiles.png';
+    var PATH_MAP_BKLAYER = 'stages/stage1/map/bklayer.map.png';
 
     // Level Maps
-    Config.util.loadScript('game/fragment/tilemap.fragment.js');
-    Config.util.loadScript('game/fragment/heightmap.fragment.js');
+    Config.util.loadScript('sprite/fragment/tilemap.fragment.js');
+    Config.util.loadScript('sprite/fragment/heightmap.fragment.js');
 
     // Sprites
-    Config.util.loadScript('game/sprite/player1.sprite.js');
-    Config.util.loadScript('game/sprite/vehicle/RAV/RAV.sprite.js');
+    Config.util.loadScript('sprite/player1.sprite.js');
+    Config.util.loadScript('sprite/vehicle/RAV/RAV.sprite.js');
 
     // Load and Render
 
@@ -209,7 +209,7 @@
             throw new Error("Invalid Map Path");
         var scriptPath = e.detail;
 
-        var PATH = 'game/stages/stage1/stage1.stage.js';
+        var PATH = 'stages/stage1/stage1.stage.js';
         if(scriptPath !== PATH)
             return;     // TODO: disable active maps on canvas
 

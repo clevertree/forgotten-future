@@ -4,7 +4,6 @@
 
 
 module.exports = (function () {
-    var DIR = 'game/';
     var includesLoaded = false;
 
     return new Loader();
@@ -14,8 +13,8 @@ module.exports = (function () {
             if(includesLoaded)
                 return;
             includesLoaded = true;
-            e.target.postMessage("INCLUDE " + DIR + "client/game1.client.js;");
-            e.target.postMessage("INCLUDE " + DIR + "client/game1.css;");
+            e.target.postMessage("INCLUDE client/game1.client.js;");
+            e.target.postMessage("INCLUDE client/game1.css;");
         };
         this.getDir = function() { return DIR; }
     }

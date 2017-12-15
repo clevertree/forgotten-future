@@ -10,7 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Functions
 
     function siteButtonPlay(e) {
-        relay('INCLUDE game/loader.js');
+        relay('INCLUDE loader.js');
         relay('PLAY');
     }
 
