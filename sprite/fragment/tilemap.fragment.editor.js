@@ -3,14 +3,13 @@
  */
 
 (function() {
-    var Config = window.games.game1;
-    var Util = Config.util;
-    var TileMap = Config.fragment.TileMap;
+    var Util = ForgottenFuture.Util;
     // var PIXELS_PER_UNIT = Config.constants.PIXELS_PER_UNIT;
 
     var CHAR_SHIFT = 16;
     var lastKeyCount = 0;
     var lastHoldTime = 0, lastHoldDelay = 200;
+    var TileMap = ForgottenFuture.Sprite.Fragment.TileMap;
     TileMap.prototype.updateEditor = function (t, stage, flags) {
         if(!this instanceof TileMap)
             throw new Error("Invalid Tile Map: ", this);
@@ -20,8 +19,8 @@
             }
         }
 
-        var PK = Config.input.pressedKeys;
-        var noShift = Config.input.pressedKeys[CHAR_SHIFT] ? 0 : 1;
+        var PK = Input.pressedKeys;
+        var noShift = Input.pressedKeys[CHAR_SHIFT] ? 0 : 1;
 
         // Hold-down keys
         if(PK[37] || PK[38] || PK[39] || PK[40]) {
@@ -41,9 +40,9 @@
 
 
         // Press-once keys
-        if(lastKeyCount < Config.input.keyEvents) {
-            lastKeyCount = Config.input.keyEvents;
-            switch(Config.input.lastKey) {
+        if(lastKeyCount < Input.keyEvents) {
+            lastKeyCount = Input.keyEvents;
+            switch(Input.lastKey) {
                 case 65: // A
                     this.setEditorSelection(0, 0, 99999999, 99999999);
                     break;
@@ -81,7 +80,7 @@
 
 
                 default:
-//                     console.log("Key Change", noShift, Config.input.lastKey);
+//                     console.log("Key Change", noShift, Input.lastKey);
             }
         }
     };

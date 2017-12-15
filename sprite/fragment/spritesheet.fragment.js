@@ -3,12 +3,11 @@
  */
 
 (function() {
-    var Config = window.games.game1;
-    var Util = Config.util;
-    Config.fragment.SpriteSheet = SpriteSheet;
+    var Util = ForgottenFuture.Util;
 
     var PROGRAM;
 
+    ForgottenFuture.Sprite.Fragment.SpriteSheet = SpriteSheet;
     function SpriteSheet(gl, stage, pathSpriteSheet, tileSize, frameRate, flags, scale, vColor, mModelView, glLineMode, mVelocity, mAcceleration) {
         if(typeof flags === 'undefined') flags = SpriteSheet.FLAG_DEFAULTS;
         if(typeof frameRate === 'undefined') frameRate = (1/20 * 1000);
@@ -145,7 +144,7 @@
                 this.setTilePosition(tilePos[0], tilePos[1]);
             }
 
-            if(flags & Config.flags.RENDER_SELECTED) {
+            if(flags & Flags.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
                     vActiveColor = vColor.slice(0);
                 vActiveColor[0] = vColor[0] * Math.abs(Math.sin(t/500));

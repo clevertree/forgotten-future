@@ -3,9 +3,8 @@
  */
 
 (function() {
-    var Config = window.games.game1;
-    var Util = Config.util;
-    Config.fragment.ColorFragment = ColorFragment;
+    var Util = ForgottenFuture.Util;
+    ForgottenFuture.Sprite.Fragment.ColorFragment = ColorFragment;
 
     var PROGRAM, PRGTexture;
 

@@ -3,18 +3,15 @@
  */
 
 (function() {
-    var Config = window.games.game1;
-    var Util = Config.util;
-    Config.fragment.editor.HeightMapEditor = HeightMapEditor;
-    var PIXELS_PER_UNIT = Config.constants.PIXELS_PER_UNIT;
+    var Util = ForgottenFuture.Util, Input = ForgottenFuture.Input;
+    ForgottenFuture.Sprite.Fragment.HeightMapEditor = HeightMapEditor;
 
-    var keyConstants = Config.input.keyConstants;
+    var keyConstants = Input.keyConstants;
     var lastKeyCount = 0;
 
     function HeightMapEditor(heightMap) {
-        var HeightMap = Config.fragment.HeightMap;
-        if(!heightMap instanceof HeightMap)
-            throw new Error("Invalid Height Map: ", heightMap);
+        if(!heightMap instanceof ForgottenFuture.Sprite.Fragment.HeightMap)
+            throw new Error("Invalid Height Map: " + heightMap);
 
         var THIS = this;
         var selectedTexture = 0;
@@ -22,7 +19,7 @@
         this.update = function(t, stage, flags) {
 
             var V = 1;
-            var PK = Config.input.pressedKeys;
+            var PK = Input.pressedKeys;
             var ctrl = PK[keyConstants.CHAR_CTRL] ? 1 : 0;
             var alt = PK[keyConstants.CHAR_ALT] ? 1 : 0;
             var shift = PK[keyConstants.CHAR_SHIFT] ? V : 0;
@@ -32,10 +29,10 @@
             var texture = heightMap.getHeightDataTexture();
 
             // Press-once keys
-            if(lastKeyCount < Config.input.keyEvents) {
+            if(lastKeyCount < Input.keyEvents) {
                 allowHold = true;
-                lastKeyCount = Config.input.keyEvents;
-                switch(Config.input.lastKey) {
+                lastKeyCount = Input.keyEvents;
+                switch(Input.lastKey) {
                     case 13: // Enter
                         THIS.openPopupWindow(texture);
                         break;
@@ -81,7 +78,7 @@
                         break;
 
                     default:
-                    // console.log("Key Change", shift, Config.input.lastKey);
+                    // console.log("Key Change", shift, Input.lastKey);
                 }
             }
 
@@ -222,7 +219,7 @@
             if(!pixelCache)
                 throw new Error("No pixel cache");
 
-            var shift = Config.input.pressedKeys[keyConstants.CHAR_SHIFT];
+            var shift = Input.pressedKeys[keyConstants.CHAR_SHIFT];
 
             var range = heightMap.getHighlightRange();
             var pastePixels = pixelCache;

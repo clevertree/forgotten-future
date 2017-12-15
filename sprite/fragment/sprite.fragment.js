@@ -3,13 +3,11 @@
  */
 
 (function() {
-    var Config = window.games.game1;
-    var Util = Config.util;
-    Config.fragment.Sprite = Sprite;
+    var Util = ForgottenFuture.Util;
 
-    
-    function Sprite(gl, pathSpriteSheet, flags) {
-        if(typeof flags === 'undefined') flags = Sprite.FLAG_DEFAULTS;
+    ForgottenFuture.Sprite.Fragment.SpriteSheet2 = SpriteSheet2;
+    function SpriteSheet2(gl, pathSpriteSheet, flags) {
+        if(typeof flags === 'undefined') flags = SpriteSheet2.FLAG_DEFAULTS;
 
         this.frames = {
             'default': defaultTextureCoordinates
@@ -29,7 +27,7 @@
 
         // Initiate Shaders
         if(!PROGRAM)
-            Sprite.RENDER_INIT(gl);
+            SpriteSheet2.RENDER_INIT(gl);
 
         // Create a texture.
         var tSpriteSheet = gl.createTexture();
@@ -52,7 +50,7 @@
         this.render = function(t, gl, mProjection, flags) {
 
             // Render
-            Sprite.RENDER_DEFAULT(gl,
+            SpriteSheet2.RENDER_DEFAULT(gl,
                 tSpriteSheet,
                 mModelView,
                 mProjection,
@@ -91,7 +89,7 @@
 
             // mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
 
-            if(flags & Config.flags.RENDER_SELECTED) {
+            if(flags & ForgottenFuture.Flags.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
                     vActiveColor = vColor.slice(0);
                 vActiveColor[0] = vColor[0] * Math.abs(Math.sin(t/500));
@@ -184,7 +182,7 @@
             // Set the parameters so we can render any size image.
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            if (flags & Sprite.FLAG_GENERATE_MIPMAP) {
+            if (flags & SpriteSheet2.FLAG_GENERATE_MIPMAP) {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.generateMipmap(gl.TEXTURE_2D);
@@ -200,8 +198,8 @@
 
     // Static
 
-    Sprite.FLAG_GENERATE_MIPMAP = 0x01;
-    Sprite.FLAG_DEFAULTS = 0; //SpriteSheet.FLAG_GENERATE_MIPMAP;
+    SpriteSheet2.FLAG_GENERATE_MIPMAP = 0x01;
+    SpriteSheet2.FLAG_DEFAULTS = 0; //SpriteSheet.FLAG_GENERATE_MIPMAP;
 
     var defaultModelViewMatrix = Util.translation(0,0,0); //[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
@@ -243,10 +241,10 @@
     var uPMatrix, uMVMatrix, uSampler, uColor;
 
 
-    Sprite.RENDER_INIT = function(gl) {
+    SpriteSheet2.RENDER_INIT = function(gl) {
 
         // Init Program
-        var program = Util.compileProgram(gl, Sprite.VS, Sprite.FS);
+        var program = Util.compileProgram(gl, SpriteSheet2.VS, SpriteSheet2.FS);
         gl.useProgram(program);
 
         // Enable Vertex Position Attribute.
@@ -272,7 +270,7 @@
         PROGRAM = program;
     };
 
-    Sprite.RENDER_DEFAULT = function(gl, tSpriteSheet, mModelView, mProjection, mVertexCoordinates, mTextureCoordinates, vColor, glLineMode) {
+    SpriteSheet2.RENDER_DEFAULT = function(gl, tSpriteSheet, mModelView, mProjection, mVertexCoordinates, mTextureCoordinates, vColor, glLineMode) {
 
         // Render
         gl.useProgram(PROGRAM);
@@ -303,7 +301,7 @@
         gl.drawArrays(glLineMode, 0, 6);
     };
 
-    Sprite.VS = [
+    SpriteSheet2.VS = [
         "attribute vec4 aVertexPosition;",
         "attribute vec2 aTextureCoordinate;",
 
@@ -318,7 +316,7 @@
         "}"
     ].join("\n");
 
-    Sprite.FS = [
+    SpriteSheet2.FS = [
         "precision mediump float;",
 
         "uniform sampler2D uSampler;",

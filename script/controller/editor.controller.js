@@ -5,9 +5,8 @@
 // Set up client-side listeners
 
 (function() {
-    var Config = window.games.game1;
-    // var Util = Config.util;
-    Config.script.controller.Editor = Editor;
+    var Util = ForgottenFuture.Util, Input = ForgottenFuture.Input;
+    // ForgottenFuture.Script.Controller.Editor = Editor;
 
     function Editor() {
 
@@ -15,7 +14,7 @@
         // Editor
 
         this.update = function(sprite, t, flags) {
-            var pressedKeys = input.pressedKeys;
+            var pressedKeys = Input.pressedKeys;
             if(pressedKeys[39])     THIS.move([0.1,  0.0,  0.0]);  // Right:
             if(pressedKeys[37])     THIS.move([-0.1, 0.0,  0.0]);  // Left:
             if(pressedKeys[40])     THIS.move([0.0, -0.1,  0.0]);  // Down:

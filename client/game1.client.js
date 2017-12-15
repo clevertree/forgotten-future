@@ -4,36 +4,45 @@
 
 // Set up client-side listeners
 
-(function() {
-    if(typeof window['games'] === 'undefined')
-        window.games = {};
-    if(typeof window['games']['game1'] !== 'undefined')
-        throw new Error("game1 already included");
-
-    var Config = {}, Util = {};
-    var pressedKeys = {}, keyCount = {};
-    Config.fragment = {editor:{}};
-    Config.sprite = {character:{}, vehicle:{}};
-    Config.script = {controller:{}, physics:{}};
-    Config.level = {};
-    Config.input = { pressedKeys:pressedKeys, keyCount: keyCount, keyEvents: 0, lastKey: null, keyConstants: {
-        CHAR_SHIFT: 16, CHAR_CTRL: 17, CHAR_ALT: 18
-    } };
-    Config.util = Util;
-    Config.path = {
+var ForgottenFuture = {
+    Sprite: {
+        Fragment: {
+            Editor:{}
+        },
+        Character: {},
+        Vehicle: {},
+        Physics: {}
+    }, 
+    Input: { 
+        pressedKeys:{}, 
+        keyCount: {}, 
+        keyEvents: 0, 
+        lastKey: null, 
+        keyConstants: {
+            CHAR_SHIFT: 16, CHAR_CTRL: 17, CHAR_ALT: 18
+        } 
+    },
+    Util: {
+        
+    },
+    Path: {
         stage_default: 'stages/stage1/stage1.stage.js'
-    };
-    Config.flags = {
+    },
+    Flags: {
         MODE_DEFAULT: 0x00,
         MODE_EDITOR: 0x01,
         MODE_CONSOLE: 0x02,
 
         RENDER_SELECTED: 0x10
-    };
-    Config.constants = {
+    }, 
+    Constants: {
         PIXELS_PER_UNIT: 256
-    };
-    window.games.game1 = Config;
+    }
+};
+
+(function() {
+    var Util = ForgottenFuture.Util, Input = ForgottenFuture.Input;
+    var pressedKeys = ForgottenFuture.Input.pressedKeys, keyCount = ForgottenFuture.Input.keyCount;
 
     // Event Handlers
 
@@ -74,18 +83,18 @@
         if(pressedKeys[e.keyCode] !== true) {
             pressedKeys[e.keyCode] = true;
             keyCount[e.keyCode] = (keyCount[e.keyCode] || 0) + 1;
-            Config.input.keyEvents++;
-            Config.input.lastKey = e.keyCode;
+            Input.keyEvents++;
+            Input.lastKey = e.keyCode;
         }
     }
     function handleKeyUp(e) {
         pressedKeys[e.keyCode] = false;
-        // Config.input.keyEvents++;
+        // Input.keyEvents++;
         // e.preventDefault();
     }
 
     function play(stagePath) {
-        stagePath = stagePath || Config.path.stage_default;
+        stagePath = stagePath || ForgottenFuture.Path.stage_default;
         // console.info("Loading game1...");
         // Find game canvas(es)
         var canvasList = document.getElementsByClassName('play:canvas');

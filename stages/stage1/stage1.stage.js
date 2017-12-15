@@ -8,7 +8,6 @@
     var STAGE_NAME = "Stage1";
 
     var CHAR_TILDE = 192, CHAR_TAB = 9;
-    var Config = window.games.game1;
 
     var DIR_LEVEL_MAP = 'stages/stage1/map/default.tilemap.png';
     var DIR_TILE_SHEET = 'stages/stage1/tiles/default.tiles.png';
@@ -17,19 +16,21 @@
     var PATH_TILE_DEFAULT = 'stages/stage1/tiles/default.tiles.png';
     var PATH_MAP_BKLAYER = 'stages/stage1/map/bklayer.map.png';
 
+    var Util = ForgottenFuture.Util, Flags = ForgottenFuture.Flags;
+
     // Level Maps
-    Config.util.loadScript('sprite/fragment/tilemap.fragment.js');
-    Config.util.loadScript('sprite/fragment/heightmap.fragment.js');
+    Util.loadScript('sprite/fragment/tilemap.fragment.js');
+    Util.loadScript('sprite/fragment/heightmap.fragment.js');
 
     // Sprites
-    Config.util.loadScript('sprite/player1.sprite.js');
-    Config.util.loadScript('sprite/vehicle/RAV/RAV.sprite.js');
+    Util.loadScript('sprite/player1.sprite.js');
+    Util.loadScript('sprite/vehicle/RAV/RAV.sprite.js');
 
     // Load and Render
 
     function Stage1(e) {
-        var Config = window.games.game1, THIS = this;
-        var Util = Config.util;
+        var THIS = this;
+        var Util = Util;
 
         var canvas = e.target;
 
@@ -38,11 +39,11 @@
         handleResize();
 
         // Flags
-        var stageFlags = Config.flags.MODE_DEFAULT;
+        var stageFlags = Flags.MODE_DEFAULT;
 
         // Players
-        var player1 = new Config.sprite.character.Player1(gl, this);
-        var RAV1 = new Config.sprite.vehicle.RAV(gl, this);
+        var player1 = new Config.Sprite.Character.Player1(gl, this);
+        var RAV1 = new Config.Sprite.Vehicle.RAV(gl, this);
         RAV1.sprite.setScale(5, 2);
         RAV1.sprite.setRotate(0, 0, 1);
         RAV1.sprite.setPosition(7, 8, 0);
@@ -50,8 +51,8 @@
         player1.move([0, 10, 0]);
 
         // Level Sprites
-        var pfMain = new Config.fragment.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
-        var hmMain = new Config.fragment.HeightMap(gl, this, 9192, DIR_HEIGHT_MAP);
+        var pfMain = new ForgottenFuture.Sprite.Fragment.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
+        var hmMain = new ForgottenFuture.Sprite.Fragment.HeightMap(gl, this, 9192, DIR_HEIGHT_MAP);
 
         var renders = [
             hmMain, player1, RAV1, pfMain
@@ -98,7 +99,7 @@
             // Render
             for(var i=0; i<renders.length; i++) {
                 var flags = stageFlags;
-                if(selectedRender === i)    flags |= Config.flags.RENDER_SELECTED;
+                if(selectedRender === i)    flags |= Flags.RENDER_SELECTED;
                 renders[i].update(t, flags);
                 renders[i].render(t, gl, flags);
             }
@@ -107,29 +108,29 @@
         var CHAR_SHIFT = 16;
         var keyTildeCount = 0, keyTabCount = 0;
         function handleKeyChange() {
-            if(lastKeyCount < Config.input.keyEvents) {
-                lastKeyCount = Config.input.keyEvents;
-                if(keyTildeCount < Config.input.keyCount[CHAR_TILDE]) {
-                    keyTildeCount = Config.input.keyCount[CHAR_TILDE];
-                    if(stageFlags & Config.flags.MODE_EDITOR) {
-                        stageFlags &= ~Config.flags.MODE_EDITOR;
-                        stageFlags |= Config.flags.MODE_CONSOLE;
+            if(lastKeyCount < Input.keyEvents) {
+                lastKeyCount = Input.keyEvents;
+                if(keyTildeCount < Input.keyCount[CHAR_TILDE]) {
+                    keyTildeCount = Input.keyCount[CHAR_TILDE];
+                    if(stageFlags & Flags.MODE_EDITOR) {
+                        stageFlags &= ~Flags.MODE_EDITOR;
+                        stageFlags |= Flags.MODE_CONSOLE;
                         console.log("Stage Mode changed to: Console");
 
-                    } else if(stageFlags & Config.flags.MODE_CONSOLE) {
-                        stageFlags &= ~Config.flags.MODE_CONSOLE;
-                        stageFlags |= Config.flags.MODE_DEFAULT;
+                    } else if(stageFlags & Flags.MODE_CONSOLE) {
+                        stageFlags &= ~Flags.MODE_CONSOLE;
+                        stageFlags |= Flags.MODE_DEFAULT;
                         console.log("Stage Mode changed to: Default");
 
                     } else {
-                        stageFlags &= ~Config.flags.MODE_DEFAULT;
-                        stageFlags |= Config.flags.MODE_EDITOR;
+                        stageFlags &= ~Flags.MODE_DEFAULT;
+                        stageFlags |= Flags.MODE_EDITOR;
                         console.log("Stage Mode changed to: Editor");
                     }
                 }
 
-                if(keyTabCount < Config.input.keyCount[CHAR_TAB]) {
-                    keyTabCount = Config.input.keyCount[CHAR_TAB];
+                if(keyTabCount < Input.keyCount[CHAR_TAB]) {
+                    keyTabCount = Input.keyCount[CHAR_TAB];
                     selectedRender++;
                     if(selectedRender >= renders.length)
                         selectedRender = -1;
@@ -143,7 +144,7 @@
 
             if(selectedRender === -1) {
                 var V = 0.1;
-                var pressedKeys = Config.input.pressedKeys;
+                var pressedKeys = Input.pressedKeys;
                 if(pressedKeys[CHAR_SHIFT]) {
                     V/=10;
                     if(pressedKeys[39])     rotate(-V,  0,  0);  // Right:
@@ -219,8 +220,7 @@
 
         e.preventDefault();
 
-        var CONFIG = window.games.game1;
-        CONFIG.util.waitForLoadingScripts(function() {
+        Util.waitForLoadingScripts(function() {
             var stage = new Stage1(e);
             stage.startRender();
             console.info("Stage '" + STAGE_NAME + "' is rendering");

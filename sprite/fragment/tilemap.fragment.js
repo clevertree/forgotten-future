@@ -3,20 +3,19 @@
  */
 
 (function() {
-    var Config = window.games.game1;
-    var Util = Config.util;
-    Config.fragment.TileMap = TileMap;
-    var PIXELS_PER_UNIT = Config.constants.PIXELS_PER_UNIT;
+    var Util = ForgottenFuture.Util;
+    var PIXELS_PER_UNIT = ForgottenFuture.Constants.PIXELS_PER_UNIT;
 
     var PROGRAM;
 
-    function TileMap(gl, stage, pathLevelMap, pathTileSheet, tileSize, flags, pixelsPerUnit, mPosition, mVelocity, mAcceleration, vColor) {
+    ForgottenFuture.Sprite.Fragment.TileMap = TileMap;
+    function TileMap(gl, stage, pathLevelMap, pathTileSheet, tileSize, flags, mPosition, mVelocity, mAcceleration, vColor) {
         if(typeof flags === 'undefined')
             flags = TileMap.FLAG_DEFAULTS;
 
         // Variables
         var THIS =              this;
-        pixelsPerUnit =         pixelsPerUnit || PIXELS_PER_UNIT;
+        var pixelsPerUnit =     PIXELS_PER_UNIT;
         mPosition =             mPosition || [0, 0, 0];
         var mModelView =        defaultModelViewMatrix;
         vColor =                vColor || defaultColor;
@@ -132,7 +131,7 @@
             if(mVelocity)
                 mModelView = Util.multiply(mModelView, mVelocity);
 
-            if(flags & Config.flags.RENDER_SELECTED) {
+            if(flags & Flags.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
                     vActiveColor = vColor.slice(0);
                 vActiveColor[0] = vColor[0] * Math.abs(Math.sin(t/500));
@@ -440,8 +439,8 @@
     TileMap.prototype.updateEditor = function(t, stage, flags) {
 
         // Press-once keys
-        if(lastKeyCount < Config.input.keyEvents) {
-            lastKeyCount = Config.input.keyEvents;
+        if(lastKeyCount < Input.keyEvents) {
+            lastKeyCount = Input.keyEvents;
             console.log("Editor not enabled");
         }
     };

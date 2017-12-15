@@ -5,30 +5,26 @@
 // Set up client-side listeners
 
 (function() {
-    var Config = window.games.game1;
-    var Util = Config.util;
+    var Util = ForgottenFuture.Util, Input = ForgottenFuture.Input;
     var SPRITE_RESOLUTION = 128;
     var DIR_CHARACTER = 'sprite/';
         var DIR_SHEET = DIR_CHARACTER + 'sheet/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
-    Config.sprite.character.Player1 = Player1;
-    var PIXELS_PER_UNIT = Config.constants.PIXELS_PER_UNIT;
 
-    Config.util.loadScript('sprite/fragment/spritesheet.fragment.js');
+    Util.loadScript('sprite/fragment/spritesheet.fragment.js');
 
+    ForgottenFuture.Sprite.Character.Player1 = Player1;
     function Player1(gl, stage) {
         var THIS = this;
-        var Fragment = Config.fragment;
 
         // Local Variables
         var speed = 1/10000;
-        var input = Config.input;
         var mPosition = [0, 0, 0];
         var mVelocity = [0.1 * Math.random(), 0, 0];
         var mAcceleration = null;
         // var scale = 1;
 
         // Sprite Sheet
-        var fSpriteSheet = new Fragment.SpriteSheet(gl, stage, DIR_SHEET, SPRITE_RESOLUTION, (1/16 * 1000));
+        var fSpriteSheet = new ForgottenFuture.Sprite.Fragment.SpriteSheet(gl, stage, DIR_SHEET, SPRITE_RESOLUTION, (1/16 * 1000));
         // setScale(scale);
         // move(0, 12, 0);
 
@@ -51,7 +47,7 @@
          * @param flags
          */
         this.update = function(t, flags) {
-            if(flags & Config.flags.RENDER_SELECTED) {
+            if(flags & Flags.RENDER_SELECTED) {
                 updateEditor(t, flags);
             } else {
                 updateMotion(t, flags);
@@ -78,7 +74,7 @@
 
         var CHAR_SHIFT = 16;
         function updateMotion(t, flags) {
-            var pressedKeys = input.pressedKeys;
+            var pressedKeys = Input.pressedKeys;
 
             // Controls
             // if(pressedKeys[39] || pressedKeys[68])  mAcceleration = [speed, 0, 0];  // Right:
@@ -126,7 +122,7 @@
         // Editor
 
         function updateEditor(t, flags) {
-            var pressedKeys = input.pressedKeys;
+            var pressedKeys = Input.pressedKeys;
             if(pressedKeys[39])     THIS.move([0.1,  0.0,  0.0]);  // Right:
             if(pressedKeys[37])     THIS.move([-0.1, 0.0,  0.0]);  // Left:
             if(pressedKeys[40])     THIS.move([0.0, -0.1,  0.0]);  // Down:

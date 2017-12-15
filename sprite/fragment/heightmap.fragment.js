@@ -3,13 +3,11 @@
  */
 
 (function() {
-    var Config = window.games.game1;
-    var Util = Config.util;
-    Config.fragment.HeightMap = HeightMap;
-    var PIXELS_PER_UNIT = Config.constants.PIXELS_PER_UNIT;
+    var Util = ForgottenFuture.Util;
 
     var PROGRAM;
 
+    ForgottenFuture.Sprite.Fragment.HeightMap = HeightMap;
     function HeightMap(gl, stage, mapLength, pathHeightMapTexture, pathColorTexture, pathHeightPatternTexture, flags) {
         if(typeof flags === 'undefined')
             flags = HeightMap.FLAG_DEFAULTS;
@@ -17,7 +15,6 @@
 
         // Variables
         var THIS =              this;
-        var pixelsPerUnit =     PIXELS_PER_UNIT;
         mapLength =             mapLength || 1024;
         var mPosition =         [0, 0, 0];
         var mScale =            [128, 8, 1];
@@ -119,7 +116,7 @@
             // if(mVelocity)
             //     mModelView = Util.multiply(mModelView, mVelocity);
 
-            if(flags & Config.flags.RENDER_SELECTED) {
+            if(flags & ForgottenFuture.Flags.RENDER_SELECTED) {
                 vHighlightColor[0] = Math.abs(Math.sin(t/500));
                 vHighlightColor[1] = Math.abs(Math.sin(t/1800));
                 vHighlightColor[2] = Math.abs(Math.sin(t/1000));
@@ -305,8 +302,8 @@
         // Editor
 
         var updateEditor = function(t, stage, flags) {
-            if(Config.fragment.editor.HeightMapEditor) {
-                var editor = new Config.fragment.editor.HeightMapEditor(THIS);
+            if(ForgottenFuture.Sprite.Fragment.editor.HeightMapEditor) {
+                var editor = new ForgottenFuture.Sprite.Fragment.editor.HeightMapEditor(THIS);
                 updateEditor = editor.update;
                 updateEditor(t, stage, flags);
                 THIS.editor = editor;

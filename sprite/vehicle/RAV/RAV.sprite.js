@@ -5,20 +5,21 @@
 // Set up client-side listeners
 
 (function() {
-    var Config = window.games.game1;
+    var Util = ForgottenFuture.Util;
+
     var DIR = 'sprite/vehicle/RAV/';
     var DIR_SPRITESHEET = DIR + 'RAV.spritesheet.png';
-    Config.sprite.vehicle.RAV = RAV;
 
-    Config.util.loadScript('sprite/fragment/sprite.fragment.js');
+    Util.loadScript('sprite/fragment/sprite.fragment.js');
 
     var editor = null;
-    var pressedKeys = Config.input.pressedKeys;
+    var pressedKeys = Input.pressedKeys;
 
+    ForgottenFuture.Sprite.Vehicle.RAV = RAV;
     function RAV(gl, stage) {
 
         // Sprite Sheet
-        this.sprite = new Config.fragment.Sprite(gl, DIR_SPRITESHEET);
+        this.sprite = new ForgottenFuture.Sprite.Fragment.Sprite(gl, DIR_SPRITESHEET);
 
         // Rendering
         this.render = function(t, gl, flags) {
@@ -27,7 +28,7 @@
 
         var CHAR_SHIFT = 16;
         this.update = function(t, flags) {
-            if(flags & Config.flags.RENDER_SELECTED) {
+            if(flags & Flags.RENDER_SELECTED) {
                 if(!editor)
                     editor = new Config.script.controller.Editor();
                 editor.update(this, t, flags);

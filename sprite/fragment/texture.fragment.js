@@ -3,12 +3,11 @@
  */
 
 (function() {
-    var Config = window.games.game1;
-    var Util = Config.util;
-    Config.fragment.TextureFragment = TextureFragment;
+    var Util = ForgottenFuture.Util;
 
     var PROGRAM;
 
+    ForgottenFuture.Sprite.Fragment.TextureFragment = TextureFragment;
     function TextureFragment(texture, mModelView, glLineMode, mVelocity, mAcceleration, tileSize, tilePos) {
         if(!texture)
             throw new Error("Missing Texture");
