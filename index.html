@@ -5,11 +5,18 @@
         <meta name="keywords" CONTENT="forgotten future, game, music, relay, open-source, platformer, 2.5D, sidescroller, action, moon">
         <meta name="viewport" content="width=device-width, initial-scale=1">
         <meta http-equiv="Cache-Control" content="no-store" />
-        <script src="lib/relay/relay.js"></script>
-        <script src="site/assets/site.js"></script>
-        <script src="site/assets/index.js"></script>
         <link rel="stylesheet" href="site/assets/site.css" />
         <link rel="stylesheet" href="site/assets/theme/minimal.css" />
+        <script src="site/assets/site.js"></script>
+        <script src="game.js"></script>
+        <script>
+            if(urlParams.autoplay) {
+                document.addEventListener("DOMContentLoaded", function() {
+                    console.info("Autoplay running");
+                    ForgottenFuture.play();
+                });
+            }
+        </script>
     </head>
     <body class='theme-minimal'>
         <header class="page-header">

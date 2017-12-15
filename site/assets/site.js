@@ -10,8 +10,7 @@ document.addEventListener("DOMContentLoaded", function() {
     // Functions
 
     function siteButtonPlay(e) {
-        relay('INCLUDE loader.js');
-        relay('PLAY');
+        ForgottenFuture.play();
     }
 
     function siteButtonSubscribe(e) {

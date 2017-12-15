@@ -43,6 +43,7 @@ var ForgottenFuture = {
 (function() {
     var Util = ForgottenFuture.Util, Input = ForgottenFuture.Input;
     var pressedKeys = ForgottenFuture.Input.pressedKeys, keyCount = ForgottenFuture.Input.keyCount;
+    ForgottenFuture.play = play;
 
     // Event Handlers
 
@@ -51,6 +52,10 @@ var ForgottenFuture = {
     document.addEventListener('keyup', handleKeyUp);
 
     window.addEventListener('resize', handleWindowResize);
+
+    function init() {
+        Util.loadStyleSheet('site/client/game.interface.css');
+    }
 
     // Canvas Loading
 
@@ -105,6 +110,8 @@ var ForgottenFuture = {
             newCanvas.setAttribute('class', 'play:canvas game1-default-canvas fullscreen');
             // newCanvas.setAttribute('width', 600);
             // newCanvas.setAttribute('height', 300);
+            if(!document.body)
+                throw new Error("DOM isn't loaded yet. Be patient... or try document.addEventListener(\"DOMContentLoaded\", function() {");
             document.body.appendChild(newCanvas);
             canvasList = document.getElementsByClassName('play:canvas');
         }
@@ -224,6 +231,21 @@ var ForgottenFuture = {
             scriptCallbacks.push(callback);
         } else {
             callback();
+        }
+    };
+
+
+
+    Util.loadStyleSheet = function(cssPath) {
+        var cssPathEsc = cssPath.replace(/[/.]/g, '\\$&');
+        var foundCSS = document.head.querySelectorAll('link[href=' + cssPathEsc + ']');
+        if (foundCSS.length === 0) {
+//                 console.log("Including " + scriptPath);
+            var linkElm = document.createElement('link');
+            linkElm.setAttribute('rel', 'stylesheet');
+            linkElm.setAttribute('type', 'text/css');
+            linkElm.setAttribute('href', cssPath);
+            document.head.appendChild(linkElm);
         }
     };
 
@@ -470,4 +492,7 @@ var ForgottenFuture = {
     Util.scale = function(m, sx, sy, sz) {
         return Util.multiply(m, Util.scaling(sx, sy, sz));
     };
+
+    // Initiate
+    init();
 })();
