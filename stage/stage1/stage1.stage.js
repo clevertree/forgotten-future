@@ -90,7 +90,11 @@
             gl.enable(gl.BLEND);
 
             // Calculate projection
-             THIS.mProjection = Util.scale(DEFAULT_PROEJCTION, 1, Render.widthToHeightRatio, 1);
+            if(Render.widthToHeightRatio < 1) {
+                THIS.mProjection = Util.scale(DEFAULT_PROEJCTION, 1, Render.widthToHeightRatio, 1);        
+            } else {
+                THIS.mProjection = Util.scale(DEFAULT_PROEJCTION, 1/Render.widthToHeightRatio, 1, 1);   
+            }
 
             RAV1.sprite.setRotate(0, 0, frameCount/100);
             // THIS.mProjection[3]-=0.3;
