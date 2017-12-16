@@ -9,12 +9,13 @@
 
     var CHAR_TILDE = 192, CHAR_TAB = 9;
 
-    var DIR_LEVEL_MAP = 'stage/stage1/map/default.tilemap.png';
-    var DIR_TILE_SHEET = 'stage/stage1/tiles/default.tiles.png';
-    var DIR_HEIGHT_MAP = 'stage/stage1/map/main.heightmap.png';
+    var PATH_STAGE = 'stage/stage1';
+    var DIR_LEVEL_MAP = PATH_STAGE + '/map/default.tilemap.png';
+    var DIR_TILE_SHEET = PATH_STAGE + '/tiles/default.tiles.png';
+    var DIR_HEIGHT_MAP = PATH_STAGE + '/map/main.heightmap.png';
 
-    var PATH_TILE_DEFAULT = 'stage/stage1/tiles/default.tiles.png';
-    var PATH_MAP_BKLAYER = 'stage/stage1/map/bklayer.map.png';
+    var PATH_TILE_DEFAULT = PATH_STAGE + '/tiles/default.tiles.png';
+    var PATH_MAP_BKLAYER = PATH_STAGE + '/map/bklayer.map.png';
 
     var Util = ForgottenFuture.Util,
         Flag = ForgottenFuture.Flag,
@@ -30,14 +31,9 @@
 
     // Load and Render
 
-    function Stage1(e) {
+    ForgottenFuture.Stage.Stage1 = Stage1;
+    function Stage1(gl) {
         var THIS = this;
-
-        var canvas = e.target;
-
-        var gl = canvas.getContext('webgl');
-        window.addEventListener('resize', handleResize);
-        handleResize();
 
         // Flag
         var stageFlags = Flag.MODE_DEFAULT;
@@ -175,14 +171,6 @@
             if(az) THIS.mProjection = Util.zRotate(THIS.mProjection, az);
         }
 
-
-        function handleResize() {
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
-            gl.viewport(0, 0, canvas.width, canvas.height);
-            // console.log("Canvas Resized: ", canvas);
-        }
-
         this.testHit = function (x, y, z) {
             for(var i=0; i<hitBoxes.length; i++) {
                 var pixel = hitBoxes[i].testHit(x, y, z);
@@ -201,31 +189,5 @@
         };
     }
 
-
-    // Event Listeners
-
-    document.addEventListener('render:stage', handleRenderStage);
-
-    function handleRenderStage (e) {
-        if(!e.detail)
-            throw new Error("Invalid Map Path");
-        var scriptPath = e.detail;
-
-        var PATH = 'stage/stage1/stage1.stage.js';
-        if(scriptPath !== PATH)
-            return;     // TODO: disable active maps on canvas
-
-        var canvas = e.target;
-        if(canvas.nodeName.toLowerCase() !== 'canvas')
-            throw new Error("Invalid canvas element: " + canvas);
-
-        e.preventDefault();
-
-        Util.waitForLoadingScripts(function() {
-            var stage = new Stage1(e);
-            stage.startRender();
-            console.info("Stage '" + STAGE_NAME + "' rendering", stage);
-        });
-    }
 
 })();

@@ -20,13 +20,16 @@ var ForgottenFuture = {
         lastKey: null, 
         keyConstants: {
             CHAR_SHIFT: 16, CHAR_CTRL: 17, CHAR_ALT: 18
-        } 
+        }
+    },
+    Stage: {
+
     },
     Util: {
         
     },
     Path: {
-        stage_default: 'stage/stage1/stage1.stage.js'
+        stage_default: 'Stage1'
     },
     Flag: {
         MODE_DEFAULT: 0x00,
@@ -99,40 +102,39 @@ var ForgottenFuture = {
         // e.preventDefault();
     }
 
-    function play(stagePath) {
-        stagePath = stagePath || ForgottenFuture.Path.stage_default;
-        // console.info("Loading game1...");
-        // Find game canvas(es)
-        var canvasList = document.getElementsByClassName('play:canvas');
+    /**
+     * Launch the game
+     * @param {String=} stageName Specify which stage to load
+     * @param {HTMLCanvasElement=} canvas Specify the canvas to render the game on
+     */
+    function play(stageName, canvas) {
+        stageName = stageName || ForgottenFuture.Path.stage_default;
+        var stagePath = 'stage/' + stageName.toLowerCase() + '/' + stageName.toLowerCase() + '.stage.js';
+        // console.info("Loading stage file: " + stagePath);
 
-        if(canvasList.length === 0) {
-            var newCanvas = document.createElement('canvas');
-            newCanvas.setAttribute('id', 'play:canvas');
-            newCanvas.setAttribute('class', 'play:canvas game1-default-canvas fullscreen');
-            // newCanvas.setAttribute('width', 600);
-            // newCanvas.setAttribute('height', 300);
+        if(!canvas) {
             if(!document.body)
                 throw new Error("DOM isn't loaded yet. Be patient... or try document.addEventListener(\"DOMContentLoaded\", function() {");
-            document.body.appendChild(newCanvas);
-            canvasList = document.getElementsByClassName('play:canvas');
+            canvas = document.createElement('canvas');
+            canvas.setAttribute('class', 'ff-default-canvas fullscreen');
+            document.body.appendChild(canvas);
         }
 
         Util.loadScript(stagePath, function() {
-            var event = new CustomEvent('render:stage', {
-                'detail': stagePath,
-                'cancelable': true,
-                'bubbles': true
+            // Event listeners
+            canvas.addEventListener('click', handleClickEvent);
+
+            var gl = canvas.getContext('webgl');
+
+            canvas.width = canvas.clientWidth;
+            canvas.height = canvas.clientHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            
+            Util.waitForLoadingScripts(function() {
+                var stage = new ForgottenFuture.Stage[stageName](gl);
+                stage.startRender(canvas);
+                console.info("Stage '" + stageName + "' rendering", stage);
             });
-
-            for(var i=0; i<canvasList.length; i++) {
-                var canvas = canvasList[i];
-
-                canvas.addEventListener('click', handleClickEvent);
-
-                canvas.dispatchEvent(event);
-            }
-            if (!event.defaultPrevented)
-                throw new Error("Render event was not handled");
         });
     }
 
@@ -331,6 +333,9 @@ var ForgottenFuture = {
 
     // Editor Utils
 
+    /**
+     * @deprecated
+     */
     Util.assetSavePNG = function(path, data, left, top, width, height) {
         var POST = {
             "action": "asset-save-png",
