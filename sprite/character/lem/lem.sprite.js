@@ -7,7 +7,7 @@
 (function() {
     var Util = ForgottenFuture.Util,
         Input = ForgottenFuture.Input,
-        Flag = ForgottenFuture.Flag;
+        Constant = ForgottenFuture.Constant;
     var SPRITE_RESOLUTION = 128;
     var DIR_CHARACTER = 'sprite/';
         var DIR_SHEET = DIR_CHARACTER + 'character/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
@@ -49,7 +49,7 @@
          * @param flags
          */
         this.update = function(t, flags) {
-            if(flags & Flag.RENDER_SELECTED) {
+            if(flags & Constant.RENDER_SELECTED) {
                 updateEditor(t, flags);
             } else {
                 updateMotion(t, flags);

@@ -5,6 +5,11 @@
 // Set up script-side listeners
 
 var ForgottenFuture = {
+    Render: {
+        gl: null,
+        canvas: null,
+        widthToHeightRatio: 1,
+    },
     Shader: {
         Editor:{}
     },
@@ -17,10 +22,7 @@ var ForgottenFuture = {
         pressedKeys:{}, 
         keyCount: {}, 
         keyEvents: 0, 
-        lastKey: null, 
-        keyConstants: {
-            CHAR_SHIFT: 16, CHAR_CTRL: 17, CHAR_ALT: 18
-        }
+        lastKey: null,
     },
     Stage: {
 
@@ -28,23 +30,31 @@ var ForgottenFuture = {
     Util: {
         
     },
-    Path: {
-        stage_default: 'Stage1'
-    },
-    Flag: {
+    Constant: {
+
+        // Flags
         MODE_DEFAULT: 0x00,
         MODE_EDITOR: 0x01,
         MODE_CONSOLE: 0x02,
 
-        RENDER_SELECTED: 0x10
-    }, 
-    Constants: {
-        PIXELS_PER_UNIT: 256
+        RENDER_SELECTED: 0x10,
+
+        // Stage Constants
+        STAGE_DEFAULT: 'Stage1',
+
+        // Render Constants
+        PIXELS_PER_UNIT: 256,
+
+        Key: {
+            CHAR_SHIFT: 16, CHAR_CTRL: 17, CHAR_ALT: 18
+        }
     }
 };
 
 (function() {
-    var Util = ForgottenFuture.Util, Input = ForgottenFuture.Input;
+    var Util = ForgottenFuture.Util,
+        Render = ForgottenFuture.Render,
+        Input = ForgottenFuture.Input;
     var pressedKeys = ForgottenFuture.Input.pressedKeys, keyCount = ForgottenFuture.Input.keyCount;
     ForgottenFuture.play = play;
 
@@ -63,17 +73,6 @@ var ForgottenFuture = {
 
     // Canvas Loading
 
-    // function handleWindowResize (e) {
-    //     console.log('resize ', e);
-    //
-    //     // Set viewport size (Todo: optimize)
-    //     if(canvas.width !== canvas.clientWidth || canvas.height !== canvas.clientHeight) {
-    //         canvas.width = canvas.clientWidth;
-    //         canvas.height = canvas.clientHeight;
-    //         gl.viewport(0, 0, canvas.width, canvas.height);
-    //         console.log("Resizing: ", canvas.width, canvas.height);
-    //     }
-    // }
 
     function handlePlayResponse (e) {
         // var commandString = e.data || e.detail;
@@ -96,6 +95,7 @@ var ForgottenFuture = {
             Input.lastKey = e.keyCode;
         }
     }
+
     function handleKeyUp(e) {
         pressedKeys[e.keyCode] = false;
         // Input.keyEvents++;
@@ -108,7 +108,7 @@ var ForgottenFuture = {
      * @param {HTMLCanvasElement=} canvas Specify the canvas to render the game on
      */
     function play(stageName, canvas) {
-        stageName = stageName || ForgottenFuture.Path.stage_default;
+        stageName = stageName || ForgottenFuture.Constant.STAGE_DEFAULT;
         var stagePath = 'stage/' + stageName.toLowerCase() + '/' + stageName.toLowerCase() + '.stage.js';
         // console.info("Loading stage file: " + stagePath);
 
@@ -117,54 +117,70 @@ var ForgottenFuture = {
                 throw new Error("DOM isn't loaded yet. Be patient... or try document.addEventListener(\"DOMContentLoaded\", function() {");
             canvas = document.createElement('canvas');
             canvas.setAttribute('class', 'ff-default-canvas fullscreen');
+
+            // Event listeners
+            // canvas.addEventListener('click', handleClickEvent);
+
+            // Append to DOM
             document.body.appendChild(canvas);
         }
 
+        var gl = canvas.getContext('webgl');
+
+        Render.canvas = canvas;
+        Render.gl = gl;
+
+
         Util.loadScript(stagePath, function() {
-            // Event listeners
-            canvas.addEventListener('click', handleClickEvent);
-
-            var gl = canvas.getContext('webgl');
-
-            canvas.width = canvas.clientWidth;
-            canvas.height = canvas.clientHeight;
-            gl.viewport(0, 0, canvas.width, canvas.height);
-            
+            // Wait for all other loading scripts to load
             Util.waitForLoadingScripts(function() {
+                // Initiate the stage
                 var stage = new ForgottenFuture.Stage[stageName](gl);
-                stage.startRender(canvas);
+
+                canvas.width = canvas.clientWidth;
+                canvas.height = canvas.clientHeight;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+                Render.widthToHeightRatio = canvas.width / canvas.height;
+
+                // Start rendering
+                window.requestAnimationFrame(onFrame);
+                function onFrame(t) {
+                    window.requestAnimationFrame(onFrame);
+                    stage.render(t);
+                }
+
                 console.info("Stage '" + stageName + "' rendering", stage);
             });
         });
     }
 
-    function handleWindowResize(e) {
-        var canvasList = document.getElementsByClassName('play:canvas');
 
-        for(var i=0; i<canvasList.length; i++) {
-            var canvas = canvasList[i];
-            if(canvas.classList.contains('play:canvas')) {
-                if(canvas.classList.contains('fullscreen')) {
-                    canvas.width = window.innerWidth;
-                    canvas.height = window.innerHeight;
-                    console.log("Resized: ", canvas, canvas.width, canvas.height);
-                }
+    function handleWindowResize(e) {
+        var canvas = Render.canvas;
+        if(canvas) {
+            var gl = Render.gl;
+            if(canvas.classList.contains('fullscreen')) {
+                canvas.width = window.innerWidth;
+                canvas.height = window.innerHeight;
+                gl.viewport(0, 0, canvas.width, canvas.height);
+                Render.widthToHeightRatio = canvas.width / canvas.height;
+                console.log("Resized: ", canvas, canvas.width, canvas.height, Render.widthToHeightRatio);
             }
         }
     }
 
-    function handleClickEvent(e) {
-        if(e.target.nodeName.toLowerCase() !== 'canvas')
-            return;
-        var canvas = e.target;
-        if(!canvas.classList.contains("play:canvas"))
-            return;
-            // elemLeft = canvas.offsetLeft,
-            // elemTop = canvas.offsetTop;
-        var x = event.pageX - canvas.offsetLeft,
-            y = event.pageY - canvas.offsetTop;
-        console.log("Click:", x, y);
-    }
+    // function handleClickEvent(e) {
+    //     if(e.target.nodeName.toLowerCase() !== 'canvas')
+    //         return;
+    //     var canvas = e.target;
+    //     if(!canvas.classList.contains("play:canvas"))
+    //         return;
+    //         // elemLeft = canvas.offsetLeft,
+    //         // elemTop = canvas.offsetTop;
+    //     var x = event.pageX - canvas.offsetLeft,
+    //         y = event.pageY - canvas.offsetTop;
+    //     console.log("Click:", x, y);
+    // }
 
     // Util
 
@@ -224,6 +240,45 @@ var ForgottenFuture = {
         }
 
         return program;
+    };
+
+    Util.loadTexture = function(gl, filePath, callback, loadFill) {
+        loadFill = loadFill || [0, 0, 255, 128];
+
+        // Create a texture.
+        var texture = gl.createTexture();
+        texture.loaded = false;
+        texture.onLoad = callback || function(e, texture, image) {};
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+
+        // Fill the texture with a 1x1 blue pixel.
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+            new Uint8Array(loadFill));
+
+        // Asynchronously load an image
+        var image = new Image();
+        image.src = filePath;
+        image.addEventListener('load', function(e) {
+            // Now that the image has loaded make copy it to the texture.
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+
+            // Set the parameters so we can render any size image.
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            // Upload the image into the texture.
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            // gl.generateMipmap(gl.TEXTURE_2D);
+
+            texture.loaded = true;
+            // Callback
+            texture.onLoad(e, texture, image);
+        });
+        texture.image = image;
+        return texture;
     };
 
     // Script Loading
@@ -290,45 +345,6 @@ var ForgottenFuture = {
             if(counter === 0 && callback)
                 callback();
         }
-    };
-
-    Util.loadTexture = function(gl, filePath, callback, loadFill) {
-        loadFill = loadFill || [0, 0, 255, 128];
-
-        // Create a texture.
-        var texture = gl.createTexture();
-        texture.loaded = false;
-        texture.onLoad = callback || function(e, texture, image) {};
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-
-        // Fill the texture with a 1x1 blue pixel.
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array(loadFill));
-
-        // Asynchronously load an image
-        var image = new Image();
-        image.src = filePath;
-        image.addEventListener('load', function(e) {
-            // Now that the image has loaded make copy it to the texture.
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-
-            // Set the parameters so we can render any size image.
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            // Upload the image into the texture.
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-            // gl.generateMipmap(gl.TEXTURE_2D);
-
-            texture.loaded = true;
-            // Callback
-            texture.onLoad(e, texture, image);
-        });
-        texture.image = image;
-        return texture;
     };
 
     // Editor Utils

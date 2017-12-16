@@ -4,7 +4,7 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
-        Flag = ForgottenFuture.Flag;
+        Constant = ForgottenFuture.Constant;
 
     var PROGRAM;
 
@@ -145,7 +145,7 @@
                 this.setTilePosition(tilePos[0], tilePos[1]);
             }
 
-            if(flags & Flag.RENDER_SELECTED) {
+            if(flags & Constant.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
                     vActiveColor = vColor.slice(0);
                 vActiveColor[0] = vColor[0] * Math.abs(Math.sin(t/500));

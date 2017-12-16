@@ -18,7 +18,8 @@
     var PATH_MAP_BKLAYER = PATH_STAGE + '/map/bklayer.map.png';
 
     var Util = ForgottenFuture.Util,
-        Flag = ForgottenFuture.Flag,
+        Constant = ForgottenFuture.Constant,
+        Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
     // Level Maps
@@ -32,11 +33,16 @@
     // Load and Render
 
     ForgottenFuture.Stage.Stage1 = Stage1;
+
+    /**
+     * @param {WebGLRenderingContext} gl
+     * @constructor
+     */
     function Stage1(gl) {
         var THIS = this;
 
         // Flag
-        var stageFlags = Flag.MODE_DEFAULT;
+        var stageFlags = Constant.MODE_DEFAULT;
 
         // Players
         var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
@@ -61,20 +67,18 @@
         var selectedRender = -1; // renders.length - 1;
 
         // Default FOV
-        this.mProjection = [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -3, -4, -3, 0, 10];
+        var DEFAULT_PROEJCTION = [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -3, -4, -3, 0, 10];
+        this.mProjection = DEFAULT_PROEJCTION; // [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -3, -4, -3, 0, 10];
         this.mGravity = [0, -0.001, 0];
 
         // Set up render loop
         var lastKeyCount = 0, frameCount = 0;
-        function onFrame(t) {
+        /**
+         * Render the stage
+         * @param t
+         */
+        this.render = function(t) {
             frameCount++;
-            window.requestAnimationFrame(onFrame);
-
-            RAV1.sprite.setRotate(0, 0, frameCount/100);
-            // THIS.mProjection[3]-=0.3;
-            // this.mProjection = Util.projection(frameCount, frameCount, frameCount); // [2.4142136573791504, 0, 0, 0, 0, 2.4142136573791504, 0, 0, 0, 0, -1.0020020008087158, -1, 0, 0, -0.20020020008087158, 0];
-
-
 
             // Clear background
             gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
@@ -84,6 +88,14 @@
             // Enable blending
             gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             gl.enable(gl.BLEND);
+
+            // Calculate projection
+             THIS.mProjection = Util.scale(DEFAULT_PROEJCTION, 1, Render.widthToHeightRatio, 1);
+
+            RAV1.sprite.setRotate(0, 0, frameCount/100);
+            // THIS.mProjection[3]-=0.3;
+            // this.mProjection = Util.projection(frameCount, frameCount, frameCount); // [2.4142136573791504, 0, 0, 0, 0, 2.4142136573791504, 0, 0, 0, 0, -1.0020020008087158, -1, 0, 0, -0.20020020008087158, 0];
+
 
             // Enable Depth testing
             // gl.enable(gl.DEPTH_TEST); // Depth test creates those ugly opaque textures
@@ -96,11 +108,11 @@
             // Render
             for(var i=0; i<renders.length; i++) {
                 var flags = stageFlags;
-                if(selectedRender === i)    flags |= Flag.RENDER_SELECTED;
+                if(selectedRender === i)    flags |= Constant.RENDER_SELECTED;
                 renders[i].update(t, flags);
                 renders[i].render(t, gl, flags);
             }
-        }
+        };
 
         var CHAR_SHIFT = 16;
         var keyTildeCount = 0, keyTabCount = 0;
@@ -109,19 +121,19 @@
                 lastKeyCount = Input.keyEvents;
                 if(keyTildeCount < Input.keyCount[CHAR_TILDE]) {
                     keyTildeCount = Input.keyCount[CHAR_TILDE];
-                    if(stageFlags & Flag.MODE_EDITOR) {
-                        stageFlags &= ~Flag.MODE_EDITOR;
-                        stageFlags |= Flag.MODE_CONSOLE;
+                    if(stageFlags & Constant.MODE_EDITOR) {
+                        stageFlags &= ~Constant.MODE_EDITOR;
+                        stageFlags |= Constant.MODE_CONSOLE;
                         console.log("Stage Mode changed to: Console");
 
-                    } else if(stageFlags & Flag.MODE_CONSOLE) {
-                        stageFlags &= ~Flag.MODE_CONSOLE;
-                        stageFlags |= Flag.MODE_DEFAULT;
+                    } else if(stageFlags & Constant.MODE_CONSOLE) {
+                        stageFlags &= ~Constant.MODE_CONSOLE;
+                        stageFlags |= Constant.MODE_DEFAULT;
                         console.log("Stage Mode changed to: Default");
 
                     } else {
-                        stageFlags &= ~Flag.MODE_DEFAULT;
-                        stageFlags |= Flag.MODE_EDITOR;
+                        stageFlags &= ~Constant.MODE_DEFAULT;
+                        stageFlags |= Constant.MODE_EDITOR;
                         console.log("Stage Mode changed to: Editor");
                     }
                 }
@@ -184,9 +196,6 @@
 
         this.move = move;
         this.rotate = rotate;
-        this.startRender = function () {
-            window.requestAnimationFrame(onFrame);
-        };
     }
 
 

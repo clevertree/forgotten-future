@@ -5,8 +5,8 @@
 (function() {
     var Util = ForgottenFuture.Util,
         Input = ForgottenFuture.Input,
-        Flag = ForgottenFuture.Flag;
-    var PIXELS_PER_UNIT = ForgottenFuture.Constants.PIXELS_PER_UNIT;
+        Constant = ForgottenFuture.Constant;
+    var PIXELS_PER_UNIT = ForgottenFuture.Constant.PIXELS_PER_UNIT;
 
     var PROGRAM;
 
@@ -133,7 +133,7 @@
             if(mVelocity)
                 mModelView = Util.multiply(mModelView, mVelocity);
 
-            if(flags & Flag.RENDER_SELECTED) {
+            if(flags & Constant.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
                     vActiveColor = vColor.slice(0);
                 vActiveColor[0] = vColor[0] * Math.abs(Math.sin(t/500));

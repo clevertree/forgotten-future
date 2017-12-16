@@ -6,7 +6,7 @@
 
 (function() {
     var Util            = ForgottenFuture.Util,
-        Flag            = ForgottenFuture.Flag,
+        Flag            = ForgottenFuture.Constant,
         pressedKeys     = ForgottenFuture.Input.pressedKeys;
 
     var DIR = 'sprite/vehicle/RAV/';

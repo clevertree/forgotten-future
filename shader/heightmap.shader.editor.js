@@ -3,10 +3,11 @@
  */
 
 (function() {
-    var Util = ForgottenFuture.Util, Input = ForgottenFuture.Input;
+    var Util = ForgottenFuture.Util,
+        Input = ForgottenFuture.Input,
+        keyConstants = ForgottenFuture.Constant.Key;
     ForgottenFuture.Shader.HeightMapEditor = HeightMapEditor;
 
-    var keyConstants = Input.keyConstants;
     var lastKeyCount = 0;
 
     function HeightMapEditor(heightMap) {
