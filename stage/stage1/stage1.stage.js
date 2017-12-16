@@ -224,7 +224,7 @@
         Util.waitForLoadingScripts(function() {
             var stage = new Stage1(e);
             stage.startRender();
-            console.info("Stage '" + STAGE_NAME + "' is rendering");
+            console.info("Stage '" + STAGE_NAME + "' rendering", stage);
         });
     }
 

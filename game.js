@@ -55,6 +55,7 @@ var ForgottenFuture = {
 
     function init() {
         Util.loadStyleSheet('site/assets/game.css');
+        console.info("Forgotten Future initiated", ForgottenFuture);
     }
 
     // Canvas Loading
