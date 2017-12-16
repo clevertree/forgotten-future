@@ -19,4 +19,4 @@ echo "Executing Git Pull...\n";
 echo exec("git pull");
 
 echo "\nParameters: \n";
-var_dump ($params);
+print_r ($params);
