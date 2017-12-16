@@ -15,6 +15,7 @@
         var currentFrame = 'default';
 
         // Variables
+        var THIS = this;
         var glLineMode = 4; // gl.TRIANGLES;
         var vScale = [1, 1, 1];
         var spriteSheetRatio = 1;
@@ -103,10 +104,9 @@
 
 
 
-        this.setScale = function(sx, sy) {
-            if(typeof sy === 'undefined') sy = sx;
-            mVertexCoordinates = getVertexCoordinates(sx, sy);
-            vScale = [sx, sy, 0];
+        this.setScale = function(newScale) {
+            vScale = [newScale, newScale * spriteSheetRatio, 0];
+            mVertexCoordinates = getVertexCoordinates(vScale[0], vScale[1]);
         };
 
         this.getVelocity = function() { return vVelocity; };
@@ -192,7 +192,8 @@
             }
 
             spriteSheetRatio = iSpriteSheet.height / iSpriteSheet.width;
-
+            THIS.setScale(vScale[0]);
+            // vScale[1] = vScale[0] * spriteSheetRatio;
         }
     }
 

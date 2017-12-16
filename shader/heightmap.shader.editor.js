@@ -291,7 +291,7 @@
                 }
             };
 
-            var filePath = 'client/game1.interface.php';
+            var filePath = 'site/script/interface.php';
             xhttp.open("POST", filePath, true);
             xhttp.setRequestHeader('Content-type', 'application/json');
             xhttp.send(JSON.stringify(POST));

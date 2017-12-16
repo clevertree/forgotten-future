@@ -2,7 +2,7 @@
  * Created by ari on 5/14/2017.
  */
 
-// Set up client-side listeners
+// Set up script-side listeners
 
 (function() {
     var STAGE_NAME = "Stage1";
@@ -45,7 +45,7 @@
         // Players
         var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
         var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
-        RAV1.sprite.setScale(5, 2);
+        RAV1.sprite.setScale(2);
         RAV1.sprite.setRotate(0, 0, 1);
         RAV1.sprite.setPosition(7, 8, 0);
 

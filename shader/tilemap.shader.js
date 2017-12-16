@@ -4,6 +4,7 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
+        Input = ForgottenFuture.Input,
         Flag = ForgottenFuture.Flag;
     var PIXELS_PER_UNIT = ForgottenFuture.Constants.PIXELS_PER_UNIT;
 

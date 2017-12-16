@@ -2,7 +2,7 @@
  * Created by Ari on 12/30/2016.
  */
 
-// Set up client-side listeners
+// Set up script-side listeners
 
 (function() {
     var Util = ForgottenFuture.Util,
@@ -118,7 +118,7 @@
             // mVelocity = null;
 
             if(!mVelocity) mVelocity = [0, 0, 0];
-            mVelocity = [mVelocity[0], Math.abs(mVelocity[1] * 0.98), mVelocity[2]];
+            mVelocity = [mVelocity[0] + (Math.random()-0.5)/10, Math.abs(mVelocity[1] * 0.98), mVelocity[2]];
         }
 
         // Editor

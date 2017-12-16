@@ -302,8 +302,8 @@
         // Editor
 
         var updateEditor = function(t, stage, flags) {
-            if(ForgottenFuture.Shader.editor.HeightMapEditor) {
-                var editor = new ForgottenFuture.Shader.editor.HeightMapEditor(THIS);
+            if(ForgottenFuture.Shader.Editor.HeightMapEditor) {
+                var editor = new ForgottenFuture.Shader.Editor.HeightMapEditor(THIS);
                 updateEditor = editor.update;
                 updateEditor(t, stage, flags);
                 THIS.editor = editor;

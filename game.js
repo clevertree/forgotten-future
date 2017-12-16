@@ -2,7 +2,7 @@
  * Created by Ari on 12/30/2016.
  */
 
-// Set up client-side listeners
+// Set up script-side listeners
 
 var ForgottenFuture = {
     Shader: {
@@ -54,7 +54,7 @@ var ForgottenFuture = {
     window.addEventListener('resize', handleWindowResize);
 
     function init() {
-        Util.loadStyleSheet('site/client/game.interface.css');
+        Util.loadStyleSheet('site/assets/game.css');
     }
 
     // Canvas Loading
@@ -349,7 +349,7 @@ var ForgottenFuture = {
                 console.log(json);
             }
         };
-        xhttp.open("POST", 'client/game1.interface.php', true);
+        xhttp.open("POST", 'site/script/interface.php', true);
         xhttp.setRequestHeader('Content-type', 'application/json');
         xhttp.send(JSON.stringify(POST));
     };

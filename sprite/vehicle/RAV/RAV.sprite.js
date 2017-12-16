@@ -2,7 +2,7 @@
  * Created by Ari on 12/30/2016.
  */
 
-// Set up client-side listeners
+// Set up script-side listeners
 
 (function() {
     var Util            = ForgottenFuture.Util,
