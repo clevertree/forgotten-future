@@ -17,4 +17,5 @@ header("Content-Type: text/plain");
 echo "Executing Git Pull...\n";
 echo exec("git pull");
 
+echo "\nParameters: \n";
 var_dump ($params);
