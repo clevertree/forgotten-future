@@ -6,7 +6,7 @@
  * Time: 4:07 PM
  */
 
-$params = file_get_contents('php://input');
+$params = @$_REQUEST['payload'] ?: file_get_contents('php://input');
 if($params && $params[0] === '{') {
     $params = json_decode($params, true);
 } else {
