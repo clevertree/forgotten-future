@@ -12,7 +12,7 @@
     var DIR_CHARACTER = 'sprite/';
         var DIR_SHEET = DIR_CHARACTER + 'character/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
 
-    Util.loadScript('shader/spritesheet.shader.js');
+    Util.loadScript('render/shader/spritesheet.shader.js');
 
     ForgottenFuture.Sprite.Character.Lem = Lem;
     function Lem(gl, stage) {
@@ -26,7 +26,7 @@
         // var scale = 1;
 
         // Sprite Sheet
-        var fSpriteSheet = new ForgottenFuture.Shader.SpriteSheet(gl, stage, DIR_SHEET, SPRITE_RESOLUTION, (1/16 * 1000));
+        var fSpriteSheet = new ForgottenFuture.Render.Shader.SpriteSheet(gl, stage, DIR_SHEET, SPRITE_RESOLUTION, (1/16 * 1000));
         // setScale(scale);
         // move(0, 12, 0);
 

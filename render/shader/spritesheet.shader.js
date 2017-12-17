@@ -8,7 +8,7 @@
 
     var PROGRAM;
 
-    ForgottenFuture.Shader.SpriteSheet = SpriteSheet;
+    ForgottenFuture.Render.Shader.SpriteSheet = SpriteSheet;
     function SpriteSheet(gl, stage, pathSpriteSheet, tileSize, frameRate, flags, scale, vColor, mModelView, glLineMode, mVelocity, mAcceleration) {
         if(typeof flags === 'undefined') flags = SpriteSheet.FLAG_DEFAULTS;
         if(typeof frameRate === 'undefined') frameRate = (1/20 * 1000);
@@ -71,7 +71,7 @@
             gl.vertexAttribPointer(aTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
 
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(uPMatrix, false, stage.mProjection);
+            gl.uniformMatrix4fv(uPMatrix, false, stage.viewPort.getProjection());
             gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
             gl.uniform4fv(uColor, vActiveColor);
 

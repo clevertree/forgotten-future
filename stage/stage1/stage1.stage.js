@@ -22,9 +22,12 @@
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
+    // Camera/ViewPort
+    Util.loadScript('render/viewport/default.viewport.js');
+
     // Level Maps
-    Util.loadScript('shader/tilemap.shader.js');
-    Util.loadScript('shader/heightmap.shader.js');
+    Util.loadScript('render/shader/tilemap.shader.js');
+    Util.loadScript('render/shader/heightmap.shader.js');
 
     // Sprites
     Util.loadScript('sprite/character/lem/lem.sprite.js');
@@ -54,8 +57,8 @@
         Lem.move([0, 10, 0]);
 
         // Level Sprites
-        var pfMain = new ForgottenFuture.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
-        var hmMain = new ForgottenFuture.Shader.HeightMap(gl, this, 9192, DIR_HEIGHT_MAP);
+        var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
+        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 9192, DIR_HEIGHT_MAP);
 
         var renders = [
             hmMain, Lem, RAV1, pfMain
@@ -67,8 +70,9 @@
         var selectedRender = -1; // renders.length - 1;
 
         // Default FOV
-        var DEFAULT_PROEJCTION = [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -3, -4, -3, 0, 10];
-        this.mProjection = DEFAULT_PROEJCTION; // [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -3, -4, -3, 0, 10];
+        var viewPort = new ForgottenFuture.Render.ViewPort(gl);
+        viewPort.setVelocity(-0.005, 0, -0.001);
+        this.viewPort = viewPort;
         this.mGravity = [0, -0.001, 0];
 
         // Set up render loop
@@ -89,17 +93,10 @@
             gl.blendFunc(gl.SRC_ALPHA, gl.ONE_MINUS_SRC_ALPHA);
             gl.enable(gl.BLEND);
 
-            // Calculate projection
-            if(Render.widthToHeightRatio < 1) {
-                THIS.mProjection = Util.scale(DEFAULT_PROEJCTION, 1, Render.widthToHeightRatio, 1);        
-            } else {
-                THIS.mProjection = Util.scale(DEFAULT_PROEJCTION, 1/Render.widthToHeightRatio, 1, 1);   
-            }
+            // Update Camera
+            viewPort.update(t);
 
             RAV1.sprite.setRotate(0, 0, frameCount/100);
-            // THIS.mProjection[3]-=0.3;
-            // this.mProjection = Util.projection(frameCount, frameCount, frameCount); // [2.4142136573791504, 0, 0, 0, 0, 2.4142136573791504, 0, 0, 0, 0, -1.0020020008087158, -1, 0, 0, -0.20020020008087158, 0];
-
 
             // Enable Depth testing
             // gl.enable(gl.DEPTH_TEST); // Depth test creates those ugly opaque textures
@@ -160,31 +157,22 @@
                 var pressedKeys = Input.pressedKeys;
                 if(pressedKeys[CHAR_SHIFT]) {
                     V/=10;
-                    if(pressedKeys[39])     rotate(-V,  0,  0);  // Right:
-                    if(pressedKeys[37])     rotate( V,  0,  0);  // Left:
-                    if(pressedKeys[40])     rotate( 0,  V,  0);  // Down:
-                    if(pressedKeys[38])     rotate( 0, -V,  0);  // Up:
-                    if(pressedKeys[34])     rotate( 0,  0,  V);  // Page Down:
-                    if(pressedKeys[33])     rotate( 0,  0, -V);  // Page Up:
+                    if(pressedKeys[39])     viewPort.rotate(-V,  0,  0);  // Right:
+                    if(pressedKeys[37])     viewPort.rotate( V,  0,  0);  // Left:
+                    if(pressedKeys[40])     viewPort.rotate( 0,  V,  0);  // Down:
+                    if(pressedKeys[38])     viewPort.rotate( 0, -V,  0);  // Up:
+                    if(pressedKeys[34])     viewPort.rotate( 0,  0,  V);  // Page Down:
+                    if(pressedKeys[33])     viewPort.rotate( 0,  0, -V);  // Page Up:
                 } else {
-                    if(pressedKeys[39])     move(-V,  0,  0);  // Right:
-                    if(pressedKeys[37])     move( V,  0,  0);  // Left:
-                    if(pressedKeys[40])     move( 0,  V,  0);  // Down:
-                    if(pressedKeys[38])     move( 0, -V,  0);  // Up:
-                    if(pressedKeys[34])     move( 0,  0,  V);  // Page Down:
-                    if(pressedKeys[33])     move( 0,  0, -V);  // Page Up:
+                    if(pressedKeys[39])     viewPort.move(-V,  0,  0);  // Right:
+                    if(pressedKeys[37])     viewPort.move( V,  0,  0);  // Left:
+                    if(pressedKeys[40])     viewPort.move( 0,  V,  0);  // Down:
+                    if(pressedKeys[38])     viewPort.move( 0, -V,  0);  // Up:
+                    if(pressedKeys[34])     viewPort.move( 0,  0,  V);  // Page Down:
+                    if(pressedKeys[33])     viewPort.move( 0,  0, -V);  // Page Up:
                 }
 
             }
-        }
-
-        function move(tx, ty, tz) {
-            THIS.mProjection = Util.translate(THIS.mProjection, tx, ty, tz)
-        }
-        function rotate(ax, ay, az) {
-            if(ax) THIS.mProjection = Util.xRotate(THIS.mProjection, ax);
-            if(ay) THIS.mProjection = Util.yRotate(THIS.mProjection, ay);
-            if(az) THIS.mProjection = Util.zRotate(THIS.mProjection, az);
         }
 
         this.testHit = function (x, y, z) {
@@ -197,9 +185,6 @@
         };
 
         // Set up Stage Object
-
-        this.move = move;
-        this.rotate = rotate;
     }
 
 

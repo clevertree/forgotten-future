@@ -4,7 +4,7 @@
 
 (function() {
     var Util = ForgottenFuture.Util;
-    ForgottenFuture.Shader.ColorShader = ColorShader;
+    ForgottenFuture.Render.Shader.ColorShader = ColorShader;
 
     var PROGRAM, PRGTexture;
 
@@ -64,7 +64,7 @@
             gl.vertexAttribPointer(PROGRAM.vertexColorAttribute, PROGRAM.triangleVertexColorBuffer.itemSize, gl.FLOAT, false, 0, 0);
 
             // Set Matrix Uniforms
-            gl.uniformMatrix4fv(PROGRAM.pMatrixUniform, false, stage.mProjection || defaultProjectionMatrix);  // Set Projection
+            gl.uniformMatrix4fv(PROGRAM.pMatrixUniform, false, stage.viewPort.getProjection() || defaultProjectionMatrix);  // Set Projection
             gl.uniformMatrix4fv(PROGRAM.mvMatrixUniform, false, mModelView);  // Set World Coordinates
 
             // Render

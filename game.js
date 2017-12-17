@@ -6,12 +6,12 @@
 
 var ForgottenFuture = {
     Render: {
+        Shader: {
+            Editor:{}
+        },
         gl: null,
         canvas: null,
         widthToHeightRatio: 1,
-    },
-    Shader: {
-        Editor:{}
     },
     Sprite: {
         Character: {},

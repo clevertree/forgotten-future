@@ -10,7 +10,7 @@
 
     var PROGRAM;
 
-    ForgottenFuture.Shader.TileMap = TileMap;
+    ForgottenFuture.Render.Shader.TileMap = TileMap;
     function TileMap(gl, stage, pathLevelMap, pathTileSheet, tileSize, flags, mPosition, mVelocity, mAcceleration, vColor) {
         if(typeof flags === 'undefined')
             flags = TileMap.FLAG_DEFAULTS;
@@ -90,7 +90,7 @@
 
 
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(uPMatrix, false, stage.mProjection);
+            gl.uniformMatrix4fv(uPMatrix, false, stage.viewPort.getProjection());
             gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
             gl.uniform2fv(uMapSize, mMapSize);
             gl.uniform4fv(uColor, vActiveColor);

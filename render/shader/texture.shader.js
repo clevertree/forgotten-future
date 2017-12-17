@@ -7,7 +7,7 @@
 
     var PROGRAM;
 
-    ForgottenFuture.Shader.TextureFragment = TextureFragment;
+    ForgottenFuture.Render.Shader.TextureFragment = TextureFragment;
     function TextureFragment(texture, mModelView, glLineMode, mVelocity, mAcceleration, tileSize, tilePos) {
         if(!texture)
             throw new Error("Missing Texture");
@@ -45,7 +45,7 @@
             gl.vertexAttribPointer(aTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
 
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(uPMatrix, false, stage.mProjection || defaultProjectionMatrix);
+            gl.uniformMatrix4fv(uPMatrix, false, stage.viewPort.getProjection() || defaultProjectionMatrix);
             gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
 
             // Tell the shader to get the texture from texture unit 0

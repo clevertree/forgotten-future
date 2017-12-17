@@ -7,7 +7,7 @@
 
     var PROGRAM;
 
-    ForgottenFuture.Shader.HeightMap = HeightMap;
+    ForgottenFuture.Render.Shader.HeightMap = HeightMap;
     function HeightMap(gl, stage, mapLength, pathHeightMapTexture, pathColorTexture, pathHeightPatternTexture, flags) {
         if(typeof flags === 'undefined')
             flags = HeightMap.FLAG_DEFAULTS;
@@ -71,7 +71,7 @@
 
 
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(uPMatrix, false, stage.mProjection);
+            gl.uniformMatrix4fv(uPMatrix, false, stage.viewPort.getProjection());
             gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
             gl.uniform1f(uMapLength, mapLength);
 
@@ -302,8 +302,8 @@
         // Editor
 
         var updateEditor = function(t, stage, flags) {
-            if(ForgottenFuture.Shader.Editor.HeightMapEditor) {
-                var editor = new ForgottenFuture.Shader.Editor.HeightMapEditor(THIS);
+            if(ForgottenFuture.Render.Shader.Editor.HeightMapEditor) {
+                var editor = new ForgottenFuture.Render.Shader.Editor.HeightMapEditor(THIS);
                 updateEditor = editor.update;
                 updateEditor(t, stage, flags);
                 THIS.editor = editor;

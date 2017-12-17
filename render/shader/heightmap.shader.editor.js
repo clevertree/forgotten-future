@@ -6,12 +6,12 @@
     var Util = ForgottenFuture.Util,
         Input = ForgottenFuture.Input,
         keyConstants = ForgottenFuture.Constant.Key;
-    ForgottenFuture.Shader.HeightMapEditor = HeightMapEditor;
+    ForgottenFuture.Render.Shader.HeightMapEditor = HeightMapEditor;
 
     var lastKeyCount = 0;
 
     function HeightMapEditor(heightMap) {
-        if(!heightMap instanceof ForgottenFuture.Shader.HeightMap)
+        if(!heightMap instanceof ForgottenFuture.Render.Shader.HeightMap)
             throw new Error("Invalid Height Map: " + heightMap);
 
         var THIS = this;
@@ -364,7 +364,7 @@
             var image = texture.srcImage,
                 title = "Edit Heightmap: " + texture.srcImage.srcRelative;
 
-            var popup = window.open('shader/editor/heightmap.html', "editor_heightmap", "titlebar=1&scrollbars=1&resizable=1", true);
+            var popup = window.open('render/shader/editor/heightmap.html', "editor_heightmap", "titlebar=1&scrollbars=1&resizable=1", true);
             popup.loadHeightMapEditor = function(e) {
                 console.log(e, popup.document.body);
             }

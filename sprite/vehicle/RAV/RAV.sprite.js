@@ -12,18 +12,18 @@
     var DIR = 'sprite/vehicle/RAV/';
     var DIR_SPRITESHEET = DIR + 'RAV.spritesheet.png';
 
-    Util.loadScript('shader/sprite.shader.js');
+    Util.loadScript('render/shader/sprite.shader.js');
 
 
     ForgottenFuture.Sprite.Vehicle.RAV = RAV;
     function RAV(gl, stage) {
 
         // Sprite Sheet
-        this.sprite = new ForgottenFuture.Shader.SpriteSheet2(gl, DIR_SPRITESHEET);
+        this.sprite = new ForgottenFuture.Render.Shader.SpriteSheet2(gl, DIR_SPRITESHEET);
 
         // Rendering
         this.render = function(t, gl, flags) {
-            this.sprite.render(t, gl, stage.mProjection, flags);
+            this.sprite.render(t, gl, stage.viewPort.getProjection(), flags);
         };
 
         var CHAR_SHIFT = 16;
