@@ -71,7 +71,9 @@
 
         // Default FOV
         var viewPort = new ForgottenFuture.Render.ViewPort(gl);
-        viewPort.setVelocity(-0.005, 0, -0.001);
+        // Lem.sprite.follow(viewPort);
+        viewPort.script.setVelocity(-0.005, 0, -0.001);
+
         this.viewPort = viewPort;
         this.mGravity = [0, -0.001, 0];
 

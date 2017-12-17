@@ -27,6 +27,7 @@
 
         // Sprite Sheet
         var fSpriteSheet = new ForgottenFuture.Render.Shader.SpriteSheet(gl, stage, DIR_SHEET, SPRITE_RESOLUTION, (1/16 * 1000));
+        this.sprite = fSpriteSheet;
         // setScale(scale);
         // move(0, 12, 0);
 

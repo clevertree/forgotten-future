@@ -3,7 +3,8 @@
  */
 
 (function() {
-    var Util = ForgottenFuture.Util;
+    var Util = ForgottenFuture.Util,
+        Render = ForgottenFuture.Render;
 
     ForgottenFuture.Render.Shader.SpriteSheet2 = SpriteSheet2;
     function SpriteSheet2(gl, pathSpriteSheet, flags) {
@@ -131,6 +132,9 @@
             vRotation = [aX, aY, aZ];
         };
 
+        this.follow = function(viewPort) {
+            viewPort.setScript(new SpriteSheet2.ViewPortScriptFollow(this));
+        };
 
         // Frames
 
@@ -231,8 +235,29 @@
     }
 
     var defaultColor = new Float32Array([1,1,1,1]);
-    // Texture Program
 
+    // ViewPort Script
+
+    SpriteSheet2.ViewPortScriptFollow = ViewPortScriptFollow;
+    function ViewPortScriptFollow(sprite) {
+        this.calculateProjection = function(t, mProjection) {
+            var vPosition = sprite.getPosition();
+
+            // Aspect Ratio
+            if(Render.widthToHeightRatio < 1) {
+                mProjection = Util.scale(mProjection, 1, Render.widthToHeightRatio, 1);
+            } else {
+                mProjection = Util.scale(mProjection, 1/Render.widthToHeightRatio, 1, 1);
+            }
+
+            // Translation
+            if(vPosition) {
+                mProjection = Util.translate(mProjection, vPosition[0], vPosition[1], vPosition[2]);
+            }
+
+            return mProjection;
+        }
+    }
 
     // Program
 
