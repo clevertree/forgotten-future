@@ -20,7 +20,7 @@
 
         // Local Variables
         var speed = 1/10000;
-        var mPosition = [0, 0, 0];
+        var vPosition = [0, 0, 0];
         var mVelocity = [0.1 * Math.random(), 0, 0];
         var mAcceleration = null;
         // var scale = 1;
@@ -58,10 +58,15 @@
         };
 
         this.move = function(mDistance) {
-            mPosition[0] += mDistance[0];
-            mPosition[1] += mDistance[1];
-            mPosition[2] += mDistance[2];
+            vPosition[0] += mDistance[0];
+            vPosition[1] += mDistance[1];
+            vPosition[2] += mDistance[2];
             fSpriteSheet.move(mDistance);
+        };
+
+        this.getPosition = function () { return vPosition; };
+        this.follow = function(viewPort) {
+            viewPort.setScript(new ForgottenFuture.Render.Shader.SpriteSheet.ViewPortScriptFollow(this));
         };
 
         this.setScale = function(newScale) {
@@ -99,7 +104,7 @@
                 THIS.move(mVelocity);
 
             // Collision
-            var hitFloor = stage.testHit(mPosition[0], mPosition[1], mPosition[2]);
+            var hitFloor = stage.testHit(vPosition[0], vPosition[1], vPosition[2]);
             if(!hitFloor) {
                 // Fall
                 if(!mAcceleration) {
