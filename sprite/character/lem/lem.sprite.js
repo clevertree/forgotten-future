@@ -7,6 +7,7 @@
 (function() {
     var Util = ForgottenFuture.Util,
         Input = ForgottenFuture.Input,
+        Render = ForgottenFuture.Render,
         Constant = ForgottenFuture.Constant;
     var SPRITE_RESOLUTION = 128;
     var DIR_CHARACTER = 'sprite/';
@@ -31,22 +32,13 @@
         // setScale(scale);
         // move(0, 12, 0);
 
-
-        /**
-         * Render Sprite
-         * @param t time elapsed
-         * @param gl WebGL Instance
-         * @param stage
-         * @param flags
-         */
-        this.render = function(t, flags) {
-            fSpriteSheet.render(t, flags);
+        this.render = function(t, mProjection, flags) {
+            fSpriteSheet.render(t, mProjection, flags);
         };
 
         /**
          * Update Sprite Logic
          * @param t
-         * @param stage
          * @param flags
          */
         this.update = function(t, flags) {
@@ -65,8 +57,19 @@
         };
 
         this.getPosition = function () { return vPosition; };
-        this.follow = function(viewPort) {
-            viewPort.setScript(new ForgottenFuture.Render.Shader.SpriteSheet.ViewPortScriptFollow(this));
+
+
+        this.follow = function(stage) {
+            stage.setViewPort(
+                new Render.ViewPort.SimpleViewPort(
+                    function(vViewPosition) {
+                        vViewPosition[0] = -vPosition[0];
+                        vViewPosition[1] = -vPosition[1] + 1;
+                        if(vViewPosition[2] < 2)
+                           vViewPosition[2] += 0.004;
+                    }
+                )
+            );
         };
 
         this.setScale = function(newScale) {

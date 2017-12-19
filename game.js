@@ -9,6 +9,9 @@ var ForgottenFuture = {
         Shader: {
             Editor:{}
         },
+        ViewPort: {
+
+        },
         gl: null,
         canvas: null,
         widthToHeightRatio: 1,

@@ -22,8 +22,8 @@
         this.sprite = new ForgottenFuture.Render.Shader.SpriteSheet2(gl, DIR_SPRITESHEET);
 
         // Rendering
-        this.render = function(t, gl, flags) {
-            this.sprite.render(t, gl, stage.viewPort.getProjection(), flags);
+        this.render = function(t, gl, mProjection, flags) {
+            this.sprite.render(t, gl, mProjection, flags);
         };
 
         var CHAR_SHIFT = 16;

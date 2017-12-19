@@ -132,8 +132,14 @@
             vRotation = [aX, aY, aZ];
         };
 
-        this.follow = function(viewPort) {
-            viewPort.setScript(new SpriteSheet2.ViewPortScriptFollow(this));
+        this.follow = function(stage) {
+            stage.setViewPort(
+                new Render.ViewPort.SimpleViewPort(
+                    function(mProjection) {
+                        return Util.translate(mProjection, -vPosition[0], -vPosition[1], -vPosition[2]);
+                    }
+                )
+            );
         };
 
         // Frames
@@ -235,20 +241,6 @@
     }
 
     var defaultColor = new Float32Array([1,1,1,1]);
-
-    // ViewPort Script
-
-    SpriteSheet2.ViewPortScriptFollow = ViewPortScriptFollow;
-    function ViewPortScriptFollow(sprite) {
-        this.calculateProjection = function(t, mProjection) {
-            var vPosition = sprite.getPosition();
-
-            // Translation
-            mProjection = Util.translate(mProjection, -vPosition[0], -vPosition[1], -vPosition[2]);
-
-            return mProjection;
-        }
-    }
 
     // Program
 

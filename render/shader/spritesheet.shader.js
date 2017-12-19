@@ -53,7 +53,7 @@
 
         // Functions
 
-        this.render = function(t, gl, flags) {
+        this.render = function(t, gl, mProjection, flags) {
 
             // Update
             this.update(t, stage, flags);
@@ -72,7 +72,7 @@
             gl.vertexAttribPointer(aTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
 
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(uPMatrix, false, stage.viewPort.getProjection());
+            gl.uniformMatrix4fv(uPMatrix, false, mProjection);
             gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
             gl.uniform4fv(uColor, vActiveColor);
 
@@ -120,8 +120,15 @@
             mAcceleration = Util.translation(ax, ay, az);
         };
 
-        this.follow = function(viewPort) {
-            viewPort.setScript(new SpriteSheet.ViewPortScriptFollow(this));
+
+        this.follow = function(stage) {
+            stage.setViewPort(
+                new Render.ViewPort.SimpleViewPort(
+                    function(mProjection) {
+                        return Util.translate(mProjection, -vPosition[0], -vPosition[1], -vPosition[2]);
+                    }
+                )
+            );
         };
 
         var frameCount = 0; var sinceLastFrame = 0;
@@ -293,9 +300,18 @@
 
     // ViewPort Script
 
-    SpriteSheet.ViewPortScriptFollow = ViewPortScriptFollow;
-    function ViewPortScriptFollow(sprite) {
-        this.calculateProjection = function(t, mProjection) {
+    SpriteSheet.FollowViewPort = FollowViewPort;
+
+    function FollowViewPort(sprite) {
+        this.calculateProjection = function(t) {
+            // Aspect Ratio
+            var mProjection = FollowViewPort.DEFAULT_PROJECTION;
+            if(Render.widthToHeightRatio < 1) {
+                mProjection = Util.scale(mProjection, 1, Render.widthToHeightRatio, 1);
+            } else {
+                mProjection = Util.scale(mProjection, 1/Render.widthToHeightRatio, 1, 1);
+            }
+
             var vPosition = sprite.getPosition();
             
             // Translation
@@ -304,6 +320,7 @@
             return mProjection;
         }
     }
+    FollowViewPort.DEFAULT_PROJECTION = [1, 0, 0, 0, 0, 1, 0, 0, 1, 0, 0, -3, -4, -3, 0, 10];
 
     // Texture Program
 

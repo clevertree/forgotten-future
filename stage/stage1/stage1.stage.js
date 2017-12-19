@@ -23,7 +23,7 @@
         Input = ForgottenFuture.Input;
 
     // Camera/ViewPort
-    Util.loadScript('render/viewport/default.viewport.js');
+    Util.loadScript('render/viewport/simple.viewport.js');
 
     // Level Maps
     Util.loadScript('render/shader/tilemap.shader.js');
@@ -70,8 +70,11 @@
         var selectedRender = -1; // renders.length - 1;
 
         // Default FOV
-        var viewPort = new ForgottenFuture.Render.ViewPort(gl);
-        Lem.follow(viewPort);
+        var viewPort = new ForgottenFuture.Render.ViewPort.SimpleViewPort();
+        this.setViewPort = function (newViewPort) {
+            viewPort = newViewPort;
+        };
+        Lem.follow(this);
         // viewPort.script.setVelocity(-0.005, 0, -0.001);
 
         this.viewPort = viewPort;
@@ -96,7 +99,7 @@
             gl.enable(gl.BLEND);
 
             // Update Camera
-            viewPort.update(t);
+            var mProjection = viewPort.calculateProjection(t);
 
             RAV1.sprite.setRotate(0, 0, frameCount/100);
 
@@ -113,9 +116,10 @@
                 var flags = stageFlags;
                 if(selectedRender === i)    flags |= Constant.RENDER_SELECTED;
                 renders[i].update(t, flags);
-                renders[i].render(t, gl, flags);
+                renders[i].render(t, gl, mProjection, flags);
             }
         };
+
 
         var CHAR_SHIFT = 16;
         var keyTildeCount = 0, keyTabCount = 0;

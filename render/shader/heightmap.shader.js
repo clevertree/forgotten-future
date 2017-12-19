@@ -52,7 +52,7 @@
 
         // Functions
 
-        this.render = function(t, gl, flags) {
+        this.render = function(t, gl, mProjection, flags) {
 
             // Update
             this.update(t, stage, flags);
@@ -71,7 +71,7 @@
 
 
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(uPMatrix, false, stage.viewPort.getProjection());
+            gl.uniformMatrix4fv(uPMatrix, false, mProjection);
             gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
             gl.uniform1f(uMapLength, mapLength);
 
