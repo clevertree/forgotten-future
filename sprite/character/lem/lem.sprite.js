@@ -64,7 +64,7 @@
                 new Render.ViewPort.SimpleViewPort(
                     function(vViewPosition) {
                         vViewPosition[0] = -vPosition[0];
-                        vViewPosition[1] = -vPosition[1] + 1;
+                        vViewPosition[1] = -vPosition[1] + 2;
                         if(vViewPosition[2] < 2)
                            vViewPosition[2] += 0.004;
                     }
