@@ -52,9 +52,8 @@
         var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
         var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
         function init() {
-            RAV1.sprite.setScale(2);
-            RAV1.sprite.setRotate(0, 0, 1);
-            RAV1.sprite.setPosition(7, 8, 0);
+            RAV1.setRotate(0, 0, 1);
+            RAV1.setPosition(7, 8, 0);
             THIS.setViewPort(RAV1.getViewPort());
 
             Lem.move([10, 10, 0]);
@@ -104,7 +103,7 @@
             // Update Camera
             var mProjection = viewPort.calculateProjection(t);
 
-            RAV1.sprite.setRotate(0, 0, frameCount/100);
+            RAV1.setRotate(0, 0, frameCount/100);
 
             // Enable Depth testing
             // gl.enable(gl.DEPTH_TEST); // Depth test creates those ugly opaque textures

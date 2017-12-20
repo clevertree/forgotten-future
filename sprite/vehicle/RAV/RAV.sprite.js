@@ -8,6 +8,7 @@
 (function() {
     var Util            = ForgottenFuture.Util,
         Flag            = ForgottenFuture.Constant,
+        Render          = ForgottenFuture.Render,
         pressedKeys     = ForgottenFuture.Input.pressedKeys;
 
     var DIR = 'sprite/vehicle/RAV/';
@@ -22,21 +23,74 @@
     ForgottenFuture.Sprite.Vehicle.RAV = RAV;
     function RAV(gl, stage) {
 
+        var vPosition = [0, 0, 0], vScale = [4,1,0],
+            vVelocity = null, vAcceleration = null, vRotation = null;
+
         // Sprite Sheet
-        this.sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SPRITESHEET);
+        var sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SPRITESHEET);
 
         // Rendering
         this.render = function(t, gl, mProjection, flags) {
-            this.sprite.render(t, gl, mProjection, flags);
+
+            sprite.render(t, gl, vPosition, vRotation, vScale, mProjection, flags);
         };
 
-        this.getViewPort = function () {
-            return this.sprite.getViewPort();
+
+        this.setScale = function(newScaleX, newScaleY) {
+            vScale = [newScaleX, newScaleY || (newScaleX * sprite.ratio), 0];
         };
 
-        var CHAR_SHIFT = 16;
+        this.getVelocity = function() { return vVelocity; };
+        this.setVelocity = function(vx, vy, vz) {
+            vVelocity = [vx, vy, vz];
+        };
+
+        this.getAcceleration = function() { return vAcceleration; };
+        this.setAcceleration = function(ax, ay, az) {
+            if(!vVelocity)
+                this.setVelocity(0,0,0);
+            vAcceleration = [ax, ay, az];
+        };
+
+        this.getPosition = function () { return vPosition; };
+        this.setPosition = function(x, y, z) {
+            vPosition = [x, y, z];
+        };
+
+        this.getRotate = function () { return vRotation; };
+        this.setRotate = function(aX, aY, aZ) {
+            vRotation = [aX, aY, aZ];
+        };
+
+        this.getViewPort = function() {
+            return new Render.ViewPort.SimpleViewPort(
+                function(vViewPosition) {
+                    vViewPosition[0] = -vPosition[0];
+                    vViewPosition[1] = -vPosition[1] + 2;
+                    if(vViewPosition[2] < 2)
+                        vViewPosition[2] += 0.004;
+                }
+            );
+        };
+
+        // var CHAR_SHIFT = 16;
         this.update = function(t, flags) {
-            this.sprite.update(t, flags);
+
+            // Acceleration
+            if(vAcceleration) {
+                if(!vVelocity) vVelocity = [0, 0, 0];
+                vVelocity[0] += vAcceleration[0];
+                vVelocity[1] += vAcceleration[1];
+                vVelocity[2] += vAcceleration[2];
+            }
+
+            if(vVelocity) {
+                vPosition[0] += vVelocity[0];
+                vPosition[1] += vVelocity[1];
+                vPosition[2] += vVelocity[2];
+            }
+
+            sprite.update(t, flags);
 
             // Controls
             // if(pressedKeys[39] || pressedKeys[68])  mAcceleration = [speed, 0, 0];  // Right:

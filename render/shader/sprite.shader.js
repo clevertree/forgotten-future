@@ -20,7 +20,7 @@
         var THIS = this;
         var glLineMode = 4; // gl.TRIANGLES;
         var vScale = [1, 1, 1];
-        var spriteSheetRatio = 1;
+        this.ratio = 1;
 
         var mModelView =            defaultModelViewMatrix;
         var mVertexCoordinates =    getVertexCoordinates(1,1); // getVertexPositions(scale, scale);
@@ -50,40 +50,12 @@
         // Functions
         
         var frameUpdated = true;
-        this.render = function(t, gl, mProjection, flags) {
+        this.render = function(t, gl, vPosition, vRotation, vScale, mProjection, flags) {
 
-            // Render
-            Sprite.RENDER_DEFAULT(gl,
-                tSpriteSheet,
-                mModelView,
-                mProjection,
-                mVertexCoordinates,
-                this.frames[currentFrame],
-                vActiveColor,
-                glLineMode);
-        };
+            var mModelView = defaultModelViewMatrix;
 
-        var lastTime = 0;
-        /** @deprecated **/
-        this.update = function(t, flags) {
-            var elapsedTime = t - lastTime;
-            lastTime = t;
-
-            // Acceleration
-            if(vAcceleration) {
-                if(!vVelocity) vVelocity = [0, 0, 0];
-                vVelocity[0] += vAcceleration[0];
-                vVelocity[1] += vAcceleration[1];
-                vVelocity[2] += vAcceleration[2];
-            }
-
-            if(vVelocity) {
-                vPosition[0] += vVelocity[0];
-                vPosition[1] += vVelocity[1];
-                vPosition[2] += vVelocity[2];
-            }
-
-            mModelView = Util.translate(defaultModelViewMatrix, vPosition[0] - vScale[0]/2, vPosition[1] - vScale[1]/2, vPosition[2]);
+            mModelView = Util.scale(mModelView, vScale[0], vScale[1], 1);
+            mModelView = Util.translate(mModelView, vPosition[0] - vScale[0]/2, vPosition[1] - vScale[1]/2, vPosition[2]);
             if(vRotation) {
                 if(vRotation[0]) mModelView = Util.xRotate(mModelView, vRotation[0]);
                 if(vRotation[1]) mModelView = Util.yRotate(mModelView, vRotation[1]);
@@ -103,47 +75,26 @@
             } else {
                 vActiveColor = vColor
             }
+
+            // Render
+            Sprite.RENDER_DEFAULT(gl,
+                tSpriteSheet,
+                mModelView,
+                mProjection,
+                mVertexCoordinates,
+                this.frames[currentFrame],
+                vActiveColor,
+                glLineMode);
         };
 
+        var lastTime = 0;
+        /** @deprecated **/
+        this.update = function(t, flags) {
+            var elapsedTime = t - lastTime;
+            lastTime = t;
 
-
-        this.setScale = function(newScale) {
-            vScale = [newScale, newScale * spriteSheetRatio, 0];
-            mVertexCoordinates = getVertexCoordinates(vScale[0], vScale[1]);
         };
 
-        this.getVelocity = function() { return vVelocity; };
-        this.setVelocity = function(vx, vy, vz) {
-            vVelocity = [vx, vy, vz];
-        };
-
-        this.getAcceleration = function() { return vAcceleration; };
-        this.setAcceleration = function(ax, ay, az) {
-            if(!vVelocity)
-                this.setVelocity(0,0,0);
-            vAcceleration = [ax, ay, az];
-        };
-
-        this.getPosition = function () { return vPosition; };
-        this.setPosition = function(x, y, z) {
-            vPosition = [x, y, z];
-        };
-
-        this.getRotate = function () { return vRotation; };
-        this.setRotate = function(aX, aY, aZ) {
-            vRotation = [aX, aY, aZ];
-        };
-
-        this.getViewPort = function() {
-            return new Render.ViewPort.SimpleViewPort(
-                function(vViewPosition) {
-                    vViewPosition[0] = -vPosition[0];
-                    vViewPosition[1] = -vPosition[1] + 2;
-                    if(vViewPosition[2] < 2)
-                        vViewPosition[2] += 0.004;
-                }
-            );
-        };
 
         // Frames
 
@@ -204,7 +155,7 @@
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             }
 
-            spriteSheetRatio = iSpriteSheet.height / iSpriteSheet.width;
+            THIS.ratio = iSpriteSheet.height / iSpriteSheet.width;
             THIS.setScale(vScale[0]);
             // vScale[1] = vScale[0] * spriteSheetRatio;
         }
