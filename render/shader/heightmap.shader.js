@@ -1,13 +1,15 @@
+"use strict";
 /**
  * Created by Ari on 12/30/2016.
  */
 
 (function() {
-    var Util = ForgottenFuture.Util;
+    var Util = ForgottenFuture.Util,
+        Render = ForgottenFuture.Render;
 
     var PROGRAM;
 
-    ForgottenFuture.Render.Shader.HeightMap = HeightMap;
+    Render.Shader.HeightMap = HeightMap;
     function HeightMap(gl, stage, mapLength, pathHeightMapTexture, pathColorTexture, pathHeightPatternTexture, flags) {
         if(typeof flags === 'undefined')
             flags = HeightMap.FLAG_DEFAULTS;
@@ -16,7 +18,7 @@
         // Variables
         var THIS =              this;
         mapLength =             mapLength || 1024;
-        var mPosition =         [0, 0, 0];
+        var vPosition =         [0, 0, 0];
         var mScale =            [128, 8, 1];
         var mModelView =        defaultModelViewMatrix;
         // vColor =             vColor || defaultColor;
@@ -141,16 +143,27 @@
             vHighlightRange = [left, right];
         };
 
+        this.getViewPort = function() {
+            return new Render.ViewPort.SimpleViewPort(
+                function(vViewPosition) {
+                    vViewPosition[0] = -vPosition[0];
+                    vViewPosition[1] = -vPosition[1] + 2;
+                    if(vViewPosition[2] < 2)
+                        vViewPosition[2] += 0.004;
+                }
+            );
+        };
+
         // Map Data
 
         this.testHit = function(x, y, z) {
-            if(z !== mPosition[2])
+            if(z !== vPosition[2])
                 return null;
 
-            var rx = x / mScale[0] - mPosition[0];
+            var rx = x / mScale[0] - vPosition[0];
             if(rx < 0 || rx > 1)
                 return null;
-            var ry = y / mScale[1] - mPosition[1];
+            var ry = y / mScale[1] - vPosition[1];
             if(ry < 0 || ry > 1)
                 return null;
 
@@ -169,17 +182,17 @@
         // Model/View
 
         this.move = function(tx, ty, tz) {
-            mPosition[0] += tx || 0;
-            mPosition[1] += ty || 0;
-            mPosition[2] += tz || 0;
+            vPosition[0] += tx || 0;
+            vPosition[1] += ty || 0;
+            vPosition[2] += tz || 0;
             this.reset();
-            console.log("Set Level Position: ", mPosition);
+            console.log("Set Level Position: ", vPosition);
         };
 
         this.moveTo = function(x, y, z) {
-            mPosition = [x || 0, y || 0, z || 0];
+            vPosition = [x || 0, y || 0, z || 0];
             this.reset();
-            console.log("Set Level Position: ", mPosition);
+            console.log("Set Level Position: ", vPosition);
         };
 
 
@@ -187,7 +200,7 @@
             mModelView = defaultModelViewMatrix;
             var sx = 1000; // iLevelMap.width * tileSize / (pixelsPerUnit);
             var sy = 100; // iLevelMap.height * tileSize / (pixelsPerUnit);
-            mModelView = Util.translate(mModelView, mPosition[0], mPosition[1], mPosition[2]);
+            mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
             mModelView = Util.scale(mModelView, sx * 2, sy * 2, 1);
             console.log("Set Level Scale: ", sx, sy);
         };
@@ -281,18 +294,19 @@
                 image.addEventListener('load', onLoadTexture);
                 tColor.srcImage = image;
 
-                function onLoadTexture(e) {
-                    vTextureSizes[2] = image.width;
-                    vTextureSizes[3] = image.height;
+            }
 
-                    gl.bindTexture(gl.TEXTURE_2D, tColor);
-                    gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+            function onLoadTexture(e) {
+                vTextureSizes[2] = image.width;
+                vTextureSizes[3] = image.height;
 
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                }
+                gl.bindTexture(gl.TEXTURE_2D, tColor);
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
             }
         }
         

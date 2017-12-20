@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Created by Ari on 12/30/2016.
  */
@@ -14,16 +15,23 @@
 
     Util.loadScript('render/shader/sprite.shader.js');
 
+    var HITPOINTS = [
+        [0,1], [1,1], [1,0], [0,0]
+    ];
 
     ForgottenFuture.Sprite.Vehicle.RAV = RAV;
     function RAV(gl, stage) {
 
         // Sprite Sheet
-        this.sprite = new ForgottenFuture.Render.Shader.SpriteSheet2(gl, DIR_SPRITESHEET);
+        this.sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SPRITESHEET);
 
         // Rendering
         this.render = function(t, gl, mProjection, flags) {
             this.sprite.render(t, gl, mProjection, flags);
+        };
+
+        this.getViewPort = function () {
+            return this.sprite.getViewPort();
         };
 
         var CHAR_SHIFT = 16;
@@ -54,11 +62,11 @@
         };
 
         function handleStageCollision(t, stage, flags) {
-            mAcceleration = null;
+            // mAcceleration = null;
             // mVelocity = null;
 
-            if(!mVelocity) mVelocity = [0, 0, 0];
-            mVelocity = [mVelocity[0], Math.abs(mVelocity[1] * 0.98), mVelocity[2]];
+            // if(!mVelocity) mVelocity = [0, 0, 0];
+            // mVelocity = [mVelocity[0], Math.abs(mVelocity[1] * 0.98), mVelocity[2]];
         }
 
     }

@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Created by Ari on 12/30/2016.
  */
@@ -6,9 +7,9 @@
     var Util = ForgottenFuture.Util,
         Render = ForgottenFuture.Render;
 
-    ForgottenFuture.Render.Shader.SpriteSheet2 = SpriteSheet2;
-    function SpriteSheet2(gl, pathSpriteSheet, flags) {
-        if(typeof flags === 'undefined') flags = SpriteSheet2.FLAG_DEFAULTS;
+    ForgottenFuture.Render.Shader.Sprite = Sprite;
+    function Sprite(gl, pathSpriteSheet, flags) {
+        if(typeof flags === 'undefined') flags = Sprite.FLAG_DEFAULTS;
 
         this.frames = {
             'default': defaultTextureCoordinates
@@ -29,7 +30,7 @@
 
         // Initiate Shaders
         if(!PROGRAM)
-            SpriteSheet2.RENDER_INIT(gl);
+            Sprite.RENDER_INIT(gl);
 
         // Create a texture.
         var tSpriteSheet = gl.createTexture();
@@ -52,7 +53,7 @@
         this.render = function(t, gl, mProjection, flags) {
 
             // Render
-            SpriteSheet2.RENDER_DEFAULT(gl,
+            Sprite.RENDER_DEFAULT(gl,
                 tSpriteSheet,
                 mModelView,
                 mProjection,
@@ -63,6 +64,7 @@
         };
 
         var lastTime = 0;
+        /** @deprecated **/
         this.update = function(t, flags) {
             var elapsedTime = t - lastTime;
             lastTime = t;
@@ -132,13 +134,14 @@
             vRotation = [aX, aY, aZ];
         };
 
-        this.follow = function(stage) {
-            stage.setViewPort(
-                new Render.ViewPort.SimpleViewPort(
-                    function(mProjection) {
-                        return Util.translate(mProjection, -vPosition[0], -vPosition[1], -vPosition[2]);
-                    }
-                )
+        this.getViewPort = function() {
+            return new Render.ViewPort.SimpleViewPort(
+                function(vViewPosition) {
+                    vViewPosition[0] = -vPosition[0];
+                    vViewPosition[1] = -vPosition[1] + 2;
+                    if(vViewPosition[2] < 2)
+                        vViewPosition[2] += 0.004;
+                }
             );
         };
 
@@ -192,7 +195,7 @@
             // Set the parameters so we can render any size image.
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            if (flags & SpriteSheet2.FLAG_GENERATE_MIPMAP) {
+            if (flags & Sprite.FLAG_GENERATE_MIPMAP) {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.generateMipmap(gl.TEXTURE_2D);
@@ -209,8 +212,8 @@
 
     // Static
 
-    SpriteSheet2.FLAG_GENERATE_MIPMAP = 0x01;
-    SpriteSheet2.FLAG_DEFAULTS = 0; //SpriteSheet.FLAG_GENERATE_MIPMAP;
+    Sprite.FLAG_GENERATE_MIPMAP = 0x01;
+    Sprite.FLAG_DEFAULTS = 0; //SpriteSheet.FLAG_GENERATE_MIPMAP;
 
     var defaultModelViewMatrix = Util.translation(0,0,0); //[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
 
@@ -250,10 +253,10 @@
     var uPMatrix, uMVMatrix, uSampler, uColor;
 
 
-    SpriteSheet2.RENDER_INIT = function(gl) {
+    Sprite.RENDER_INIT = function(gl) {
 
         // Init Program
-        var program = Util.compileProgram(gl, SpriteSheet2.VS, SpriteSheet2.FS);
+        var program = Util.compileProgram(gl, Sprite.VS, Sprite.FS);
         gl.useProgram(program);
 
         // Enable Vertex Position Attribute.
@@ -279,7 +282,7 @@
         PROGRAM = program;
     };
 
-    SpriteSheet2.RENDER_DEFAULT = function(gl, tSpriteSheet, mModelView, mProjection, mVertexCoordinates, mTextureCoordinates, vColor, glLineMode) {
+    Sprite.RENDER_DEFAULT = function(gl, tSpriteSheet, mModelView, mProjection, mVertexCoordinates, mTextureCoordinates, vColor, glLineMode) {
 
         // Render
         gl.useProgram(PROGRAM);
@@ -310,7 +313,7 @@
         gl.drawArrays(glLineMode, 0, 6);
     };
 
-    SpriteSheet2.VS = [
+    Sprite.VS = [
         "attribute vec4 aVertexPosition;",
         "attribute vec2 aTextureCoordinate;",
 
@@ -325,7 +328,7 @@
         "}"
     ].join("\n");
 
-    SpriteSheet2.FS = [
+    Sprite.FS = [
         "precision mediump float;",
 
         "uniform sampler2D uSampler;",

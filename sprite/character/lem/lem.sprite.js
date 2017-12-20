@@ -1,3 +1,5 @@
+"use strict";
+// noinspection JSNonStrictModeUsed
 /**
  * Created by Ari on 12/30/2016.
  */
@@ -59,16 +61,14 @@
         this.getPosition = function () { return vPosition; };
 
 
-        this.follow = function(stage) {
-            stage.setViewPort(
-                new Render.ViewPort.SimpleViewPort(
-                    function(vViewPosition) {
-                        vViewPosition[0] = -vPosition[0];
-                        vViewPosition[1] = -vPosition[1] + 2;
-                        if(vViewPosition[2] < 2)
-                           vViewPosition[2] += 0.004;
-                    }
-                )
+        this.getViewPort = function() {
+            return new Render.ViewPort.SimpleViewPort(
+                function(vViewPosition) {
+                    vViewPosition[0] = -vPosition[0];
+                    vViewPosition[1] = -vPosition[1] + 2;
+                    if(vViewPosition[2] < 2)
+                        vViewPosition[2] += 0.004;
+                }
             );
         };
 

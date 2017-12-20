@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Created by Ari on 12/30/2016.
  */
@@ -5,20 +6,21 @@
 (function() {
     var Util = ForgottenFuture.Util,
         Input = ForgottenFuture.Input,
+        Render = ForgottenFuture.Render,
         Constant = ForgottenFuture.Constant;
     var PIXELS_PER_UNIT = ForgottenFuture.Constant.PIXELS_PER_UNIT;
 
     var PROGRAM;
 
     ForgottenFuture.Render.Shader.TileMap = TileMap;
-    function TileMap(gl, stage, pathLevelMap, pathTileSheet, tileSize, flags, mPosition, mVelocity, mAcceleration, vColor) {
+    function TileMap(gl, stage, pathLevelMap, pathTileSheet, tileSize, flags, vPosition, mVelocity, mAcceleration, vColor) {
         if(typeof flags === 'undefined')
             flags = TileMap.FLAG_DEFAULTS;
 
         // Variables
         var THIS =              this;
         var pixelsPerUnit =     PIXELS_PER_UNIT;
-        mPosition =             mPosition || [0, 0, 0];
+        vPosition =             vPosition || [0, 0, 0];
         var mModelView =        defaultModelViewMatrix;
         vColor =                vColor || defaultColor;
         var mMapSize =          [tileSize, tileSize];
@@ -147,6 +149,17 @@
 
         };
 
+        this.getViewPort = function() {
+            return new Render.ViewPort.SimpleViewPort(
+                function(vViewPosition) {
+                    vViewPosition[0] = -vPosition[0];
+                    vViewPosition[1] = -vPosition[1] + 2;
+                    if(vViewPosition[2] < 2)
+                        vViewPosition[2] += 0.004;
+                }
+            );
+        };
+
         // Map Data
 
         this.getTilePixel = function(x, y) {
@@ -172,11 +185,11 @@
         };
 
         this.testHit = function(x, y, z) {
-            if(z !== mPosition[2] || !idLevelMapData)
+            if(z !== vPosition[2] || !idLevelMapData)
                 return null;
             
-            var tx = Math.round((x - mPosition[0])/tileSize * pixelsPerUnit);
-            var ty = Math.round(-(y - mPosition[1])/tileSize * pixelsPerUnit);
+            var tx = Math.round((x - vPosition[0])/tileSize * pixelsPerUnit);
+            var ty = Math.round(-(y - vPosition[1])/tileSize * pixelsPerUnit);
             // console.log("Test Hit: ", x, y, ' => ', px, py, this.getPixel(px, py));
             var tpixel = this.getTilePixel(tx, ty);
             if(!tpixel || tpixel[2] < 128)
@@ -252,17 +265,17 @@
         };
 
         this.move = function(tx, ty, tz) {
-            mPosition[0] += tx || 0;
-            mPosition[1] += ty || 0;
-            mPosition[2] += tz || 0;
+            vPosition[0] += tx || 0;
+            vPosition[1] += ty || 0;
+            vPosition[2] += tz || 0;
             this.reset();
-            console.log("Set Level Position: ", mPosition);
+            console.log("Set Level Position: ", vPosition);
         };
 
         this.moveTo = function(x, y, z) {
-            mPosition = [x || 0, y || 0, z || 0];
+            vPosition = [x || 0, y || 0, z || 0];
             this.reset();
-            console.log("Set Level Position: ", mPosition);
+            console.log("Set Level Position: ", vPosition);
         };
 
 
@@ -272,7 +285,7 @@
                 var sx = iLevelMap.width * tileSize / (pixelsPerUnit);
                 var sy = iLevelMap.height * tileSize / (pixelsPerUnit);
                 mMapSize = [iLevelMap.width * tileSize, iLevelMap.height * tileSize];
-                mModelView = Util.translate(mModelView, mPosition[0], mPosition[1], mPosition[2]);
+                mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
                 mModelView = Util.scale(mModelView, sx * 2, sy * 2, 1);
 //                 console.log("Set Level Scale: ", sx, sy);
             }

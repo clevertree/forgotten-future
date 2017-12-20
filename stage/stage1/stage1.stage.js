@@ -1,3 +1,4 @@
+"use strict";
 /**
  * Created by ari on 5/14/2017.
  */
@@ -50,11 +51,14 @@
         // Players
         var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
         var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
-        RAV1.sprite.setScale(2);
-        RAV1.sprite.setRotate(0, 0, 1);
-        RAV1.sprite.setPosition(7, 8, 0);
+        function init() {
+            RAV1.sprite.setScale(2);
+            RAV1.sprite.setRotate(0, 0, 1);
+            RAV1.sprite.setPosition(7, 8, 0);
+            THIS.setViewPort(RAV1.getViewPort());
 
-        Lem.move([0, 10, 0]);
+            Lem.move([10, 10, 0]);
+        }
 
         // Level Sprites
         var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
@@ -74,7 +78,6 @@
         this.setViewPort = function (newViewPort) {
             viewPort = newViewPort;
         };
-        Lem.follow(this);
         // viewPort.script.setVelocity(-0.005, 0, -0.001);
 
         this.viewPort = viewPort;
@@ -150,11 +153,13 @@
                     selectedRender++;
                     if(selectedRender >= renders.length)
                         selectedRender = -1;
-                    if(selectedRender === -1)
+                    if(selectedRender === -1) {
+                        THIS.setViewPort(new Render.ViewPort.SimpleViewPort());
                         console.log("Selected: ", THIS);
-                    else
+                    } else {
+                        THIS.setViewPort(renders[selectedRender].getViewPort());
                         console.log("Selected:", renders[selectedRender]);
-
+                    }
                 }
             }
 
@@ -190,7 +195,8 @@
             return false;
         };
 
-        // Set up Stage Object
+        // Initialize Stage Objects
+        init();
     }
 
 
