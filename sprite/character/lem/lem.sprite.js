@@ -77,8 +77,8 @@
                 function(vViewPosition) {
                     vViewPosition[0] = -vPosition[0];
                     vViewPosition[1] = -vPosition[1] + 2;
-                    if(vViewPosition[2] < 2)
-                        vViewPosition[2] += 0.004 * (2 - vViewPosition[2]);
+                    if(vViewPosition[2] < 2.5)
+                        vViewPosition[2] += 0.001 * (2.5 - vViewPosition[2]);
                 }
             );
         };
