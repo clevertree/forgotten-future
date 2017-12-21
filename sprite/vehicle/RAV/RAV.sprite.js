@@ -21,7 +21,7 @@
     ];
 
     ForgottenFuture.Sprite.Vehicle.RAV = RAV;
-    function RAV(gl, stage) {
+    function RAV(gl) {
 
         var vPosition = [0, 0, 0], vScale = [2,1,0],
             vVelocity = null, vAcceleration = null, vRotation = null;
@@ -31,7 +31,21 @@
 
         // Rendering
         this.render = function(t, gl, mProjection, flags) {
+            // Update
+            if(vAcceleration) {
+                if(!vVelocity) vVelocity = [0, 0, 0];
+                vVelocity[0] += vAcceleration[0];
+                vVelocity[1] += vAcceleration[1];
+                vVelocity[2] += vAcceleration[2];
+            }
 
+            if(vVelocity) {
+                vPosition[0] += vVelocity[0];
+                vPosition[1] += vVelocity[1];
+                vPosition[2] += vVelocity[2];
+            }
+
+            // Render
             sprite.render(t, gl, vPosition, vRotation, vScale, mProjection, flags);
         };
 
@@ -68,49 +82,9 @@
                     vViewPosition[0] = -vPosition[0];
                     vViewPosition[1] = -vPosition[1] + 2;
                     if(vViewPosition[2] < 2)
-                        vViewPosition[2] += 0.004;
+                        vViewPosition[2] += 0.004 * (2 - vViewPosition[2]);
                 }
             );
-        };
-
-        // var CHAR_SHIFT = 16;
-        this.update = function(t, flags) {
-
-            // Acceleration
-            if(vAcceleration) {
-                if(!vVelocity) vVelocity = [0, 0, 0];
-                vVelocity[0] += vAcceleration[0];
-                vVelocity[1] += vAcceleration[1];
-                vVelocity[2] += vAcceleration[2];
-            }
-
-            if(vVelocity) {
-                vPosition[0] += vVelocity[0];
-                vPosition[1] += vVelocity[1];
-                vPosition[2] += vVelocity[2];
-            }
-
-            // Controls
-            // if(pressedKeys[39] || pressedKeys[68])  mAcceleration = [speed, 0, 0];  // Right:
-            // if(pressedKeys[37] || pressedKeys[65])  mAcceleration = [-speed, 0, 0];  // Left:
-            // if(pressedKeys[40] || pressedKeys[83])  mAcceleration = [0, -speed, 0];  // Down:
-            // if(pressedKeys[38] || pressedKeys[87])  mAcceleration = [0, speed, 0];  // Up:
-            // if(pressedKeys[71])                     mAcceleration = stage.mGravity;  // Up:
-
-            // Collision
-            // var hitFloor = stage.testHit(mPosition[0], mPosition[1], mPosition[2]);
-            // if(!hitFloor) {
-            //     // Fall
-            //     if(!mAcceleration) {
-            //         mAcceleration = stage.mGravity;
-            //         if(!mVelocity) mVelocity = [0, 0, 0];
-            //     }
-            //
-            // } else {
-            //     // Standing
-            //     if(mVelocity) // Collision
-            //         handleStageCollision(t, stage, flags);
-            // }
         };
 
         function handleStageCollision(t, stage, flags) {

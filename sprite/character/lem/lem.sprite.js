@@ -35,20 +35,12 @@
         // move(0, 12, 0);
 
         this.render = function(t, mProjection, flags) {
-            fSpriteSheet.render(t, mProjection, flags);
-        };
-
-        /**
-         * Update Sprite Logic
-         * @param t
-         * @param flags
-         */
-        this.update = function(t, flags) {
             if(flags & Constant.RENDER_SELECTED) {
                 updateEditor(t, flags);
             } else {
                 updateMotion(t, flags);
             }
+            fSpriteSheet.render(t, mProjection, flags);
         };
 
         this.move = function(mDistance) {
@@ -67,7 +59,7 @@
                     vViewPosition[0] = -vPosition[0];
                     vViewPosition[1] = -vPosition[1] + 2;
                     if(vViewPosition[2] < 2)
-                        vViewPosition[2] += 0.004;
+                        vViewPosition[2] += 0.004 * (2 - vViewPosition[2]);
                 }
             );
         };

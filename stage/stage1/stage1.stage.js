@@ -50,7 +50,7 @@
 
         // Players
         var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
-        var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
+        var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl);
         function init() {
             RAV1.setRotate(0, 0, 1);
             RAV1.setPosition(7, 8, 0);
@@ -117,7 +117,6 @@
             for(var i=0; i<renders.length; i++) {
                 var flags = stageFlags;
                 if(selectedRender === i)    flags |= Constant.RENDER_SELECTED;
-                renders[i].update(t, flags);
                 renders[i].render(t, gl, mProjection, flags);
             }
         };
