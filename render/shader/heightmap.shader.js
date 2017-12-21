@@ -474,7 +474,7 @@
         // "   float rightIndex = leftIndex + 1.0;", // floor(vTextureCoordinate.x * uMapLength);",
         "   vec4 leftHeightPixel = getMapHeightPixel(leftIndex, uTextureHeightData, uTextureSize[0], uTextureSize[1]);",
 
-        "   if(vTextureCoordinate.y > leftHeightPixel.x + 0.005) { discard; }", // Optimization
+        "   if(vTextureCoordinate.y > leftHeightPixel.x + 0.01) { discard; }", // Optimization
 
         "   vec4 rightHeightPixel = getMapHeightPixel(leftIndex + 1.0, uTextureHeightData, uTextureSize[0], uTextureSize[1]);",
         "   float leftHeight = leftHeightPixel.x + leftHeightPixel.y/256.0 + leftHeightPixel.z/65536.0;",
