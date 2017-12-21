@@ -7,6 +7,15 @@
     var Util = ForgottenFuture.Util,
         Render = ForgottenFuture.Render;
 
+    var mVertexCoordinates =    new Float32Array([
+        -0.5, -0.5,
+        -0.5, 0.5,
+        0.5, -0.5,
+        0.5, -0.5,
+        -0.5, 0.5,
+        0.5, 0.5,
+    ]);
+
     ForgottenFuture.Render.Shader.Sprite = Sprite;
     function Sprite(gl, pathSpriteSheet, flags) {
         if(typeof flags === 'undefined') flags = Sprite.FLAG_DEFAULTS;
@@ -23,7 +32,7 @@
         this.ratio = 1;
 
         var mModelView =            defaultModelViewMatrix;
-        var mVertexCoordinates =    getVertexCoordinates(1,1); // getVertexPositions(scale, scale);
+        // getVertexCoordinates(1,1); // getVertexPositions(scale, scale);
         var vPosition = [0, 0, 0], vVelocity = null, vAcceleration = null, vRotation = null;
         var vColor =                defaultColor;
         var vActiveColor =          vColor.slice(0);
@@ -54,14 +63,13 @@
 
             var mModelView = defaultModelViewMatrix;
 
-            mModelView = Util.scale(mModelView, vScale[0], vScale[1], 1);
             mModelView = Util.translate(mModelView, vPosition[0] - vScale[0]/2, vPosition[1] - vScale[1]/2, vPosition[2]);
             if(vRotation) {
                 if(vRotation[0]) mModelView = Util.xRotate(mModelView, vRotation[0]);
                 if(vRotation[1]) mModelView = Util.yRotate(mModelView, vRotation[1]);
                 if(vRotation[2]) mModelView = Util.zRotate(mModelView, vRotation[2]);
             }
-            mModelView = Util.translate(mModelView,  -vScale[0]/2, - vScale[1]/2, 0);
+            mModelView = Util.scale(mModelView, vScale[0], vScale[1], 1);
 
             // mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
 
@@ -85,14 +93,6 @@
                 this.frames[currentFrame],
                 vActiveColor,
                 glLineMode);
-        };
-
-        var lastTime = 0;
-        /** @deprecated **/
-        this.update = function(t, flags) {
-            var elapsedTime = t - lastTime;
-            lastTime = t;
-
         };
 
 
@@ -156,7 +156,6 @@
             }
 
             THIS.ratio = iSpriteSheet.height / iSpriteSheet.width;
-            THIS.setScale(vScale[0]);
             // vScale[1] = vScale[0] * spriteSheetRatio;
         }
     }

@@ -168,7 +168,7 @@ var ForgottenFuture = {
                 canvas.height = window.innerHeight;
                 gl.viewport(0, 0, canvas.width, canvas.height);
                 Render.widthToHeightRatio = canvas.width / canvas.height;
-                console.log("Resized: ", canvas, canvas.width, canvas.height, Render.widthToHeightRatio);
+//                 console.log("Resized: ", canvas, canvas.width, canvas.height, Render.widthToHeightRatio);
             }
         }
     }

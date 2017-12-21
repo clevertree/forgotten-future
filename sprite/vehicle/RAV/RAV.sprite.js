@@ -23,7 +23,7 @@
     ForgottenFuture.Sprite.Vehicle.RAV = RAV;
     function RAV(gl, stage) {
 
-        var vPosition = [0, 0, 0], vScale = [4,1,0],
+        var vPosition = [0, 0, 0], vScale = [2,1,0],
             vVelocity = null, vAcceleration = null, vRotation = null;
 
         // Sprite Sheet
@@ -89,8 +89,6 @@
                 vPosition[1] += vVelocity[1];
                 vPosition[2] += vVelocity[2];
             }
-
-            sprite.update(t, flags);
 
             // Controls
             // if(pressedKeys[39] || pressedKeys[68])  mAcceleration = [speed, 0, 0];  // Right:
