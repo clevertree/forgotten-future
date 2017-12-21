@@ -15,7 +15,7 @@
     var DIR_CHARACTER = 'sprite/';
         var DIR_SHEET = DIR_CHARACTER + 'character/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
 
-    Util.loadScript('render/shader/spritesheet.shader.js');
+    Util.loadScript('render/shader/sprite.shader.js');
 
     ForgottenFuture.Sprite.Character.Lem = Lem;
     function Lem(gl, stage) {
@@ -23,31 +23,50 @@
 
         // Local Variables
         var speed = 1/10000;
-        var vPosition = [0, 0, 0];
+        var vScale = [1, 1, 0];
+        var vPosition = [0, 0, 0], vVelocity = null, vAcceleration = null, vRotation = null;
         var mVelocity = [0.1 * Math.random(), 0, 0];
         var mAcceleration = null;
         // var scale = 1;
 
         // Sprite Sheet
-        var fSpriteSheet = new ForgottenFuture.Render.Shader.SpriteSheet(gl, stage, DIR_SHEET, SPRITE_RESOLUTION, (1/16 * 1000));
-        this.sprite = fSpriteSheet;
+        var sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SHEET);
+        sprite.addTileFrameSequence('run', 0, 0, 16, 8, 2);
+        sprite.setCurrentFrame('run');
+        sprite.setFrameRate(30);
         // setScale(scale);
         // move(0, 12, 0);
 
-        this.render = function(t, mProjection, flags) {
+        // Rendering
+        this.render = function(t, gl, mProjection, flags) {
+            // Update
+            if(vAcceleration) {
+                if(!vVelocity) vVelocity = [0, 0, 0];
+                vVelocity[0] += vAcceleration[0];
+                vVelocity[1] += vAcceleration[1];
+                vVelocity[2] += vAcceleration[2];
+            }
+
+            if(vVelocity) {
+                vPosition[0] += vVelocity[0];
+                vPosition[1] += vVelocity[1];
+                vPosition[2] += vVelocity[2];
+            }
+
             if(flags & Constant.RENDER_SELECTED) {
                 updateEditor(t, flags);
             } else {
-                updateMotion(t, flags);
             }
-            fSpriteSheet.render(t, mProjection, flags);
+            updateMotion(t, flags);
+
+            // Render
+            sprite.render(t, gl, vPosition, vRotation, vScale, mProjection, flags);
         };
 
         this.move = function(mDistance) {
             vPosition[0] += mDistance[0];
             vPosition[1] += mDistance[1];
             vPosition[2] += mDistance[2];
-            fSpriteSheet.move(mDistance);
         };
 
         this.getPosition = function () { return vPosition; };
@@ -65,7 +84,7 @@
         };
 
         this.setScale = function(newScale) {
-            fSpriteSheet.setScale(newScale);
+            sprite.setScale(newScale);
         };
 
         this.setAcceleration = function (mNewAcceleration) {

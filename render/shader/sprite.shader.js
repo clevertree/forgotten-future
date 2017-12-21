@@ -12,9 +12,10 @@
         if(typeof flags === 'undefined') flags = Sprite.FLAG_DEFAULTS;
 
         this.frames = {
-            'default': defaultTextureCoordinates
+            'default': [defaultTextureCoordinates]
         };
-        var currentFrame = 'default';
+        var currentFrameName = 'default';
+        var frameLength = 1000;
 
         // Variables
         var THIS = this;
@@ -45,7 +46,9 @@
 
         // Functions
         
-        var frameUpdated = true;
+        var frameNo = 0;
+        var mLastFrame = null;
+        var lastFrameTime = 0;
         this.render = function(t, gl, vPosition, vRotation, vScale, mProjection, flags) {
             // Update
             var mModelView = defaultModelViewMatrix;
@@ -71,6 +74,16 @@
                 vActiveColor = vColor
             }
 
+            if(!mLastFrame || (lastFrameTime + frameLength < t)) {
+                lastFrameTime = t;
+                var frameSequence = this.frames[currentFrameName];
+                frameNo++;
+                if(frameNo >= frameSequence.length)
+                    frameNo = 0;
+
+                mLastFrame = frameSequence[frameNo];
+            }
+
             // Render
             gl.useProgram(PROGRAM);
 
@@ -80,7 +93,7 @@
 
             // Bind Texture Coordinate
             gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
-            gl.bufferData(gl.ARRAY_BUFFER, this.frames[currentFrame], gl.DYNAMIC_DRAW);
+            gl.bufferData(gl.ARRAY_BUFFER, mLastFrame, gl.DYNAMIC_DRAW);
             gl.vertexAttribPointer(aTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
 
             // Set the projection and viewport.
@@ -102,14 +115,16 @@
 
         // Frames
 
+        this.setFrameRate = function (framesPerSecond) {
+            frameLength = 1000/framesPerSecond;
+        };
 
         this.setCurrentFrame = function(frameName) {
-            currentFrame = frameName;
-            frameUpdated = true;
+            currentFrameName = frameName;
         };
         
         this.getCurrentFrame = function() {
-            return currentFrame;
+            return currentFrameName;
         };
 
         this.addFrame = function(newFrameName, left, top, right, bottom) {
@@ -123,17 +138,30 @@
             ]);
         };
 
+        this.addTileFrameSequence = function(newFrameName, x, y, length, tileSizeX, tileSizeY) {
+            for(var i=0; i<length; i++) {
+                this.addTileFrame(newFrameName, x, y, tileSizeX, tileSizeY);
+                x++;
+                if(x>=tileSizeX) {
+                    x = 0;
+                    y++;
+                }
+            }
+        };
+
         this.addTileFrame = function(newFrameName, x, y, tileSizeX, tileSizeY) {
-            var tileScaleX = tileSizeX / iSpriteSheet.width;
-            var tileScaleY = tileSizeY / iSpriteSheet.height;
-            this.frames[newFrameName] = new Float32Array([
+            var tileScaleX = 1 / tileSizeX;
+            var tileScaleY = 1 / tileSizeY;
+            if(typeof this.frames[newFrameName] === 'undefined')
+                this.frames[newFrameName] = [];
+            this.frames[newFrameName].push(new Float32Array([
                 (x+0)*tileScaleX,   (y+1)*tileScaleY,
                 (x+0)*tileScaleX,   (y+0)*tileScaleY,
                 (x+1)*tileScaleX,   (y+1)*tileScaleY,
                 (x+1)*tileScaleX,   (y+1)*tileScaleY,
                 (x+0)*tileScaleX,   (y+0)*tileScaleY,
                 (x+1)*tileScaleX,   (y+0)*tileScaleY,
-            ]);
+            ]));
         };
 
         // Textures
