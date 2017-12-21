@@ -22,7 +22,6 @@
         var THIS = this;
 
         // Local Variables
-        var speed = 1/10000;
         var vScale = [1, 1, 0];
         var vPosition = [0, 0, 0], vVelocity = null, vAcceleration = null, vRotation = null;
         var mVelocity = [0.1 * Math.random(), 0, 0];
@@ -33,7 +32,7 @@
         var sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SHEET);
         sprite.addTileFrameSequence('run', 0, 0, 16, 8, 2);
         sprite.setCurrentFrame('run');
-        sprite.setFrameRate(30);
+        sprite.setFrameRate(20);
         // setScale(scale);
         // move(0, 12, 0);
 
@@ -69,8 +68,29 @@
             vPosition[2] += mDistance[2];
         };
 
-        this.getPosition = function () { return vPosition; };
+        this.setScale = function(newScaleX, newScaleY) {
+            vScale = [newScaleX, newScaleY || (newScaleX * sprite.ratio), 0];
+        };
 
+        this.setRotate = function(vNewRotation)             { vRotation = vNewRotation; };
+        this.setPosition = function(vNewPosition)           { vPosition = vNewPosition; };
+        this.setVelocity = function(vNewVelocity)           { vVelocity = vNewVelocity; };
+        this.setAcceleration = function(vNewAcceleration) {
+            if(!vVelocity)
+                this.setVelocity([0,0,0]);
+            vAcceleration = vNewAcceleration;
+        };
+
+        this.getViewPort = function() {
+            return new Render.ViewPort.SimpleViewPort(
+                function(vViewPosition) {
+                    vViewPosition[0] = -vPosition[0];
+                    vViewPosition[1] = -vPosition[1] + 2;
+                    if(vViewPosition[2] < 2)
+                        vViewPosition[2] += 0.004 * (2 - vViewPosition[2]);
+                }
+            );
+        };
 
         this.getViewPort = function() {
             return new Render.ViewPort.SimpleViewPort(
@@ -78,19 +98,11 @@
                     vViewPosition[0] = -vPosition[0];
                     vViewPosition[1] = -vPosition[1] + 2;
                     if(vViewPosition[2] < 2.5)
-                        vViewPosition[2] += 0.001 * (2.5 - vViewPosition[2]);
+                        vViewPosition[2] += 0.002 * (2.5 - vViewPosition[2]);
                 }
             );
         };
 
-        this.setScale = function(newScale) {
-            sprite.setScale(newScale);
-        };
-
-        this.setAcceleration = function (mNewAcceleration) {
-            mAcceleration = mNewAcceleration;
-            if(!mVelocity) mVelocity = [0, 0, 0];
-        };
 
         // Physics
 

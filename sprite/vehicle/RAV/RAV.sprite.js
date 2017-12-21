@@ -54,26 +54,13 @@
             vScale = [newScaleX, newScaleY || (newScaleX * sprite.ratio), 0];
         };
 
-        this.getVelocity = function() { return vVelocity; };
-        this.setVelocity = function(vx, vy, vz) {
-            vVelocity = [vx, vy, vz];
-        };
-
-        this.getAcceleration = function() { return vAcceleration; };
-        this.setAcceleration = function(ax, ay, az) {
+        this.setRotate = function(vNewRotation)             { vRotation = vNewRotation; };
+        this.setPosition = function(vNewPosition)           { vPosition = vNewPosition; };
+        this.setVelocity = function(vNewVelocity)           { vVelocity = vNewVelocity; };
+        this.setAcceleration = function(vNewAcceleration) {
             if(!vVelocity)
-                this.setVelocity(0,0,0);
-            vAcceleration = [ax, ay, az];
-        };
-
-        this.getPosition = function () { return vPosition; };
-        this.setPosition = function(x, y, z) {
-            vPosition = [x, y, z];
-        };
-
-        this.getRotate = function () { return vRotation; };
-        this.setRotate = function(aX, aY, aZ) {
-            vRotation = [aX, aY, aZ];
+                this.setVelocity([0,0,0]);
+            vAcceleration = vNewAcceleration;
         };
 
         this.getViewPort = function() {
