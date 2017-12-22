@@ -39,18 +39,21 @@
             sprite.update(t, this, stage, flags);
 
             // Motion
-            if(vAcceleration) {
-                if(!vVelocity) vVelocity = [0, 0, 0];
-                vVelocity[0] += vAcceleration[0];
-                vVelocity[1] += vAcceleration[1];
-                vVelocity[2] += vAcceleration[2];
-            }
-
             if(vVelocity) {
-                vPosition[0] += vVelocity[0];
-                vPosition[1] += vVelocity[1];
-                vPosition[2] += vVelocity[2];
+                if(vAcceleration) {
+                    vVelocity[0] += vAcceleration[0];
+                    vVelocity[1] += vAcceleration[1];
+                    vVelocity[2] += vAcceleration[2];
+                }
+                this.move(vVelocity);
             }
+        };
+
+        // Model View
+        this.move = function(mDistance) {
+            vPosition[0] += mDistance[0];
+            vPosition[1] += mDistance[1];
+            vPosition[2] += mDistance[2];
         };
 
         this.setScale = function(vNewScale)                 { vScale = vNewScale; };

@@ -45,28 +45,23 @@
         this.update = function (t, stage, flags) {
             sprite.update(t, this, stage, flags);
 
-            if(vAcceleration) {
-                if(!vVelocity) vVelocity = [0, 0, 0];
-                vVelocity[0] += vAcceleration[0];
-                vVelocity[1] += vAcceleration[1];
-                vVelocity[2] += vAcceleration[2];
-            }
-
+            // Motion
             if(vVelocity) {
-                vPosition[0] += vVelocity[0];
-                vPosition[1] += vVelocity[1];
-                vPosition[2] += vVelocity[2];
+                if(vAcceleration) {
+                    vVelocity[0] += vAcceleration[0];
+                    vVelocity[1] += vAcceleration[1];
+                    vVelocity[2] += vAcceleration[2];
+                }
+                this.move(vVelocity);
             }
 
-            if(flags & Constant.RENDER_SELECTED) {
+            if(flags & Constant.RENDER_SELECTED)
                 updateEditor(t, stage, flags);
-            } else {
-            }
-            updateMotion(t, stage, flags);
 
-            // Render
+            updateMotion(t, stage, flags);
         };
 
+        // Model View
         this.move = function(mDistance) {
             vPosition[0] += mDistance[0];
             vPosition[1] += mDistance[1];
