@@ -17,7 +17,7 @@
     Util.loadScript('render/shader/sprite.shader.js');
 
     var HITPOINTS = [
-        [0,1], [1,1], [1,0], [0,0]
+        [-0.5,0.5], [0.5,0.5], [0.5,-0.5], [-0.5,-0.5]
     ];
 
     ForgottenFuture.Sprite.Vehicle.RAV = RAV;
@@ -30,8 +30,15 @@
         var sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SPRITESHEET);
 
         // Rendering
-        this.render = function(t, gl, mProjection, flags) {
-            // Update
+        this.render = function(gl, mProjection, flags) {
+            sprite.render(gl, vPosition, vRotation, vScale, mProjection, flags);
+        };
+
+        // Update
+        this.update = function (t, stage, flags) {
+            sprite.update(t, this, stage, flags);
+
+            // Motion
             if(vAcceleration) {
                 if(!vVelocity) vVelocity = [0, 0, 0];
                 vVelocity[0] += vAcceleration[0];
@@ -44,16 +51,9 @@
                 vPosition[1] += vVelocity[1];
                 vPosition[2] += vVelocity[2];
             }
-
-            // Render
-            sprite.render(t, gl, vPosition, vRotation, vScale, mProjection, flags);
         };
 
-
-        this.setScale = function(newScaleX, newScaleY) {
-            vScale = [newScaleX, newScaleY || (newScaleX * sprite.ratio), 0];
-        };
-
+        this.setScale = function(vNewScale)                 { vScale = vNewScale; };
         this.setRotate = function(vNewRotation)             { vRotation = vNewRotation; };
         this.setPosition = function(vNewPosition)           { vPosition = vNewPosition; };
         this.setVelocity = function(vNewVelocity)           { vVelocity = vNewVelocity; };

@@ -71,11 +71,7 @@
         // Functions
 
 
-        this.render = function(t, gl, mProjection, flags) {
-
-            // Update
-            this.update(t, stage, flags);
-
+        this.render = function(gl, mProjection, flags) {
             // Render
             gl.useProgram(PROGRAM);
 

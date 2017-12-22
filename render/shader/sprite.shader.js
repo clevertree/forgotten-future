@@ -49,20 +49,8 @@
         var frameNo = 0;
         var mLastFrame = null;
         var lastFrameTime = 0;
-        this.render = function(t, gl, vPosition, vRotation, vScale, mProjection, flags) {
-            // Update
-            var mModelView = defaultModelViewMatrix;
 
-            mModelView = Util.translate(mModelView, vPosition[0] - vScale[0]/2, vPosition[1] - vScale[1]/2, vPosition[2]);
-            if(vRotation) {
-                if(vRotation[0]) mModelView = Util.xRotate(mModelView, vRotation[0]);
-                if(vRotation[1]) mModelView = Util.yRotate(mModelView, vRotation[1]);
-                if(vRotation[2]) mModelView = Util.zRotate(mModelView, vRotation[2]);
-            }
-            mModelView = Util.scale(mModelView, vScale[0], vScale[1], 1);
-
-            // mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
-
+        this.update = function (t, sprite, stage, flags) {
             if(flags & ForgottenFuture.Constant.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
                     vActiveColor = vColor.slice(0);
@@ -83,6 +71,22 @@
 
                 mLastFrame = frameSequence[frameNo];
             }
+        };
+
+        this.render = function(gl, vPosition, vRotation, vScale, mProjection, flags) {
+            // Update
+            var mModelView = defaultModelViewMatrix;
+
+            mModelView = Util.translate(mModelView, vPosition[0] - vScale[0]/2, vPosition[1] - vScale[1]/2, vPosition[2]);
+            if(vRotation) {
+                if(vRotation[0]) mModelView = Util.xRotate(mModelView, vRotation[0]);
+                if(vRotation[1]) mModelView = Util.yRotate(mModelView, vRotation[1]);
+                if(vRotation[2]) mModelView = Util.zRotate(mModelView, vRotation[2]);
+            }
+            mModelView = Util.scale(mModelView, vScale[0], vScale[1], 1);
+
+            // mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
+
 
             // Render
             gl.useProgram(PROGRAM);
@@ -108,8 +112,6 @@
 
             // draw the quad (2 triangles, 6 vertices)
             gl.drawArrays(glLineMode, 0, 6);
-
-
         };
 
 

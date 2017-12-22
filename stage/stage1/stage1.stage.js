@@ -62,7 +62,7 @@
 
         // Level Sprites
         var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
-        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 9192, DIR_HEIGHT_MAP);
+        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 2048, DIR_HEIGHT_MAP);
 
         var renders = [
             hmMain, Lem, RAV1, pfMain
@@ -80,8 +80,10 @@
         };
         // viewPort.script.setVelocity(-0.005, 0, -0.001);
 
-        this.viewPort = viewPort;
-        this.mGravity = [0, -0.001, 0];
+        // Stage Gravity
+        var mGravity = [0, -0.0002, 0];
+        this.getGravity = function () { return mGravity };
+        this.setGravity = function (mNewGravity) { mGravity = mNewGravity};
 
         // Set up render loop
         var lastKeyCount = 0, frameCount = 0;
@@ -114,11 +116,18 @@
 
             handleKeyChange();
 
-            // Render
+            // Update
             for(var i=0; i<renders.length; i++) {
                 var flags = stageFlags;
                 if(selectedRender === i)    flags |= Constant.RENDER_SELECTED;
-                renders[i].render(t, gl, mProjection, flags);
+                renders[i].update(t, this, flags);
+            }
+
+            // Render
+            for(i=0; i<renders.length; i++) {
+                flags = stageFlags;
+                if(selectedRender === i)    flags |= Constant.RENDER_SELECTED;
+                renders[i].render(gl, mProjection, flags);
             }
         };
 

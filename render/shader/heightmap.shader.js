@@ -54,10 +54,7 @@
 
         // Functions
 
-        this.render = function(t, gl, mProjection, flags) {
-
-            // Update
-            this.update(t, stage, flags);
+        this.render = function(gl, mProjection, flags) {
 
             // Render
             gl.useProgram(PROGRAM);
@@ -133,8 +130,8 @@
         // Properties
 
         this.getMapLength = function()                      { return mapLength; };
-        this.getMapSize = function()                        { return mapSize; };
-        this.setMapSize = function(newLength, newHeight)    { mapSize = [newLength, newHeight]; };
+        // this.getMapSize = function()                        { return mapSize; };
+        // this.setMapSize = function(newLength, newHeight)    { mapSize = [newLength, newHeight]; };
         this.getHighlightRange = function()         { return vHighlightRange; };
         this.setHighlightRange = function(left, right) {
             if(left < 0 || left > mapLength) left = 0;

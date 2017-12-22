@@ -18,7 +18,7 @@
     Util.loadScript('render/shader/sprite.shader.js');
 
     ForgottenFuture.Sprite.Character.Lem = Lem;
-    function Lem(gl, stage) {
+    function Lem(gl) {
         var THIS = this;
 
         // Local Variables
@@ -37,8 +37,14 @@
         // move(0, 12, 0);
 
         // Rendering
-        this.render = function(t, gl, mProjection, flags) {
-            // Update
+        this.render = function(gl, mProjection, flags) {
+            sprite.render(gl, vPosition, vRotation, vScale, mProjection, flags);
+        };
+
+        // Update
+        this.update = function (t, stage, flags) {
+            sprite.update(t, this, stage, flags);
+
             if(vAcceleration) {
                 if(!vVelocity) vVelocity = [0, 0, 0];
                 vVelocity[0] += vAcceleration[0];
@@ -53,13 +59,12 @@
             }
 
             if(flags & Constant.RENDER_SELECTED) {
-                updateEditor(t, flags);
+                updateEditor(t, stage, flags);
             } else {
             }
-            updateMotion(t, flags);
+            updateMotion(t, stage, flags);
 
             // Render
-            sprite.render(t, gl, vPosition, vRotation, vScale, mProjection, flags);
         };
 
         this.move = function(mDistance) {
@@ -68,10 +73,7 @@
             vPosition[2] += mDistance[2];
         };
 
-        this.setScale = function(newScaleX, newScaleY) {
-            vScale = [newScaleX, newScaleY || (newScaleX * sprite.ratio), 0];
-        };
-
+        this.setScale = function(vNewScale)                 { vScale = vNewScale; };
         this.setRotate = function(vNewRotation)             { vRotation = vNewRotation; };
         this.setPosition = function(vNewPosition)           { vPosition = vNewPosition; };
         this.setVelocity = function(vNewVelocity)           { vVelocity = vNewVelocity; };
@@ -107,7 +109,7 @@
         // Physics
 
         var CHAR_SHIFT = 16;
-        function updateMotion(t, flags) {
+        function updateMotion(t, stage, flags) {
             var pressedKeys = Input.pressedKeys;
 
             // Controls
@@ -134,7 +136,7 @@
             if(!hitFloor) {
                 // Fall
                 if(!mAcceleration) {
-                    mAcceleration = stage.mGravity;
+                    mAcceleration = stage.getGravity();
                     if(!mVelocity) mVelocity = [0, 0, 0];
                 }
 
@@ -155,7 +157,7 @@
 
         // Editor
 
-        function updateEditor(t, flags) {
+        function updateEditor(t, stage, flags) {
             var pressedKeys = Input.pressedKeys;
             if(pressedKeys[39])     THIS.move([0.1,  0.0,  0.0]);  // Right:
             if(pressedKeys[37])     THIS.move([-0.1, 0.0,  0.0]);  // Left:
