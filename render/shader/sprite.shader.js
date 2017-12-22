@@ -77,7 +77,7 @@
             // Update
             var mModelView = defaultModelViewMatrix;
 
-            mModelView = Util.translate(mModelView, vPosition[0] - vScale[0]/2, vPosition[1] - vScale[1]/2, vPosition[2]);
+            mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
             if(vRotation) {
                 if(vRotation[0]) mModelView = Util.xRotate(mModelView, vRotation[0]);
                 if(vRotation[1]) mModelView = Util.yRotate(mModelView, vRotation[1]);
