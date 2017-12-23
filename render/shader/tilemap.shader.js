@@ -200,6 +200,10 @@
             return pixel;
         };
 
+        this.testHeight = function (x, y, z) {
+            return this.testHit(x, y, z) ? 0 : -1;
+        }
+
         // Editor
 
         this.saveEditorMap = function(left, top, width, height) {

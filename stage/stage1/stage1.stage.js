@@ -204,6 +204,16 @@
             return false;
         };
 
+        this.testHeight = function (x, y, z) {
+            var finalHeight = null;
+            for(var i=0; i<hitBoxes.length; i++) {
+                var height = hitBoxes[i].testHeight(x, y, z);
+                if(height > finalHeight)
+                    finalHeight = height;
+            }
+            return finalHeight;
+        };
+
         // Initialize Stage Objects
         init();
     }

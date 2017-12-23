@@ -153,18 +153,19 @@
 
         // Map Data
 
-        this.testHit = function(x, y, z) {
+        this.testHeight = function (x, y, z) {
             if(z !== vPosition[2])
+                return null;        // Null means non-applicable
+
+            if(!tHeightData.heightMapData)
                 return null;
 
             var rx = x / mScale[0] - vPosition[0];
             if(rx < 0 || rx > 1)
                 return null;
+
             var ry = y / mScale[1] - vPosition[1];
             if(ry < 0 || ry > 1)
-                return null;
-
-            if(!tHeightData.heightMapData)
                 return null;
 
             var px = Math.floor(rx * mapLength);
@@ -174,7 +175,12 @@
             var leftHeight = data [(px+0) % data .length];
             var rightHeight = data [(px+1) % data .length];
 
-            return ry < (leftHeight+rightHeight)/(2);
+            var height = (leftHeight+rightHeight)/(2);
+            return (ry - height);
+        };
+
+        this.testHit = function(x, y, z) {
+            return this.testHeight(x, y, z) > 0;
         };
         // Model/View
 

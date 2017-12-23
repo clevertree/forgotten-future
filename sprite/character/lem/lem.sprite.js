@@ -127,6 +127,8 @@
                 THIS.move(mVelocity);
 
             // Collision
+            // TODO: left and right foot test
+            // TODO: heightmap
             var hitFloor = stage.testHit(vPosition[0], vPosition[1], vPosition[2]);
             if(!hitFloor) {
                 // Fall
