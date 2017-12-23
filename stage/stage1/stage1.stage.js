@@ -206,7 +206,7 @@
         };
 
         this.testHeight = function (x, y, z) {
-            var finalHeight = null;
+            var finalHeight = -9999;
             for(var i=0; i<hitBoxes.length; i++) {
                 var height = hitBoxes[i].testHeight(x, y, z);
                 if(height > finalHeight)
