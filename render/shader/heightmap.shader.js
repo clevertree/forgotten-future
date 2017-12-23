@@ -180,7 +180,7 @@
         };
 
         this.testHit = function(x, y, z) {
-            return this.testHeight(x, y, z) > 0;
+            return this.testHeight(x, y, z) < 0;
         };
         // Model/View
 

@@ -138,6 +138,9 @@
                 }
 
             } else {
+                var leftHeight = stage.testHeight(vPosition[0]-0.5, vPosition[1], vPosition[2]);
+                var rightHeight = stage.testHeight(vPosition[0]+0.5, vPosition[1], vPosition[2]);
+                console.log("Hit: ", vPosition[0], " => ", leftHeight, rightHeight);
                 // Standing
                 if(mVelocity) // Collision
                     handleStageCollision(t, flags);

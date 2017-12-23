@@ -61,14 +61,15 @@
         }
 
         // Level Sprites
-        var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
+        // var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
         var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 2048, DIR_HEIGHT_MAP);
 
         var renders = [
-            hmMain, Lem, RAV1, pfMain
+            hmMain, Lem, RAV1 // , pfMain
         ];
         var hitBoxes = [
-            pfMain, hmMain
+            //pfMain,
+            hmMain
         ];
 
         var selectedRender = -1; // renders.length - 1;
@@ -107,7 +108,7 @@
             var mProjection = viewPort.calculateProjection(t);
 
             RAV1.setRotate([0, 0, frameCount/100]);
-            Lem.setRotate([0, 0, frameCount/100]);
+            // Lem.setRotate([0, 0, frameCount/100]);
 
             // Enable Depth testing
             // gl.enable(gl.DEPTH_TEST); // Depth test creates those ugly opaque textures
