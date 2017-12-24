@@ -37,7 +37,7 @@
         var sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SHEET);
         sprite.addTileFrameSequence('run', 0, 0, 16, 8, 2);
         sprite.setCurrentFrame('run');
-        sprite.setFrameRate(20);
+        sprite.setFrameRate(15 + Math.random()*10);
         // setScale(scale);
         // move(0, 12, 0);
 
