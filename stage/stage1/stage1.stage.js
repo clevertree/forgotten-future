@@ -49,7 +49,8 @@
         var stageFlags = Constant.MODE_DEFAULT;
 
         // Players
-        var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
+
+        var Lem = new ForgottenFuture.Sprite.Character.Lem(gl);
         var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl);
         function init() {
             // RAV1.setRotate([0, 0, 1]);
@@ -74,6 +75,15 @@
         ];
 
         var selectedRender = -1; // renders.length - 1;
+
+        // Extras
+        var Lems = [];
+        for(var li=0;li<20;li++) {
+            Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl);
+            Lems[li].move([10, 10, 0]);
+            // Lems[li].setVelocity([0.1 * Math.random(), 0, 0]);
+            renders.unshift(Lems[li]);
+        }
 
         // Default FOV
         var viewPort = new ForgottenFuture.Render.ViewPort.SimpleViewPort();

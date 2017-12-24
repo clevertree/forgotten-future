@@ -29,8 +29,7 @@
 
         // Local Variables
         var vScale = [1, 1, 0];
-        var vPosition = [0, 0, 0], vVelocity = null, vAcceleration = null, vRotation = null;
-        var vVelocity = [0.1 * Math.random(), 0, 0];
+        var vPosition = [0, 0, 0], vVelocity = [0.01 * Math.random() + 0.05, 0, 0], vAcceleration = null, vRotation = null;
         var state = STATE_FALLING;
         var stateScript = handleFallingMotion;
 
@@ -173,7 +172,7 @@
             var leftHeight = stage.testHeight(vPosition[0]-0.5, vPosition[1]-0.5, vPosition[2]);
             var rightHeight = stage.testHeight(vPosition[0]+0.5, vPosition[1]-0.5, vPosition[2]);
 
-            if(!(leftHeight > 0 || rightHeight > 0)) {
+            if(!(leftHeight > -0.25 || rightHeight > -0.25)) {
                 // Falling
                 stateScript = handleFallingMotion;
                 console.log("Falling: ", vPosition[0], " => ", leftHeight, rightHeight);
@@ -185,8 +184,13 @@
                 // Adjust footing
 
                 var heightAdjust = (rightHeight < leftHeight ? rightHeight : leftHeight);
-                // if(heightAdjust < stage.getGravity()[1])
-                //     heightAdjust = stage.getGravity()[1];
+                // if(heightAdjust < stage.getGravity()[1]) {
+                    // stateScript = handleFallingMotion;
+                    // console.log("Moon Walk: y>", heightAdjust);
+                    // heightAdjust = stage.getGravity()[1];
+                // }
+                // if(heightAdjust < -0.05)
+                //     heightAdjust = -0.05;
                 vPosition[1] += heightAdjust;
                 // console.log("Walk: y+=", heightAdjust);
             }

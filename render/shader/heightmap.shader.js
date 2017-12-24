@@ -59,7 +59,7 @@
             // Render
             gl.useProgram(PROGRAM);
 
-            // gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
+            gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
             // gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
 
             // Bind Vertex Coordinate
