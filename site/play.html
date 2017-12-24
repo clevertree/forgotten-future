@@ -11,6 +11,13 @@
             document.addEventListener("DOMContentLoaded", function() {
                 ForgottenFuture.play();
             });
+            setTimeout(
+                function () {
+                    console.log("Reloading...");
+                    document.location.reload();
+                },
+                40000
+            );
         </script>
     </head>
     <body>

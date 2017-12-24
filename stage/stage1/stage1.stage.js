@@ -56,7 +56,7 @@
             RAV1.setPosition([7, 8, 0]);
 
             Lem.move([10, 10, 0]);
-            THIS.setViewPort(Lem.getViewPort());
+            THIS.setViewPort(Lem .getViewPort());
 
             // Lem.setScale(0.5);
         }
