@@ -54,9 +54,10 @@
         function init() {
             // RAV1.setRotate([0, 0, 1]);
             RAV1.setPosition([7, 8, 0]);
-            THIS.setViewPort(RAV1.getViewPort());
 
             Lem.move([10, 10, 0]);
+            THIS.setViewPort(Lem.getViewPort());
+
             // Lem.setScale(0.5);
         }
 
@@ -82,7 +83,7 @@
         // viewPort.script.setVelocity(-0.005, 0, -0.001);
 
         // Stage Gravity
-        var mGravity = [0, -0.0002, 0];
+        var mGravity = [0, -0.0004, 0];
         this.getGravity = function () { return mGravity };
         this.setGravity = function (mNewGravity) { mGravity = mNewGravity};
 

@@ -11,9 +11,15 @@
         Input = ForgottenFuture.Input,
         Render = ForgottenFuture.Render,
         Constant = ForgottenFuture.Constant;
+    var STATE_STANDING = 0;
+    var STATE_FALLING = 1;
+
+    var BOUNCE_VELOCITY = 0.4;
+    var BOUNCE_QUOTIENT = 0.25;
+
     var SPRITE_RESOLUTION = 128;
     var DIR_CHARACTER = 'sprite/';
-        var DIR_SHEET = DIR_CHARACTER + 'character/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
+    var DIR_SHEET = DIR_CHARACTER + 'character/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
 
     Util.loadScript('render/shader/sprite.shader.js');
 
@@ -24,9 +30,9 @@
         // Local Variables
         var vScale = [1, 1, 0];
         var vPosition = [0, 0, 0], vVelocity = null, vAcceleration = null, vRotation = null;
-        var mVelocity = [0.1 * Math.random(), 0, 0];
-        var mAcceleration = null;
-        // var scale = 1;
+        var vVelocity = [0.1 * Math.random(), 0, 0];
+        var state = STATE_FALLING;
+        var stateScript = handleFallingMotion;
 
         // Sprite Sheet
         var sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SHEET);
@@ -58,7 +64,7 @@
             if(flags & Constant.RENDER_SELECTED)
                 updateEditor(t, stage, flags);
 
-            updateMotion(t, stage, flags);
+            stateScript(t, stage, flags);
         };
 
         // Model View
@@ -114,45 +120,76 @@
             // if(pressedKeys[38] || pressedKeys[87])  mAcceleration = [0, speed, 0];  // Up:
             // if(pressedKeys[71])                     mAcceleration = stage.mGravity;  // Up:
 
-            // Acceleration
-            if(mAcceleration) {
-                if(!mVelocity) mVelocity = [0, 0, 0];
-                mVelocity[0] += mAcceleration[0];
-                mVelocity[1] += mAcceleration[1];
-                mVelocity[2] += mAcceleration[2];
-            }
 
-            // Position
-            if(mVelocity)
-                THIS.move(mVelocity);
+
+            // switch(state) {
+            //     case STATE_STANDING:
+            //         handleFallingMotion(t, stage);
+            //         break;
+            //
+            //     case STATE_FALLING:
+            //         handleWalkingMotion(t, stage);
+            //         break;
+            // }
+        }
+
+        function handleFallingMotion(t, stage) {
+            // Velocity
+            if(vVelocity)
+                addV(vPosition, vVelocity);
 
             // Collision
-            // TODO: left and right foot test
-            // TODO: heightmap
-            var hitFloor = stage.testHit(vPosition[0], vPosition[1], vPosition[2]);
-            if(!hitFloor) {
-                // Fall
-                if(!mAcceleration) {
-                    mAcceleration = stage.getGravity();
-                    if(!mVelocity) mVelocity = [0, 0, 0];
-                }
+            var leftHeight = stage.testHeight(vPosition[0]-0.5, vPosition[1]-0.5, vPosition[2]);
+            var rightHeight = stage.testHeight(vPosition[0]+0.5, vPosition[1]-0.5, vPosition[2]);
+
+            if(!(leftHeight > 0 || rightHeight > 0)) {
+                // Acceleration
+                addV(vVelocity, stage.getGravity());
 
             } else {
-                var leftHeight = stage.testHeight(vPosition[0]-0.5, vPosition[1], vPosition[2]);
-                var rightHeight = stage.testHeight(vPosition[0]+0.5, vPosition[1], vPosition[2]);
-                console.log("Hit: ", vPosition[0], " => ", leftHeight, rightHeight);
-                // Standing
-                if(mVelocity) // Collision
-                    handleStageCollision(t, flags);
+                // Adjust footing
+                if(leftHeight > rightHeight)    vPosition[1] -= rightHeight;
+                else                            vPosition[1] -= leftHeight;
+
+                // Hitting the ground
+                if(vVelocity[1] < -BOUNCE_VELOCITY) {
+                    console.log("Bounce: y=", vVelocity[1]);
+                    addV(vVelocity, [0, Math.abs(vVelocity[1]) * BOUNCE_QUOTIENT, 0]);
+                } else {
+                    // Landing on the ground
+                    vVelocity[1] = 0;
+                    stateScript = handleWalkingMotion;
+                    console.log("Standing: ", vPosition[0], " => ", leftHeight, rightHeight);
+                }
             }
         }
 
-        function handleStageCollision(t, flags) {
-            mAcceleration = null;
-            // mVelocity = null;
+        function handleWalkingMotion(t, stage) {
+            // Position
+            if(vVelocity)
+                addV(vPosition, vVelocity);
 
-            if(!mVelocity) mVelocity = [0, 0, 0];
-            mVelocity = [mVelocity[0] + (Math.random()-0.5)/10, Math.abs(mVelocity[1] * 0.98), mVelocity[2]];
+            // Collision
+            var leftHeight = stage.testHeight(vPosition[0]-0.5, vPosition[1]-0.5, vPosition[2]);
+            var rightHeight = stage.testHeight(vPosition[0]+0.5, vPosition[1]-0.5, vPosition[2]);
+
+            if(!(leftHeight > 0 || rightHeight > 0)) {
+                // Falling
+                stateScript = handleFallingMotion;
+                console.log("Falling: ", vPosition[0], " => ", leftHeight, rightHeight);
+
+
+            } else {
+                // Walking
+
+                // Adjust footing
+
+                var heightAdjust = (rightHeight < leftHeight ? rightHeight : leftHeight);
+                // if(heightAdjust < stage.getGravity()[1])
+                //     heightAdjust = stage.getGravity()[1];
+                vPosition[1] += heightAdjust;
+                // console.log("Walk: y+=", heightAdjust);
+            }
         }
 
         // Editor
@@ -167,6 +204,20 @@
             if(pressedKeys[33])     THIS.move([0.0,  0.0,  0.1]);  // Page Up:
                 // stage.testHit(mPosition[0], mPosition[1], mPosition[2]);
         }
+
+        // Arrays
+
+        function setV(oldVector, newVector) {
+            oldVector[0] = newVector[0];
+            oldVector[1] = newVector[1];
+            oldVector[2] = newVector[2];
+        }
+        function addV(oldVector, newVector) {
+            oldVector[0] += newVector[0];
+            oldVector[1] += newVector[1];
+            oldVector[2] += newVector[2];
+        };
+
     }
 
 })();

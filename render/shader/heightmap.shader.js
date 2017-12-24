@@ -176,11 +176,11 @@
             var rightHeight = data [(px+1) % data .length];
 
             var height = (leftHeight+rightHeight)/(2);
-            return (ry - height);
+            return (height - ry);
         };
 
         this.testHit = function(x, y, z) {
-            return this.testHeight(x, y, z) < 0;
+            return this.testHeight(x, y, z) > 0;
         };
         // Model/View
 
