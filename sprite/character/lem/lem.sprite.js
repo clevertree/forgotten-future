@@ -21,16 +21,25 @@
     var DIR_CHARACTER = 'sprite/';
     var DIR_SHEET = DIR_CHARACTER + 'character/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
 
+    var HIT_BOX = {
+        LEFT_FOOT: [-0.5, -0.5],
+        RIGHT_FOOT: [0.5, -0.5],
+        CENTER_FOOT: [0.0, -0.5]
+    };
+
     Util.loadScript('render/shader/sprite.shader.js');
 
     ForgottenFuture.Sprite.Character.Lem = Lem;
-    function Lem(gl) {
+    function Lem(gl, stage) {
         var THIS = this;
 
         // Local Variables
         var vScale = [1, 1, 0];
-        var vPosition = [0, 0, 0], vVelocity = [0.01 * Math.random() + 0.02, 0, 0], vAcceleration = null, vRotation = null;
-        var state = STATE_FALLING;
+        var vPosition       = [0, 0, 0],
+            vVelocity       = [0, 0, 0],
+            vAcceleration   = [Math.random() * 0.001, stage.getGravity()[1], 0],
+            vRotation = null;
+        var direction = 1.0;
         var stateScript = handleFallingMotion;
 
         // Sprite Sheet
@@ -50,15 +59,15 @@
         this.update = function (t, stage, flags) {
             sprite.update(t, this, stage, flags);
 
-            // Motion
-            if(vVelocity) {
-                if(vAcceleration) {
-                    vVelocity[0] += vAcceleration[0];
-                    vVelocity[1] += vAcceleration[1];
-                    vVelocity[2] += vAcceleration[2];
-                }
-                this.move(vVelocity);
-            }
+            // // Motion
+            // if(vVelocity) {
+            //     if(vAcceleration) {
+            //         vVelocity[0] += vAcceleration[0];
+            //         vVelocity[1] += vAcceleration[1];
+            //         vVelocity[2] += vAcceleration[2];
+            //     }
+            //     this.move(vVelocity);
+            // }
 
             if(flags & Constant.RENDER_SELECTED)
                 updateEditor(t, stage, flags);
@@ -134,63 +143,70 @@
 
         function handleFallingMotion(t, stage) {
             // Velocity
-            if(vVelocity)
-                addV(vPosition, vVelocity);
+            // vVelocity[0] += vAcceleration[0];
+            // vVelocity[1] += vAcceleration[1];
+            vVelocity[1] += stage.getGravity()[1];
+
+            // Position
+            vPosition[0] += vVelocity[0];
+            vPosition[1] += vVelocity[1];
 
             // Collision
-            var heightAdjust = 0;
-            if(vVelocity[0] > 0) {
-                // Walking Right
-                heightAdjust = stage.testHeight(vPosition[0]+0.5, vPosition[1]-0.5, vPosition[2]);
-            } else if(vVelocity[0] > 0) {
-                // Walking Left
-                heightAdjust = stage.testHeight(vPosition[0]-0.5, vPosition[1]-0.5, vPosition[2]);
-            } else {
-                heightAdjust = stage.testHeight(vPosition[0], vPosition[1]-0.5, vPosition[2]);
-                // Standing Still
-            }
+            var heightAdjust = stage.testHeight(vPosition[0] + HIT_BOX.CENTER_FOOT[0], vPosition[1] + HIT_BOX.CENTER_FOOT[1], vPosition[2]);
             if(!(heightAdjust > 0)) {
-                // Acceleration
-                addV(vVelocity, stage.getGravity());
+                // Falling
 
             } else {
-                // Adjust footing
+                // Landing
                 vPosition[1] += heightAdjust;
 
                 // Hitting the ground
                 if(vVelocity[1] < -BOUNCE_VELOCITY) {
-                    console.log("Bounce: y=", vVelocity[1]);
-                    addV(vVelocity, [0, Math.abs(vVelocity[1]) * BOUNCE_QUOTIENT, 0]);
+                    console.log("Bounce => y=", vVelocity[1]);
+                    vVelocity[1] = Math.abs(vVelocity[1]) * BOUNCE_QUOTIENT;
+
                 } else {
                     // Landing on the ground
                     vVelocity[1] = 0;
-                    stateScript = handleWalkingMotion;
+                    if(!vAcceleration || vAcceleration[0] !== 0) {
+                        stateScript = handleWalkingMotion;
+                        console.log("Falling => Walking");
+
+                    } else {
+                        stateScript = handleStandingMotion;
+                        console.log("Falling => Standing");
+                    }
 //                     console.log("Standing: ", vPosition[0], " => ", leftHeight, rightHeight);
                 }
             }
         }
 
-        function handleWalkingMotion(t, stage) {
-            // Position
-            if(vVelocity)
-                addV(vPosition, vVelocity);
-
-            var heightAdjust = 0;
-            if(vVelocity[0] > 0) {
-                // Walking Right
-                heightAdjust = stage.testHeight(vPosition[0]+0.5, vPosition[1]-0.5, vPosition[2]);
-            } else if(vVelocity[0] > 0) {
-                // Walking Left
-                heightAdjust = stage.testHeight(vPosition[0]-0.5, vPosition[1]-0.5, vPosition[2]);
-            } else {
-                heightAdjust = stage.testHeight(vPosition[0], vPosition[1]-0.5, vPosition[2]);
-                // Standing Still
+        function handleStandingMotion(t, stage) {
+            var heightAdjust = stage.testHeight(vPosition[0], vPosition[1]-HIT_BOX.CENTER_FOOT[1], vPosition[2]);
+            if(!(heightAdjust > 0)) {
+                // Falling
+                stateScript = handleFallingMotion;
+                console.log("Standing -> Falling: ", vPosition[0], " => ", heightAdjust);
             }
+        }
+
+        function handleWalkingMotion(t, stage) {
+            // Velocity
+            vVelocity[0] += vAcceleration[0];
+
+            // Position
+            vPosition[0] += vVelocity[0];
+
+            // Test for map height
+            var heightAdjust = stage.testHeight(
+                vPosition[0],
+                vPosition[1]+HIT_BOX.RIGHT_FOOT[1] * direction,
+                vPosition[2]);
 
             if(!(heightAdjust > -0.25)) {
                 // Falling
                 stateScript = handleFallingMotion;
-                console.log("Falling: ", vPosition[0], " => ", heightAdjust);
+                console.log("Walking -> Falling: ", vPosition[0], " => ", heightAdjust);
 
 
             } else {
@@ -198,14 +214,6 @@
 
                 // Adjust footing
                 vPosition[1] += heightAdjust;
-                // if(heightAdjust < stage.getGravity()[1]) {
-                    // stateScript = handleFallingMotion;
-                    // console.log("Moon Walk: y>", heightAdjust);
-                    // heightAdjust = stage.getGravity()[1];
-                // }
-                // if(heightAdjust < -0.05)
-                //     heightAdjust = -0.05;
-                // console.log("Walk: y+=", heightAdjust);
             }
         }
 

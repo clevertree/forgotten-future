@@ -48,10 +48,17 @@
         // Flag
         var stageFlags = Constant.MODE_DEFAULT;
 
+        // Variable
+
+        // Stage Gravity
+        var mGravity = [0, -0.0004, 0];
+        this.getGravity = function () { return mGravity };
+        this.setGravity = function (mNewGravity) { mGravity = mNewGravity};
+
         // Players
 
-        var Lem = new ForgottenFuture.Sprite.Character.Lem(gl);
-        var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl);
+        var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
+        var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
         function init() {
             // RAV1.setRotate([0, 0, 1]);
             RAV1.setPosition([7, 8, 0]);
@@ -79,7 +86,7 @@
         // Extras
         var Lems = [];
         for(var li=0;li<20;li++) {
-            Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl);
+            Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl, this);
             Lems[li].move([10, 10, 0]);
             // Lems[li].setVelocity([0.1 * Math.random(), 0, 0]);
             renders.unshift(Lems[li]);
@@ -92,10 +99,6 @@
         };
         // viewPort.script.setVelocity(-0.005, 0, -0.001);
 
-        // Stage Gravity
-        var mGravity = [0, -0.0004, 0];
-        this.getGravity = function () { return mGravity };
-        this.setGravity = function (mNewGravity) { mGravity = mNewGravity};
 
         // Set up render loop
         var lastKeyCount = 0, frameCount = 0;
