@@ -138,17 +138,24 @@
                 addV(vPosition, vVelocity);
 
             // Collision
-            var leftHeight = stage.testHeight(vPosition[0]-0.5, vPosition[1]-0.5, vPosition[2]);
-            var rightHeight = stage.testHeight(vPosition[0]+0.5, vPosition[1]-0.5, vPosition[2]);
-
-            if(!(leftHeight > 0 || rightHeight > 0)) {
+            var heightAdjust = 0;
+            if(vVelocity[0] > 0) {
+                // Walking Right
+                heightAdjust = stage.testHeight(vPosition[0]+0.5, vPosition[1]-0.5, vPosition[2]);
+            } else if(vVelocity[0] > 0) {
+                // Walking Left
+                heightAdjust = stage.testHeight(vPosition[0]-0.5, vPosition[1]-0.5, vPosition[2]);
+            } else {
+                heightAdjust = stage.testHeight(vPosition[0], vPosition[1]-0.5, vPosition[2]);
+                // Standing Still
+            }
+            if(!(heightAdjust > 0)) {
                 // Acceleration
                 addV(vVelocity, stage.getGravity());
 
             } else {
                 // Adjust footing
-                if(leftHeight > rightHeight)    vPosition[1] -= rightHeight;
-                else                            vPosition[1] -= leftHeight;
+                vPosition[1] += heightAdjust;
 
                 // Hitting the ground
                 if(vVelocity[1] < -BOUNCE_VELOCITY) {
@@ -168,22 +175,28 @@
             if(vVelocity)
                 addV(vPosition, vVelocity);
 
-            // Collision
-            var leftHeight = stage.testHeight(vPosition[0]-0.5, vPosition[1]-0.5, vPosition[2]);
-            var rightHeight = stage.testHeight(vPosition[0]+0.5, vPosition[1]-0.5, vPosition[2]);
+            var heightAdjust = 0;
+            if(vVelocity[0] > 0) {
+                // Walking Right
+                heightAdjust = stage.testHeight(vPosition[0]+0.5, vPosition[1]-0.5, vPosition[2]);
+            } else if(vVelocity[0] > 0) {
+                // Walking Left
+                heightAdjust = stage.testHeight(vPosition[0]-0.5, vPosition[1]-0.5, vPosition[2]);
+            } else {
+                heightAdjust = stage.testHeight(vPosition[0], vPosition[1]-0.5, vPosition[2]);
+                // Standing Still
+            }
 
-            if(!(leftHeight > -0.25 || rightHeight > -0.25)) {
+            if(!(heightAdjust > -0.25)) {
                 // Falling
                 stateScript = handleFallingMotion;
-                console.log("Falling: ", vPosition[0], " => ", leftHeight, rightHeight);
+                console.log("Falling: ", vPosition[0], " => ", heightAdjust);
 
 
             } else {
                 // Walking
 
                 // Adjust footing
-
-                var heightAdjust = (rightHeight < leftHeight ? rightHeight : leftHeight);
                 vPosition[1] += heightAdjust;
                 // if(heightAdjust < stage.getGravity()[1]) {
                     // stateScript = handleFallingMotion;
