@@ -63,7 +63,7 @@
             // RAV1.setRotate([0, 0, 1]);
             RAV1.setPosition([7, 8, 0]);
 
-            Lem.move([10, 10, 0]);
+            Lem.setPosition([10, 10, 0]);
             THIS.setViewPort(Lem .getViewPort());
 
             // Lem.setScale(0.5);
@@ -87,7 +87,7 @@
         var Lems = [];
         for(var li=0;li<20;li++) {
             Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl, this);
-            Lems[li].move([10, 10, 0]);
+            Lems[li].setPosition([10, 10, 0]);
             // Lems[li].setVelocity([0.1 * Math.random(), 0, 0]);
             renders.unshift(Lems[li]);
         }

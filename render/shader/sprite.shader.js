@@ -18,9 +18,7 @@
         var frameLength = 1000;
 
         // Variables
-        var THIS = this;
         var glLineMode = 4; // gl.TRIANGLES;
-        this.ratio = 1;
 
         var vColor =                defaultColor;
         var vActiveColor =          vColor.slice(0);
@@ -51,6 +49,7 @@
         var lastFrameTime = 0;
 
         this.update = function (t, sprite, stage, flags) {
+            // Update highlight color
             if(flags & ForgottenFuture.Constant.RENDER_SELECTED) {
                 if(vActiveColor === vColor)
                     vActiveColor = vColor.slice(0);
@@ -62,6 +61,7 @@
                 vActiveColor = vColor
             }
 
+            // Update Frame
             if(!mLastFrame || (lastFrameTime + frameLength < t)) {
                 lastFrameTime = t;
                 var frameSequence = this.frames[currentFrameName];
@@ -189,7 +189,7 @@
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             }
 
-            THIS.ratio = iSpriteSheet.height / iSpriteSheet.width;
+            // THIS.ratio = iSpriteSheet.height / iSpriteSheet.width;
             // vScale[1] = vScale[0] * spriteSheetRatio;
         }
     }
