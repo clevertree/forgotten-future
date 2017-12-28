@@ -29,6 +29,7 @@
         var mVertexPosition = defaultTextureCoordinates;
         var mTextureCoordinates = defaultTextureCoordinates;
         var tHeightData, tColor, tHeightPattern, vTextureSizes = [0, 0, 0, 0, 0, 0, 0, 0];
+        var heightMapData = new Float32Array(0);
 
 
         mModelView = Util.scale(mModelView, mScale[0], mScale[1], mScale[2]);
@@ -157,9 +158,6 @@
             if(z !== vPosition[2])
                 return null;        // Null means non-applicable
 
-            if(!tHeightData.heightMapData)
-                return null;
-
             var rx = x / mScale[0] - vPosition[0];
             if(rx < 0 || rx > 1)
                 return null;
@@ -168,14 +166,15 @@
             if(ry < 0 || ry > 1)
                 return null;
 
-            var px = Math.floor(rx * mapLength);
+            var px = Math.floor(rx * mapLength) % heightMapData .length;
+            var pxr = ((rx * mapLength) - Math.floor(rx * mapLength)) % heightMapData .length;
+            // console.log('px pxr', px, pxr);
             // var py = Math.floor(ry * mapSize[1]);
 
-            var data = tHeightData.heightMapData;
-            var leftHeight = data [(px+0) % data .length];
-            var rightHeight = data [(px+1) % data .length];
+            var leftHeight = heightMapData [(px+0)] * pxr;
+            var rightHeight = heightMapData [(px+1)] * (1-pxr);
 
-            var height = (leftHeight+rightHeight)/(2);
+            var height = (leftHeight+rightHeight);
             return (height - ry);
         };
 
@@ -210,15 +209,15 @@
 
         // Textures
 
-        this.getHeightDataTexture = function () { return tHeightData; };
+        // this.getHeightDataTexture = function () { return tHeightData; };
 
-        this.updateHeightMapTexture = function(texture, imageData) {
+        this.updateHeightMapTexture = function(imageData) {
 
             // Upload the image into the texture.
-            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.bindTexture(gl.TEXTURE_2D, tHeightData);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
 
-            var heightMapData = new Float32Array(imageData.data.length/4);
+            heightMapData = new Float32Array(imageData.data.length/4);
 
             for(var i=0; i<imageData.data.length; i+=4) {
                 heightMapData[i/4] =
@@ -229,7 +228,7 @@
 //                     /(256*256*256);
             }
 
-            texture.heightMapData = heightMapData;
+            // texture.heightMapData = heightMapData;
 //             console.log("Heightmap updated: ", imageData);
         };
 
@@ -261,7 +260,7 @@
                 vTextureSizes[0] = image.width;
                 vTextureSizes[1] = image.height;
 
-                THIS.updateHeightMapTexture(tHeightData, imageData);
+                THIS.updateHeightMapTexture(imageData);
 
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
