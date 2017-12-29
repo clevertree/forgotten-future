@@ -37,8 +37,8 @@
         // Local Variables
         var vScale = [1, 1, 0];
         var vPosition       = [0, 0, 0],
-            vVelocity       = [0, 0, 0],
-            vAcceleration   = [Math.random() * 0.001, stage.getGravity()[1], 0],
+            vVelocity       = [0.1, 0, 0],
+            vAcceleration   = [Math.random() * 0.0001, stage.getGravity()[1], 0],
             vRotation = null;
         var direction = 1.0;
         var stateScript = handleFallingMotion;
@@ -56,12 +56,13 @@
 
         // Update
         this.update = function (t, stage, flags) {
+            stateScript(t, stage, flags);
+
             sprite.update(t, this, stage, flags);
 
             // if(flags & Constant.RENDER_SELECTED)
             //     updateEditor(t, stage, flags);
 
-            stateScript(t, stage, flags);
         };
 
         // Model View
@@ -112,7 +113,11 @@
             vPosition[1] += vVelocity[1];
 
             // Collision
-            var heightAdjust = stage.testHeight(vPosition[0] + HIT_BOX.CENTER_FOOT[0], vPosition[1] + HIT_BOX.CENTER_FOOT[1], vPosition[2]);
+            var heightAdjust = stage.testHeight(
+                vPosition[0]+HIT_BOX.SIDE_FOOT[0] * direction,
+                vPosition[1]+HIT_BOX.SIDE_FOOT[1],
+                vPosition[2]);
+
             if(!(heightAdjust > 0)) {
                 // Falling
 
@@ -159,11 +164,12 @@
 
             // Test for map height
             var heightAdjust = stage.testHeight(
-                vPosition[0],
-                vPosition[1]+HIT_BOX.SIDE_FOOT[1] * direction,
+                vPosition[0]+HIT_BOX.SIDE_FOOT[0] * direction,
+                vPosition[1]+HIT_BOX.SIDE_FOOT[1],
                 vPosition[2]);
 
-            if(!(heightAdjust > -0.25)) {
+
+            if(heightAdjust < -0.25) {
                 // Falling
                 stateScript = handleFallingMotion;
                 console.log("Walking -> Falling: ", vPosition[0], " => ", heightAdjust);
@@ -174,6 +180,7 @@
 
                 // Adjust footing
                 vPosition[1] += heightAdjust;
+//                 console.log("Height adjust: ", vPosition[1], heightAdjust);
             }
         }
 
