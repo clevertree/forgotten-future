@@ -197,7 +197,7 @@
                         vVelocity[0] -= heightAdjust * SLOPE_QUOTIENT;
                         if(vVelocity[0] < 0) vVelocity[0] = 0;
                     }
-                    console.log(vv, '=>', vVelocity[0]);
+                    // console.log(vv, '=>', vVelocity[0]);
                 }
 //                 console.log("Height adjust: ", vPosition[1], heightAdjust);
             }
