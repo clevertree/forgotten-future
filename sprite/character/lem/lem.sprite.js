@@ -17,7 +17,7 @@
     Util.loadScript('render/shader/sprite.shader.js');
 
     // Constants
-    var SLOPE_QUOTIENT = 0.01;
+    var SLOPE_QUOTIENT = 0.04;
     var BOUNCE_VELOCITY = 0.4;
     var BOUNCE_QUOTIENT = 0.25;
 
@@ -39,7 +39,7 @@
         var vScale = [1, 1, 0];
         var vPosition       = [0, 0, 0],
             vVelocity       = [0.1, 0, 0],
-            vAcceleration   = [Math.random() * 0.0001, stage.getGravity()[1], 0],
+            vAcceleration   = [Math.random() * 0.0005, stage.getGravity()[1], 0],
             vRotation = null;
         var direction = 1.0;
         var stateScript = handleFallingMotion;
