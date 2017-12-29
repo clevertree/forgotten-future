@@ -17,6 +17,7 @@
     Util.loadScript('render/shader/sprite.shader.js');
 
     // Constants
+    var SLOPE_QUOTIENT = 0.01;
     var BOUNCE_VELOCITY = 0.4;
     var BOUNCE_QUOTIENT = 0.25;
 
@@ -27,8 +28,8 @@
 
     // Hit Box
     var HIT_BOX = {
-        SIDE_FOOT: [0.5, -0.45],
-        CENTER_FOOT: [0.0, -0.45]
+        SIDE_FOOT: [0.5, -0.48],
+        CENTER_FOOT: [0.0, -0.48]
     };
 
 
@@ -185,6 +186,19 @@
 
                 // Adjust footing
                 vPosition[1] += heightAdjust;
+
+                // Adjust Velocity
+                if(heightAdjust > 0) {
+                    var vv = vVelocity[0];
+                    if(direction < 0) {
+                        vVelocity[0] += heightAdjust * SLOPE_QUOTIENT;
+                        if(vVelocity[0] > 0) vVelocity[0] = 0;
+                    } else {
+                        vVelocity[0] -= heightAdjust * SLOPE_QUOTIENT;
+                        if(vVelocity[0] < 0) vVelocity[0] = 0;
+                    }
+                    console.log(vv, '=>', vVelocity[0]);
+                }
 //                 console.log("Height adjust: ", vPosition[1], heightAdjust);
             }
         }
