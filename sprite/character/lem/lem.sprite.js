@@ -29,7 +29,7 @@
 
     // Hit Box
     var HIT_BOX = {
-        SIDE_FOOT: [0.5, -0.48],
+        SIDE_FOOT: [0.3, -0.48],
         CENTER_FOOT: [0.0, -0.48]
     };
 
