@@ -18,6 +18,7 @@
 
     // Constants
     var SLOPE_QUOTIENT = 0.04;
+    var MAX_VELOCITY = 0.1;
     var BOUNCE_VELOCITY = 0.4;
     var BOUNCE_QUOTIENT = 0.25;
 
@@ -39,7 +40,7 @@
         var vScale = [1, 1, 0];
         var vPosition       = [0, 0, 0],
             vVelocity       = [0.1, 0, 0],
-            vAcceleration   = [Math.random() * 0.0005, stage.getGravity()[1], 0],
+            vAcceleration   = [Math.random() * 0.001, stage.getGravity()[1], 0],
             vRotation = null;
         var direction = 1.0;
         var stateScript = handleFallingMotion;
@@ -163,7 +164,8 @@
 
         function handleWalkingMotion(t, stage) {
             // Velocity
-            vVelocity[0] += vAcceleration[0];
+            if(Math.abs(vVelocity[0]) < MAX_VELOCITY)
+                vVelocity[0] += vAcceleration[0];
 
             // Position
             vPosition[0] += vVelocity[0];
@@ -174,8 +176,8 @@
                 vPosition[1]+HIT_BOX.SIDE_FOOT[1],
                 vPosition[2]);
 
-
-            if(heightAdjust < -0.25) {
+            // TODO: velocity
+            if(heightAdjust < -0.05) {
                 // Falling
                 stateScript = handleFallingMotion;
                 console.log("Walking -> Falling: ", heightAdjust);
