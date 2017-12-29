@@ -27,8 +27,8 @@
 
     // Hit Box
     var HIT_BOX = {
-        SIDE_FOOT: [0.5, -0.5],
-        CENTER_FOOT: [0.0, -0.5]
+        SIDE_FOOT: [0.5, -0.4],
+        CENTER_FOOT: [0.0, -0.45]
     };
 
 
@@ -147,7 +147,12 @@
         }
 
         function handleStandingMotion(t, stage) {
-            var heightAdjust = stage.testHeight(vPosition[0], vPosition[1]-HIT_BOX.CENTER_FOOT[1], vPosition[2]);
+            // Test for map height
+            var heightAdjust = stage.testHeight(
+                vPosition[0]+HIT_BOX.SIDE_FOOT[0] * direction,
+                vPosition[1]+HIT_BOX.SIDE_FOOT[1],
+                vPosition[2]);
+
             if(!(heightAdjust > 0)) {
                 // Falling
                 stateScript = handleFallingMotion;
@@ -172,7 +177,7 @@
             if(heightAdjust < -0.25) {
                 // Falling
                 stateScript = handleFallingMotion;
-                console.log("Walking -> Falling: ", vPosition[0], " => ", heightAdjust);
+                console.log("Walking -> Falling: ", heightAdjust);
 
 
             } else {
