@@ -246,45 +246,6 @@ var ForgottenFuture = {
         return program;
     };
 
-    Util.loadTexture = function(gl, filePath, callback, loadFill) {
-        loadFill = loadFill || [0, 0, 255, 128];
-
-        // Create a texture.
-        var texture = gl.createTexture();
-        texture.loaded = false;
-        texture.onLoad = callback || function(e, texture, image) {};
-        gl.bindTexture(gl.TEXTURE_2D, texture);
-
-        // Fill the texture with a 1x1 blue pixel.
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array(loadFill));
-
-        // Asynchronously load an image
-        var image = new Image();
-        image.src = filePath;
-        image.addEventListener('load', function(e) {
-            // Now that the image has loaded make copy it to the texture.
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-
-            // Set the parameters so we can render any size image.
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-            // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            // Upload the image into the texture.
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-            // gl.generateMipmap(gl.TEXTURE_2D);
-
-            texture.loaded = true;
-            // Callback
-            texture.onLoad(e, texture, image);
-        });
-        texture.image = image;
-        return texture;
-    };
-
     // Script Loading
 
     var scriptsLoading = 0, scriptCallbacks = [];
@@ -311,6 +272,15 @@ var ForgottenFuture = {
         }
     };
 
+    function completeScriptCallbacks(e) {
+        if(scriptsLoading === 0 && scriptCallbacks.length > 0) {
+            var callbacks = scriptCallbacks;
+            scriptCallbacks = [];
+            for(var i=0; i<callbacks.length; i++)
+                callbacks[i](e);
+        }
+    }
+
     Util.loadScript = function(scriptPath, callback) {
         var scriptPathEsc = scriptPath.replace(/[/.]/g, '\\$&');
         var foundScript = document.head.querySelectorAll('script[src=' + scriptPathEsc + ']');
@@ -321,12 +291,7 @@ var ForgottenFuture = {
             scriptElm.onload = function(e) {
                 scriptsLoading--;
                 if(callback) callback(e);
-                if(scriptsLoading === 0 && scriptCallbacks.length > 0) {
-                    var callbacks = scriptCallbacks;
-                    scriptCallbacks = [];
-                    for(var i=0; i<callbacks.length; i++)
-                        callbacks[i](e);
-                }
+                completeScriptCallbacks(e);
             };
             document.head.appendChild(scriptElm);
             scriptsLoading++;
@@ -349,6 +314,29 @@ var ForgottenFuture = {
             if(counter === 0 && callback)
                 callback();
         }
+    };
+
+    // Image Loading
+
+
+    Util.getDataFromImage = function(image) {
+        var canvas = document.createElement('canvas');
+        var mapContext = canvas.getContext('2d');
+        mapContext.drawImage(image, 0, 0);
+        return mapContext.getImageData(0, 0, image.width, image.height);
+    };
+
+    Util.loadImage = function(imagePath, callback) {
+        // Asynchronously load an image
+        var image = new Image();
+        scriptsLoading++;
+        image.addEventListener('load', function(e) {
+            scriptsLoading--;
+            if(callback) callback(e);
+            completeScriptCallbacks(e);
+        });
+        image.src = imagePath;
+        return image;
     };
 
     // Editor Utils

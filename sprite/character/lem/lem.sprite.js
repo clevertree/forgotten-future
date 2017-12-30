@@ -205,20 +205,6 @@
             }
         }
 
-
-        // Arrays
-
-        function setV(oldVector, newVector) {
-            oldVector[0] = newVector[0];
-            oldVector[1] = newVector[1];
-            oldVector[2] = newVector[2];
-        }
-        function addV(oldVector, newVector) {
-            oldVector[0] += newVector[0];
-            oldVector[1] += newVector[1];
-            oldVector[2] += newVector[2];
-        }
-
     }
 
 })();

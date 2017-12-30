@@ -7,40 +7,38 @@
     var Util = ForgottenFuture.Util,
         Render = ForgottenFuture.Render;
 
+    // Constants
+    var DEFAULT_HEIGHT = 10;
+    var DEFAULT_WIDTH_PER_POINT = 0.1;
+
     var PROGRAM;
 
-    Render.Shader.HeightMap = HeightMap;
-    function HeightMap(gl, stage, mapLength, pathHeightMapTexture, pathColorTexture, pathHeightPatternTexture, flags) {
+    Render.Shader.HeightMap2 = HeightMap2;
+    function HeightMap2(gl, aData0, tColor, flags) {
         if(typeof flags === 'undefined')
-            flags = HeightMap.FLAG_DEFAULTS;
-
+            flags = HeightMap2.FLAG_DEFAULTS;
 
         // Variables
-        var THIS =              this;
-        mapLength =             mapLength || 1024;
         var vPosition =         [0, 0, 0];
-        var vScale =            [128, 8, 1];
+        var vScale =            [128, DEFAULT_HEIGHT, 1];
         var mModelView =        defaultModelViewMatrix;
-        // vColor =             vColor || defaultColor;
         var vHighlightColor =   defaultColor.slice(0);
         var vHighlightRange =   [64,128];
 
         // Set up private properties
         var mVertexPosition = defaultTextureCoordinates;
         var mTextureCoordinates = defaultTextureCoordinates;
-        var tHeightData, tColor, tHeightPattern, vTextureSizes = [0, 0, 0, 0, 0, 0, 0, 0];
-        var heightMapData = new Float32Array(0);
 
-
-        mModelView = Util.scale(mModelView, vScale[0], vScale[1], vScale[2]);
+        mModelView = Util.scale(mModelView, vScale[0], vScale[1], vScale[2]); // TODO: get rid of
 
         // Initiate Shader program
         if(!PROGRAM)
             initProgram(gl);
 
-        loadHeightMapTexture(pathHeightMapTexture);
+        // TODO: clean up the color texture
+        // loadHeightMap2Texture(pathHeightMap2Texture);
         loadColorTexture(pathColorTexture);
-        loadHeightPatternTexture(pathHeightPatternTexture);
+        // loadHeightPatternTexture(pathHeightPatternTexture);
 
 
         // Bind Texture Coordinate
@@ -130,10 +128,6 @@
 
         // Properties
 
-        this.setScale = function(vNewScale)                 { vScale = vNewScale; };
-        // this.setRotate = function(vNewRotation)             { vRotation = vNewRotation; };
-        this.setPosition = function(vNewPosition)           { vPosition = vNewPosition; };
-
         this.getMapLength = function()                      { return mapLength; };
         // this.getMapSize = function()                        { return mapSize; };
         // this.setMapSize = function(newLength, newHeight)    { mapSize = [newLength, newHeight]; };
@@ -170,13 +164,13 @@
             if(ry < 0 || ry > 1)
                 return null;
 
-            var px = Math.floor(rx * mapLength) % heightMapData .length;
-            var pxr = ((rx * mapLength) - Math.floor(rx * mapLength)) % heightMapData .length;
+            var px = Math.floor(rx * mapLength) % aData0 .length;
+            var pxr = ((rx * mapLength) - Math.floor(rx * mapLength)) % aData0 .length;
             // console.log('px pxr', px, pxr);
             // var py = Math.floor(ry * mapSize[1]);
 
-            var leftHeight = heightMapData [(px+0)] * pxr;
-            var rightHeight = heightMapData [(px+1)] * (1-pxr);
+            var leftHeight = aData0 [(px+0)] * pxr;
+            var rightHeight = aData0 [(px+1)] * (1-pxr);
 
             var height = (leftHeight+rightHeight);
             return (height - ry);
@@ -186,6 +180,13 @@
             return this.testHeight(x, y, z) > 0;
         };
         // Model/View
+
+        this.setScale = function(vNewScale)                 {
+            vScale = vNewScale;
+            mModelView = Util.scale(mModelView, vScale[0], vScale[1], vScale[2]); // TODO: clean up
+        };
+        // this.setRotate = function(vNewRotation)             { vRotation = vNewRotation; };
+        this.setPosition = function(vNewPosition)           { vPosition = vNewPosition; };
 
         this.move = function(tx, ty, tz) {
             vPosition[0] += tx || 0;
@@ -215,16 +216,16 @@
 
         // this.getHeightDataTexture = function () { return tHeightData; };
 
-        this.updateHeightMapTexture = function(imageData) {
+        this.updateHeightMap2Texture = function(imageData) {
 
             // Upload the image into the texture.
             gl.bindTexture(gl.TEXTURE_2D, tHeightData);
             gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, imageData);
 
-            heightMapData = new Float32Array(imageData.data.length/4);
+            aData0 = new Float32Array(imageData.data.length/4);
 
             for(var i=0; i<imageData.data.length; i+=4) {
-                heightMapData[i/4] =
+                aData0[i/4] =
                     imageData.data[i+0]/256
                     + imageData.data[i+1]/(256*256)
                     + imageData.data[i+2]/(256*256*256);
@@ -232,11 +233,11 @@
 //                     /(256*256*256);
             }
 
-            // texture.heightMapData = heightMapData;
-//             console.log("Heightmap updated: ", imageData);
+            // texture.HeightMap2Data = HeightMap2Data;
+//             console.log("HeightMap2 updated: ", imageData);
         };
 
-        function loadHeightMapTexture(pathTexture) {
+        function loadHeightMap2Texture(pathTexture) {
 
             // Create a tile sheet texture.
             tHeightData = gl.createTexture();
@@ -264,7 +265,7 @@
                 vTextureSizes[0] = image.width;
                 vTextureSizes[1] = image.height;
 
-                THIS.updateHeightMapTexture(imageData);
+                THIS.updateHeightMap2Texture(imageData);
 
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
@@ -322,8 +323,8 @@
         // Editor
 
         var updateEditor = function(t, stage, flags) {
-            if(ForgottenFuture.Render.Shader.Editor.HeightMapEditor) {
-                var editor = new ForgottenFuture.Render.Shader.Editor.HeightMapEditor(THIS);
+            if(ForgottenFuture.Render.Shader.Editor.HeightMap2Editor) {
+                var editor = new ForgottenFuture.Render.Shader.Editor.HeightMap2Editor(THIS);
                 updateEditor = editor.update;
                 updateEditor(t, stage, flags);
                 THIS.editor = editor;
@@ -350,7 +351,7 @@
         function initProgram(gl) {
 
             // Init Program
-            var program = Util.compileProgram(gl, HeightMap.VS, HeightMap.FS);
+            var program = Util.compileProgram(gl, HeightMap2.VS, HeightMap2.FS);
             gl.useProgram(program);
 
             // Enable Vertex Position Attribute.
@@ -401,12 +402,43 @@
 
     }
 
+    // Utils
+
+    function getHeightMapDataFromImage(image) {
+        var canvas = document.createElement('canvas');
+        var mapContext = canvas.getContext('2d');
+        mapContext.drawImage(image, 0, 0);
+        var pixelData = mapContext.getImageData(0, 0, image.width, image.height);
+
+        var floatData = new Float32Array(pixelData.data.length/4);
+
+        for(var i=0; i<pixelData.data.length; i+=4) {
+            floatData[i/4] =
+                pixelData.data[i+0]/256
+                + pixelData.data[i+1]/(256*256)
+                + pixelData.data[i+2]/(256*256*256)
+                + pixelData.data[i+3]/(256*256*256*256);
+//                     /(256*256*256);
+        }
+        return floatData;
+    }
+
+
     // Static
 
-    HeightMap.FLAG_GENERATE_MIPMAP = 0x01;
-    HeightMap.FLAG_REPEAT_TILES = 0x10;
-    HeightMap.FLAG_REPEAT_MAP = 0x20;
-    HeightMap.FLAG_DEFAULTS = 0; //0x10; // HeightMap.FLAG_GENERATE_MIPMAP;
+    HeightMap2.loadFromImage = function(gl, iImageData0, widthPerPoint, height, flags) {
+        var aData0 = getHeightMapDataFromImage(iImageData0);
+
+        var HM = new HeightMap2(gl, aData0, flags);
+        HM.setScale([
+            aData0.length * (widthPerPoint || DEFAULT_WIDTH_PER_POINT),
+            (height || DEFAULT_HEIGHT)
+        ]);
+        console.log("Auto-scale: ", HM);
+        return HM;
+    };
+
+    HeightMap2.FLAG_DEFAULTS = 0; //0x10; // HeightMap2.FLAG_GENERATE_MIPMAP;
 
     var defaultModelViewMatrix = Util.translation(0,0,0); //[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     var defaultColor = new Float32Array([1,1,1,1]);
@@ -432,7 +464,7 @@
         uHighlightColor, uHighlightRange, uTextureSize;
 
     // Shader
-    HeightMap.VS = [
+    HeightMap2.VS = [
         "attribute vec4 aVertexPosition;",
         "attribute vec2 aTextureCoordinate;",
         "varying vec2 vTextureCoordinate;",
@@ -446,7 +478,7 @@
         "}"
     ].join("\n");
 
-    HeightMap.FS = [
+    HeightMap2.FS = [
         "precision highp float;",
 
         // "varying vec2 vPixelCoordinate;",
@@ -492,9 +524,9 @@
         "   vec4 pixel = texture2D(uTextureColor, vTextureCoordinate);",
         // "   pixel.w = (leftHeightPixel.w + rightHeightPixel.w) / 2.0;",
 
-        // "   if(uTextureSize[2] > 0.0) { pxHeight += getHeightMapPixel(index, uTexture1, uTextureSize[2], uTextureSize[3]);",
-        // "       if(uTextureSize[4] > 0.0) { pxHeight += getHeightMapPixel(index, uTexture2, uTextureSize[4], uTextureSize[5]);",
-        // "           if(uTextureSize[6] > 0.0) { pxHeight += getHeightMapPixel(index, uTexture3, uTextureSize[6], uTextureSize[7]);",
+        // "   if(uTextureSize[2] > 0.0) { pxHeight += getHeightMap2Pixel(index, uTexture1, uTextureSize[2], uTextureSize[3]);",
+        // "       if(uTextureSize[4] > 0.0) { pxHeight += getHeightMap2Pixel(index, uTexture2, uTextureSize[4], uTextureSize[5]);",
+        // "           if(uTextureSize[6] > 0.0) { pxHeight += getHeightMap2Pixel(index, uTexture3, uTextureSize[6], uTextureSize[7]);",
         // "   }}}",
 
 
