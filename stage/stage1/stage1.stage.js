@@ -92,7 +92,7 @@
 
         // Extras
         var Lems = [];
-        for(var li=0;li<0;li++) {
+        for(var li=0;li<20;li++) {
             Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl, this);
             Lems[li].setPosition([10, 10, 0]);
             // Lems[li].setVelocity([0.1 * Math.random(), 0, 0]);
