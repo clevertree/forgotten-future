@@ -75,7 +75,9 @@
         // Level Sprites
         // var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
         var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 2048, DIR_HEIGHT_MAP);
-        var hmMain2 = ForgottenFuture.Render.Shader.HeightMap2.loadFromImage(gl, iHMapMain, 0.2, 10);
+        var hmMain2 = ForgottenFuture.Render.Shader.HeightMap2(gl)
+            .setHeightMap(iHMapMain, 0.2, 10)
+            .setColor();
 
         var renders = [
             hmMain, Lem, RAV1 // , pfMain

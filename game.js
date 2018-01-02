@@ -246,6 +246,23 @@ var ForgottenFuture = {
         return program;
     };
 
+    // Vertex Array Objects
+
+    Util.createVertexArray = function(gl) {
+        var vao = null;
+        if(gl.createVertexArray) {
+            vao = gl.createVertexArray();
+            vao.bind = function() { gl.bindVertexArray(this); };
+            vao.unbind = function() { gl.bindVertexArray(null); };
+        } else {
+            var ext = gl.getExtension("OES_vertex_array_object");
+            vao = ext.createVertexArrayOES();
+            vao.bind = function() { ext.bindVertexArrayOES(this); };
+            vao.unbind = function() { ext.bindVertexArrayOES(null); };
+        }
+        return vao;
+    };
+
     // Script Loading
 
     var scriptsLoading = 0, scriptCallbacks = [];
