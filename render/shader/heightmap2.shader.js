@@ -26,7 +26,7 @@
 
         aData0 = new Float32Array(2048);
         for(var ii=0;ii<2048;ii++) {
-            aData0[ii] = Math.random() * (ii % 64);
+            aData0[ii] = Math.random() * (ii % 12);
         }
 
         // Initiate Shader program
@@ -68,7 +68,7 @@
             // }
 
             VAO.bind();
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, 6);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
             VAO.unbind();
 
         };
@@ -98,18 +98,6 @@
         // Textures
 
 
-        // this.setHeightMap = function(iImageData0, widthPerPoint, height, flags) {
-        //     var data = getHeightMapDataFromImage(iImageData0);
-        //
-        //     this.setScale([
-        //         data.length * (widthPerPoint || DEFAULT_WIDTH_PER_POINT),
-        //         (height || DEFAULT_HEIGHT)
-        //     ]);
-        //     console.log("Auto-scale: ", data);
-        //     aData0 = data;
-        //     return this;
-        // };
-
         this.setColor = function (color) {
             if(color instanceof WebGLTexture) {
                 tColor = color;
@@ -128,9 +116,6 @@
 
         // Properties
 
-        this.getMapLength = function()                      { return mapLength; };
-        // this.getMapSize = function()                        { return mapSize; };
-        // this.setMapSize = function(newLength, newHeight)    { mapSize = [newLength, newHeight]; };
         this.getHighlightRange = function()         { return vHighlightRange; };
         this.setHighlightRange = function(left, right) {
             if(left < 0 || left > mapLength) left = 0;
@@ -254,7 +239,7 @@
             gl.vertexAttribPointer(PROGRAM.attrVertexPosition, 2, gl.FLOAT, false, 0, 0);
             gl.enableVertexAttribArray(PROGRAM.attrVertexPosition);
 
-            return aVertexPositions.length;
+            return aVertexPositions.length / 2;
         }
 
     }
@@ -360,15 +345,15 @@
 
     HeightMap2.VS = [
         "attribute vec2 attrVertexPosition;",
-        "attribute vec2 attrTextureCoordinate;",
-        "varying vec2 varyTextureCoordinate;",
+        // "attribute vec2 attrTextureCoordinate;",
+        // "varying vec2 varyTextureCoordinate;",
 
         "uniform mat4 uniPMatrix;",
         "uniform mat4 uniMVMatrix;",
 
         "void main(void) {",
         "   vec4 vPosition = uniMVMatrix * vec4(attrVertexPosition.x, attrVertexPosition.y, 0.0, 1.0);",
-        "   varyTextureCoordinate = attrTextureCoordinate;",
+        // "   varyTextureCoordinate = attrTextureCoordinate;",
         "   gl_Position = uniPMatrix * vPosition;",
         "}"
     ].join("\n");
@@ -376,7 +361,7 @@
     HeightMap2.FS = [
         "precision highp float;",
 
-        "varying vec2 varyTextureCoordinate;",
+        // "varying vec2 varyTextureCoordinate;",
 
         "uniform sampler2D uniTextureColor;",
 
@@ -384,8 +369,9 @@
         "uniform vec2 uniHighlightRange;",
 
         "void main(void) {",
-        "   vec4 pixel = texture2D(uniTextureColor, varyTextureCoordinate);",
-        "   gl_FragColor = pixel;",
+        // "   vec4 pixel = texture2D(uniTextureColor, varyTextureCoordinate);",
+        // "   gl_FragColor = pixel;",
+        "   gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);",
         "}"
 
 
