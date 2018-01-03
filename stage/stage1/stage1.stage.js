@@ -75,7 +75,7 @@
 
         var aData0 = new Float32Array(2048);
         for(var ii=0;ii<2048;ii++) {
-            aData0[ii] = Math.random() * (ii % 12);
+            aData0[ii] = Math.sin(ii / 100) * 100 * (ii/10000);
         }
 
         // Level Sprites
