@@ -73,10 +73,15 @@
             // Lem.setScale(0.5);
         }
 
+        var aData0 = new Float32Array(2048);
+        for(var ii=0;ii<2048;ii++) {
+            aData0[ii] = Math.random() * (ii % 12);
+        }
+
         // Level Sprites
         // var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
         var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 2048, DIR_HEIGHT_MAP);
-        var hmMain2 = new ForgottenFuture.Render.Shader.HeightMap2(gl);
+        var hmMain2 = new ForgottenFuture.Render.Shader.HeightMap2(gl, aData0);
 //             .setHeightMap(iHMapMain, 0.2, 10)
 //             .setColor();
 

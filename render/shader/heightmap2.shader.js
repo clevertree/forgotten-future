@@ -24,10 +24,12 @@
         var vHighlightColor =   defaultColor.slice(0);
         var vHighlightRange =   [64,128];
 
-        aData0 = new Float32Array(2048);
-        for(var ii=0;ii<2048;ii++) {
-            aData0[ii] = Math.random() * (ii % 12);
+        var maxHeight = 0;
+        for(var ii=0;ii<aData0.length;ii++) {
+            if(aData0[ii] > maxHeight)
+                maxHeight = aData0[ii];
         }
+        console.log("Max Height: ", maxHeight, this);
 
         // Initiate Shader program
         initProgram(gl);
@@ -59,7 +61,7 @@
 
 
             gl.activeTexture(gl.TEXTURE0);
-            gl.uniform1i(PROGRAM.uniTextureColor, 0);
+            gl.uniform1i(PROGRAM.s2TextureColor, 0);
             gl.bindTexture(gl.TEXTURE_2D, tColor);
 
             // for(var i=2000; i>-200; i--) {
@@ -302,7 +304,7 @@
         PROGRAM.m4ModelView = gl.getUniformLocation(PROGRAM, "m4ModelView");
 
         // uTextureHeightData = gl.getUniformLocation(program, "uTextureHeightData");
-        PROGRAM.uniTextureColor = gl.getUniformLocation(PROGRAM, "uniTextureColor");
+        PROGRAM.s2TextureColor = gl.getUniformLocation(PROGRAM, "s2TextureColor");
         // uTextureHeightPattern = gl.getUniformLocation(program, "uTextureHeightPattern");
 
         // uLevelMap = gl.getUniformLocation(program, "uLevelMap");
@@ -353,7 +355,7 @@
 
         "void main(void) {",
         "   vec4 v4Position = m4ModelView * vec4(v2VertexPosition.x, v2VertexPosition.y, 0.0, 1.0);",
-        "   v2TextureVarying = v2VertexPosition;",
+        "   v2TextureVarying = v2VertexPosition / 3.0;",
         "   gl_Position = m4Projection * v4Position;",
         "}"
     ].join("\n");
@@ -363,13 +365,13 @@
 
         "varying vec2 v2TextureVarying;",
 
-        "uniform sampler2D uniTextureColor;",
+        "uniform sampler2D s2TextureColor;",
 
         "uniform vec4 v4HighlightColor;",
         "uniform vec2 v4HighlightRange;",
 
         "void main(void) {",
-        "   vec4 pixel = texture2D(uniTextureColor, v2TextureVarying);",
+        "   vec4 pixel = texture2D(s2TextureColor, v2TextureVarying);",
         "   gl_FragColor = pixel;",
         // "   gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);",
         "}"
