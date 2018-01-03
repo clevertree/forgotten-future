@@ -39,7 +39,7 @@
         var VAO = Util.createVertexArray(gl);
 
         VAO.bind();
-        bindTextureCoordinates();                       // Bind Texture Coordinate
+        // bindTextureCoordinates();                       // Bind Texture Coordinate
         var vertexCount = bindVertexCoordinates();      // Bind Vertex Coordinate
         VAO.unbind();
 
@@ -51,11 +51,11 @@
             gl.useProgram(PROGRAM);
 
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(PROGRAM.uniPMatrix, false, mProjection);
-            gl.uniformMatrix4fv(PROGRAM.uniMVMatrix, false, mModelView);
+            gl.uniformMatrix4fv(PROGRAM.m4Projection, false, mProjection);
+            gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, mModelView);
 
-            gl.uniform4fv(PROGRAM.uniHighlightColor, vHighlightColor);
-            gl.uniform2fv(PROGRAM.uniHighlightRange, vHighlightRange);
+            gl.uniform4fv(PROGRAM.v4HighlightColor, vHighlightColor);
+            gl.uniform2fv(PROGRAM.v4HighlightRange, vHighlightRange);
 
 
             gl.activeTexture(gl.TEXTURE0);
@@ -63,7 +63,7 @@
             gl.bindTexture(gl.TEXTURE_2D, tColor);
 
             // for(var i=2000; i>-200; i--) {
-            //     gl.uniformMatrix4fv(uniMVMatrix, false, Util.translate(mModelView, 0, 0, -0.1*i));
+            //     gl.uniformMatrix4fv(m4ModelView, false, Util.translate(mModelView, 0, 0, -0.1*i));
             //     gl.drawArrays(gl.TRIANGLES, 0, 6);
             // }
 
@@ -218,8 +218,8 @@
             ]);
             gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
             gl.bufferData(gl.ARRAY_BUFFER, aTextureCoordinates, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(PROGRAM.attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(PROGRAM.attrTextureCoordinate);            // Enable Texture Position Attribute.
+            gl.vertexAttribPointer(PROGRAM.v2TextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(PROGRAM.v2TextureCoordinate);            // Enable Texture Position Attribute.
         }
 
         function bindVertexCoordinates() {
@@ -236,8 +236,8 @@
 
             gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
             gl.bufferData(gl.ARRAY_BUFFER, aVertexPositions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(PROGRAM.attrVertexPosition, 2, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(PROGRAM.attrVertexPosition);
+            gl.vertexAttribPointer(PROGRAM.v2VertexPosition, 2, gl.FLOAT, false, 0, 0);
+            gl.enableVertexAttribArray(PROGRAM.v2VertexPosition);
 
             return aVertexPositions.length / 2;
         }
@@ -290,24 +290,24 @@
         // gl.useProgram(program);
 
         // Enable Vertex Position Attribute.
-        PROGRAM.attrVertexPosition = gl.getAttribLocation(PROGRAM, "attrVertexPosition");
-        gl.enableVertexAttribArray(PROGRAM.attrVertexPosition);
+        PROGRAM.v2VertexPosition = gl.getAttribLocation(PROGRAM, "v2VertexPosition");
+        gl.enableVertexAttribArray(PROGRAM.v2VertexPosition);
 
         // Enable Texture Position Attribute.
-        PROGRAM.attrTextureCoordinate = gl.getAttribLocation(PROGRAM, "attrTextureCoordinate");
-        gl.enableVertexAttribArray(PROGRAM.attrTextureCoordinate);
+//         PROGRAM.v2TextureCoordinate = gl.getAttribLocation(PROGRAM, "v2TextureCoordinate");
+//         gl.enableVertexAttribArray(PROGRAM.v2TextureCoordinate);
 
         // Lookup Uniforms
-        PROGRAM.uniPMatrix = gl.getUniformLocation(PROGRAM, "uniPMatrix");
-        PROGRAM.uniMVMatrix = gl.getUniformLocation(PROGRAM, "uniMVMatrix");
+        PROGRAM.m4Projection = gl.getUniformLocation(PROGRAM, "m4Projection");
+        PROGRAM.m4ModelView = gl.getUniformLocation(PROGRAM, "m4ModelView");
 
         // uTextureHeightData = gl.getUniformLocation(program, "uTextureHeightData");
         PROGRAM.uniTextureColor = gl.getUniformLocation(PROGRAM, "uniTextureColor");
         // uTextureHeightPattern = gl.getUniformLocation(program, "uTextureHeightPattern");
 
         // uLevelMap = gl.getUniformLocation(program, "uLevelMap");
-        PROGRAM.uniHighlightColor = gl.getUniformLocation(PROGRAM, "uniHighlightColor");
-        PROGRAM.uniHighlightRange = gl.getUniformLocation(PROGRAM, "uniHighlightRange");
+        PROGRAM.v4HighlightColor = gl.getUniformLocation(PROGRAM, "v4HighlightColor");
+        PROGRAM.v4HighlightRange = gl.getUniformLocation(PROGRAM, "v4HighlightRange");
         // uTextureSize = gl.getUniformLocation(program, "uTextureSize");
 
         PROGRAM.txDefaultColor = gl.createTexture();
@@ -319,8 +319,8 @@
                 0, 0, 0, 0,     0, 0, 0, 128,
                 255, 255, 255, 255,     255, 255, 255, 255]));
 
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -344,34 +344,34 @@
     }
 
     HeightMap2.VS = [
-        "attribute vec2 attrVertexPosition;",
-        // "attribute vec2 attrTextureCoordinate;",
-        // "varying vec2 varyTextureCoordinate;",
+        "attribute vec2 v2VertexPosition;",
+        // "attribute vec2 v2TextureCoordinate;",
+        "varying vec2 v2TextureVarying;",
 
-        "uniform mat4 uniPMatrix;",
-        "uniform mat4 uniMVMatrix;",
+        "uniform mat4 m4Projection;",
+        "uniform mat4 m4ModelView;",
 
         "void main(void) {",
-        "   vec4 vPosition = uniMVMatrix * vec4(attrVertexPosition.x, attrVertexPosition.y, 0.0, 1.0);",
-        // "   varyTextureCoordinate = attrTextureCoordinate;",
-        "   gl_Position = uniPMatrix * vPosition;",
+        "   vec4 v4Position = m4ModelView * vec4(v2VertexPosition.x, v2VertexPosition.y, 0.0, 1.0);",
+        "   v2TextureVarying = v2VertexPosition;",
+        "   gl_Position = m4Projection * v4Position;",
         "}"
     ].join("\n");
 
     HeightMap2.FS = [
         "precision highp float;",
 
-        // "varying vec2 varyTextureCoordinate;",
+        "varying vec2 v2TextureVarying;",
 
         "uniform sampler2D uniTextureColor;",
 
-        "uniform vec4 uniHighlightColor;",
-        "uniform vec2 uniHighlightRange;",
+        "uniform vec4 v4HighlightColor;",
+        "uniform vec2 v4HighlightRange;",
 
         "void main(void) {",
-        // "   vec4 pixel = texture2D(uniTextureColor, varyTextureCoordinate);",
-        // "   gl_FragColor = pixel;",
-        "   gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);",
+        "   vec4 pixel = texture2D(uniTextureColor, v2TextureVarying);",
+        "   gl_FragColor = pixel;",
+        // "   gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);",
         "}"
 
 
