@@ -295,39 +295,30 @@ var ForgottenFuture = {
     }
 
     Util.loadScript = function(scriptPath, callback) {
-        var scriptPathEsc = scriptPath.replace(/[/.]/g, '\\$&');
-        var foundScript = document.head.querySelectorAll('script[src=' + scriptPathEsc + ']');
-        if (foundScript.length === 0) {
-//             console.log("Including Script " + scriptPath);
-            var scriptElm = document.createElement('script');
-            scriptElm.src = scriptPath;
-            scriptElm.onload = function(e) {
-                scriptsLoading--;
-                if(callback) callback(e);
-                completeScriptCallbacks(e);
-            };
-            document.head.appendChild(scriptElm);
-            scriptsLoading++;
+        if(Array.isArray(scriptPath)) {
+            for(var i=0; i<scriptPath.length; i++)
+                Util.loadScript(scriptPath[i], callback);
         } else {
-            if(callback) callback();
+            var scriptPathEsc = scriptPath.replace(/[/.]/g, '\\$&');
+            var foundScript = document.head.querySelectorAll('script[src=' + scriptPathEsc + ']');
+            if (foundScript.length === 0) {
+//             console.log("Including Script " + scriptPath);
+                var scriptElm = document.createElement('script');
+                scriptElm.src = scriptPath;
+                scriptElm.onload = function(e) {
+                    scriptsLoading--;
+                    if(callback) callback(e);
+                    completeScriptCallbacks(e);
+                };
+                document.head.appendChild(scriptElm);
+                scriptsLoading++;
+            } else {
+                if(callback) callback();
+            }
         }
+        return scriptsLoading;
     };
 
-    Util.loadScripts = function(scriptPathList, callback) {
-        var counter = 0;
-        for(var i=0; i<scriptPathList.length; i++) {
-            counter++;
-            Util.loadScript(scriptPathList[i], scriptLoaded);
-        }
-        if(counter === 0)
-            callback();
-
-        function scriptLoaded() {
-            counter--;
-            if(counter === 0 && callback)
-                callback();
-        }
-    };
 
     // Image Loading
 

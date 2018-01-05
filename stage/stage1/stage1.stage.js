@@ -6,39 +6,13 @@
 // Set up script-side listeners
 
 (function() {
-    var STAGE_NAME = "Stage1";
-
-    var CHAR_TILDE = 192, CHAR_TAB = 9;
-
-    var PATH_STAGE = 'stage/stage1';
-    var DIR_LEVEL_MAP = PATH_STAGE + '/map/default.tilemap.png';
-    var DIR_TILE_SHEET = PATH_STAGE + '/tiles/default.tiles.png';
-    var DIR_HEIGHT_MAP = PATH_STAGE + '/map/main.heightmap.png';
-
-    var PATH_TILE_DEFAULT = PATH_STAGE + '/tiles/default.tiles.png';
-    var PATH_MAP_BKLAYER = PATH_STAGE + '/map/bklayer.map.png';
-
     var Util = ForgottenFuture.Util,
         Constant = ForgottenFuture.Constant,
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
-    // Camera/ViewPort
-    Util.loadScript('render/viewport/simple.viewport.js');
-
-    // Level Maps
-    Util.loadScript('render/shader/tilemap.shader.js');
-    Util.loadScript('render/shader/heightmap.shader.js');
-    Util.loadScript('render/generator/render.generator.js');
-
-    // Sprites
-    Util.loadScript('sprite/character/lem/lem.sprite.js');
-    Util.loadScript('sprite/vehicle/RAV/RAV.sprite.js');
-
-    // Map Data
-    var iHMapMain = Util.loadImage(PATH_STAGE + '/map/main.heightmap.png');
-
-    // Load and Render
+    // Stage Data
+    Util.loadScript('stage/stage1/data/stage1.stage.data.js');
 
     ForgottenFuture.Stage.Stage1 = Stage1;
 
@@ -47,78 +21,25 @@
      * @constructor
      */
     function Stage1(gl) {
-        var THIS = this;
-
-        // Flag
-        var stageFlags = Constant.MODE_DEFAULT;
-
-        // Variable
+        // Variables
+        var renderList = [];
+        var hitboxList = [];
 
         // Stage Gravity
         var mGravity = [0, -0.0004, 0];
         this.getGravity = function () { return mGravity };
-        this.setGravity = function (mNewGravity) { mGravity = mNewGravity};
 
-        // Players
-
-        var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
-        var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
-        function init() {
-            // RAV1.setRotate([0, 0, 1]);
-            RAV1.setPosition([7, 8, 0]);
-
-            Lem.setPosition([10, 10, 0]);
-            THIS.setViewPort(Lem .getViewPort());
-
-            // Lem.setScale(0.5);
-        }
-
-        // Level Sprites
-        var mapGen = new ForgottenFuture.Render.Generator();
-        // var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
-        // var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 2048, DIR_HEIGHT_MAP);
-        var aData0 = mapGen.genSinWaveHeightMap();
-
-        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, aData0);
-//             .setHeightMap(iHMapMain, 0.2, 10)
-//             .setColor();
-
-        var renders = [
-            hmMain, Lem, RAV1 // , pfMain
-        ];
-        var hitBoxes = [
-            //pfMain,
-            hmMain
-        ];
-
-        var selectedRender = -1; // renders.length - 1;
-
-        // Extras
-        var Lems = [];
-        for(var li=0;li<20;li++) {
-            Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl, this);
-            Lems[li].setPosition([10, 10, 0]);
-            // Lems[li].setVelocity([0.1 * Math.random(), 0, 0]);
-            renders.unshift(Lems[li]);
-        }
-
-        // Default FOV
+        // Default ViewPort
         var viewPort = new ForgottenFuture.Render.ViewPort.SimpleViewPort();
         this.setViewPort = function (newViewPort) {
             viewPort = newViewPort;
         };
-        // viewPort.script.setVelocity(-0.005, 0, -0.001);
 
-
-        // Set up render loop
-        var lastKeyCount = 0, frameCount = 0;
         /**
          * Render the stage
          * @param t
          */
         this.render = function(t) {
-            frameCount++;
-
             // Clear background
             gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
             gl.clearColor(0.03, 0.1, 0.03, 0.1);
@@ -131,8 +52,6 @@
             // Update Camera
             var mProjection = viewPort.calculateProjection(t);
 
-            RAV1.setRotate([0, 0, frameCount/100]);
-            // Lem.setRotate([0, 0, frameCount/100]);
 
             // Enable Depth testing
             // gl.enable(gl.DEPTH_TEST); // Depth test creates those ugly opaque textures
@@ -143,23 +62,22 @@
             handleKeyChange();
 
             // Update
-            for(var i=0; i<renders.length; i++) {
-                var flags = stageFlags;
-                if(selectedRender === i)    flags |= Constant.RENDER_SELECTED;
-                renders[i].update(t, this, flags);
-            }
+            for(var i=0; i<renderList.length; i++)
+                renderList[i].update(t, this);
 
             // Render
-            for(i=0; i<renders.length; i++) {
-                flags = stageFlags;
-                if(selectedRender === i)    flags |= Constant.RENDER_SELECTED;
-                renders[i].render(gl, mProjection, flags);
-            }
+            for(i=0; i<renderList.length; i++)
+                renderList[i].render(gl, mProjection);
         };
 
 
-        var CHAR_SHIFT = 16;
+        // TODO: move to editor file
+
+        // Set up render loop
+        var lastKeyCount = 0;
+        var CHAR_TILDE = 192, CHAR_TAB = 9, CHAR_SHIFT = 16;
         var keyTildeCount = 0, keyTabCount = 0;
+        var selectedRender = -1; // renderList.length - 1;
         function handleKeyChange() {
             if(lastKeyCount < Input.keyEvents) {
                 lastKeyCount = Input.keyEvents;
@@ -185,14 +103,14 @@
                 if(keyTabCount < Input.keyCount[CHAR_TAB]) {
                     keyTabCount = Input.keyCount[CHAR_TAB];
                     selectedRender++;
-                    if(selectedRender >= renders.length)
+                    if(selectedRender >= renderList.length)
                         selectedRender = -1;
                     if(selectedRender === -1) {
                         THIS.setViewPort(new Render.ViewPort.SimpleViewPort());
                         console.log("Selected: ", THIS);
                     } else {
-                        THIS.setViewPort(renders[selectedRender].getViewPort());
-                        console.log("Selected:", renders[selectedRender]);
+                        THIS.setViewPort(renderList[selectedRender].getViewPort());
+                        console.log("Selected:", renderList[selectedRender]);
                     }
                 }
             }
@@ -221,8 +139,8 @@
         }
 
         this.testHit = function (x, y, z) {
-            for(var i=0; i<hitBoxes.length; i++) {
-                var pixel = hitBoxes[i].testHit(x, y, z);
+            for(var i=0; i<hitboxList.length; i++) {
+                var pixel = hitboxList[i].testHit(x, y, z);
                 if(pixel)
                     return pixel;
             }
@@ -231,8 +149,8 @@
 
         this.testHeight = function (x, y, z) {
             var finalHeight = -9999;
-            for(var i=0; i<hitBoxes.length; i++) {
-                var height = hitBoxes[i].testHeight(x, y, z);
+            for(var i=0; i<hitboxList.length; i++) {
+                var height = hitboxList[i].testHeight(x, y, z);
                 if(height > finalHeight)
                     finalHeight = height;
             }
@@ -240,7 +158,10 @@
         };
 
         // Initialize Stage Objects
-        init();
+        Stage1.initData(gl, this, function(initRenderList, initHitboxList) {
+            renderList = initRenderList;
+            hitboxList = initHitboxList;
+        });
     }
 
 
