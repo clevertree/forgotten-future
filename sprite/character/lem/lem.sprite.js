@@ -207,4 +207,7 @@
 
     }
 
+    Lem.prototype = Object.create(Sprite.SpritePrototype.prototype, {});
+    Lem.prototype.constructor = Lem;
+
 })();

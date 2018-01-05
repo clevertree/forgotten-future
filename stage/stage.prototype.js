@@ -7,12 +7,12 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
-        Constant = ForgottenFuture.Constant,
+        Stage = ForgottenFuture.Stage,
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
 
-    ForgottenFuture.Stage.StagePrototype = StagePrototype;
+    Stage.StagePrototype = StagePrototype;
 
     /**
      * @param {WebGLRenderingContext} gl
@@ -27,7 +27,7 @@
         this.gravity = [0, -0.0004, 0];
 
         // Default ViewPort
-        this.viewPort = new ForgottenFuture.Render.ViewPort.SimpleViewPort();
+        this.viewPort = new Render.ViewPort.SimpleViewPort();
 
 
         // // Set up render loop

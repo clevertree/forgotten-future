@@ -7,7 +7,7 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
-        Constant = ForgottenFuture.Constant,
+        Stage = ForgottenFuture.Stage,
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
@@ -16,7 +16,7 @@
     // Stage Data
     Util.loadScript('stage/stage1/data/stage1.stage.data.js');
 
-    ForgottenFuture.Stage.Stage1 = Stage1;
+    Stage.Stage1 = Stage1;
 
     /**
      * @param {WebGLRenderingContext} gl
@@ -26,7 +26,7 @@
         console.log(this);
     }
 
-    Stage1.prototype = Object.create(ForgottenFuture.Stage.StagePrototype.prototype, {});
+    Stage1.prototype = Object.create(Stage.StagePrototype.prototype, {});
     Stage1.prototype.constructor = Stage1;
 
         // varB: {
