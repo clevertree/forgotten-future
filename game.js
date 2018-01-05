@@ -10,9 +10,7 @@ var ForgottenFuture = {
         Shader: {
             Editor:{}
         },
-        ViewPort: {
-
-        },
+        ViewPort: {},
         gl: null,
         canvas: null,
         widthToHeightRatio: 1,
@@ -28,9 +26,7 @@ var ForgottenFuture = {
         keyEvents: 0, 
         lastKey: null,
     },
-    Stage: {
-
-    },
+    Stage: {},
     Util: {
         
     },

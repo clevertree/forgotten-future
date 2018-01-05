@@ -156,7 +156,6 @@
             var rightHeight = aData0 [(px+1)] * (pxr);
 
             var height = (leftHeight+rightHeight);
-            console.log("Test", x, y, height - ry);
             return (height - ry);
         };
 
@@ -357,9 +356,9 @@
         "varying vec2 v2TextureVarying;",
 
         "void main(void) {",
-        "   v2TextureVarying.x = (v2MapSize.x - v2VertexPosition.x) / v2MapSize.x;",
-        "   v2TextureVarying.y = (v2MapSize.y - v2VertexPosition.z) / v2MapSize.y;",
-        "   v2TextureVarying = (v2MapSize - vec2(v2VertexPosition.x, v2VertexPosition.y - v2VertexPosition.z)) / v2MapSize * 20.0;",
+        // "   v2TextureVarying.x = (v2MapSize.x - v2VertexPosition.x) / v2MapSize.x;",
+        // "   v2TextureVarying.y = (v2MapSize.y - v2VertexPosition.z) / v2MapSize.y;",
+        "   v2TextureVarying = (v2MapSize - vec2(v2VertexPosition.x, v2VertexPosition.y - v2VertexPosition.z)) / v2MapSize * 10.0;",
 
         "   vec4 v4Position = vec4(v2VertexPosition.x, v2VertexPosition.y, 0.0, 1.0);", // TODO index stream?
         "   gl_Position = m4Projection * m4ModelView * v4Position;",
