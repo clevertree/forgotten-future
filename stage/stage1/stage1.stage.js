@@ -29,7 +29,6 @@
     // Level Maps
     Util.loadScript('render/shader/tilemap.shader.js');
     Util.loadScript('render/shader/heightmap.shader.js');
-    Util.loadScript('render/shader/heightmap2.shader.js');
 
     // Sprites
     Util.loadScript('sprite/character/lem/lem.sprite.js');
@@ -75,18 +74,18 @@
 
         var aData0 = new Float32Array(2048);
         for(var ii=0;ii<2048;ii++) {
-            aData0[ii] = Math.abs(Math.sin(ii / 100) * (0.9 + Math.random()/10) * 400 * (ii/10000));
+            aData0[ii] = Math.abs(Math.sin(ii / 100) * (0.9 + Math.random()/20) * 400 * (ii/10000));
         }
 
         // Level Sprites
         // var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
-        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 2048, DIR_HEIGHT_MAP);
-        var hmMain2 = new ForgottenFuture.Render.Shader.HeightMap2(gl, aData0);
+        // var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 2048, DIR_HEIGHT_MAP);
+        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, aData0);
 //             .setHeightMap(iHMapMain, 0.2, 10)
 //             .setColor();
 
         var renders = [
-            hmMain, hmMain2, Lem, RAV1 // , pfMain
+            hmMain, Lem, RAV1 // , pfMain
         ];
         var hitBoxes = [
             //pfMain,
