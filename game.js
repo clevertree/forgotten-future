@@ -146,7 +146,8 @@ var ForgottenFuture = {
                 window.requestAnimationFrame(onFrame);
                 function onFrame(t) {
                     window.requestAnimationFrame(onFrame);
-                    stage.render(t);
+                    stage.update(t);
+                    stage.render(gl, t);
                 }
 
                 console.info("Stage '" + stageName + "' rendering", stage);
