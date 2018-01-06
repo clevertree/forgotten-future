@@ -266,6 +266,7 @@ var ForgottenFuture = {
     Util.waitForLoadingScripts = function(callback) {
         if(scriptsLoading > 0) {
             scriptCallbacks.push(callback);
+            console.info("Script callback queued: ", callback);
         } else {
             callback();
         }
@@ -290,8 +291,12 @@ var ForgottenFuture = {
         if(scriptsLoading === 0 && scriptCallbacks.length > 0) {
             var callbacks = scriptCallbacks;
             scriptCallbacks = [];
-            for(var i=0; i<callbacks.length; i++)
-                callbacks[i](e);
+            for(var i=callbacks.length-1; i>=0; i--)
+                try {
+                    callbacks[i](e);
+                } catch (e) {
+                    console.error(e);
+                }
         }
     }
 
@@ -300,6 +305,8 @@ var ForgottenFuture = {
             for(var i=0; i<scriptPath.length; i++)
                 Util.loadScript(scriptPath[i], callback);
         } else {
+            if(callback)
+                scriptCallbacks.push(callback);
             var scriptPathEsc = scriptPath.replace(/[/.]/g, '\\$&');
             var foundScript = document.head.querySelectorAll('script[src=' + scriptPathEsc + ']');
             if (foundScript.length === 0) {
@@ -308,14 +315,12 @@ var ForgottenFuture = {
                 scriptElm.src = scriptPath;
                 scriptElm.onload = function(e) {
                     scriptsLoading--;
-                    if(callback) callback(e);
                     completeScriptCallbacks(e);
                 };
                 document.head.appendChild(scriptElm);
                 scriptsLoading++;
             } else {
-                if(callback)
-                    Util.waitForLoadingScripts(callback);
+
             }
         }
         return scriptsLoading;
@@ -335,10 +340,11 @@ var ForgottenFuture = {
     Util.loadImage = function(imagePath, callback) {
         // Asynchronously load an image
         var image = new Image();
+        if(callback)
+            scriptCallbacks.push(callback);
         scriptsLoading++;
         image.addEventListener('load', function(e) {
             scriptsLoading--;
-            if(callback) callback(e);
             completeScriptCallbacks(e);
         });
         image.src = imagePath;

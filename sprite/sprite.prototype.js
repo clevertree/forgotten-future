@@ -21,21 +21,28 @@
      * @constructor
      */
     function SpritePrototype(gl, stage) {
-        this.scale = [1, 1, 0];
+        /** @type {Array} **/
+        this.scale          = [1, 1, 0];
         this.position       = [0, 0, 0];
         this.velocity       = [0.1, 0, 0];
         this.acceleration   = [Math.random() * 0.001, stage.gravity[1], 0];
-        this.rotation = null;
-        this.direction = 1.0;
-        this.stateScript = handleBounceMotion;
+        this.rotation       = null;
+        this.direction      = 1.0;
+        /** @type {Function} **/
+        this.stateScript    = handleBounceMotion;
+        /** @type {SpritePrototype} **/
+        this.sprite         = null; // Default sprite renderer?
     }
 
-    SpritePrototype.prototype.update = function(t) {
-        console.error("::update() is not implemented for ", this);
+    // Update
+    SpritePrototype.prototype.update = function(t, stage) {
+        this.stateScript(t, stage);
+        this.sprite.update(t, this, stage);
     };
 
-    SpritePrototype.prototype.render = function(gl, t) {
-        console.error("::render() is not implemented for ", this);
+    // Rendering
+    SpritePrototype.prototype.render = function(gl, mProjection) {
+        this.sprite.render(gl, this.position, this.rotation, this.scale, mProjection);
     };
 
     // Model View
@@ -72,6 +79,25 @@
                     vViewPosition[2] += 0.002 * (2.5 - vViewPosition[2]);
             }
         );
+    };
+
+    SpritePrototype.prototype.testHit = function (x, y, z) {
+        for(var i=0; i<this.hitBoxes.length; i++) {
+            var pixel = this.hitBoxes[i].testHit(x, y, z);
+            if(pixel)
+                return pixel;
+        }
+        return false;
+    };
+
+    SpritePrototype.prototype.testHeight = function (x, y, z) {
+        var finalHeight = -9999;
+        for(var i=0; i<this.hitBoxes.length; i++) {
+            var height = this.hitBoxes[i].testHeight(x, y, z);
+            if(height > finalHeight)
+                finalHeight = height;
+        }
+        return finalHeight;
     };
 
     // Physics

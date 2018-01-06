@@ -54,27 +54,13 @@
         // Local Variables
         this.velocity       = [0.1, 0, 0];
         this.acceleration   = [Math.random() * 0.001, stage.gravity[1], 0];
-        var direction = 1.0;
         this.stateScript = Lem.stateScripts.handleFallingMotion;
 
         // Sprite Sheet
-        var sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SHEET);
-        sprite.addTileFrameSequence('run', 0, 0, 16, 8, 2);
-        sprite.setCurrentFrame('run');
-        sprite.setFrameRate(15 + Math.random()*10);
-
-        // Rendering
-        this.render = function(gl, mProjection, flags) {
-            sprite.render(gl, this.position, this.rotation, this.scale, mProjection, flags);
-        };
-
-        // Update
-        this.update = function (t, stage, flags) {
-            this.stateScript(t, stage, flags);
-            sprite.update(t, this, stage, flags);
-        };
-
-
+        this.sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SHEET);
+        this.sprite.addTileFrameSequence('run', 0, 0, 16, 8, 2);
+        this.sprite.setCurrentFrame('run');
+        this.sprite.setFrameRate(15 + Math.random()*10);
 
     }
 

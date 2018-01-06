@@ -18,14 +18,28 @@
     });
 
     // Stage Data
-    Util.loadScript('stage/stage1/data/stage1.stage.data.js');
+    var deps = [
+        // Camera/ViewPort
+        'render/viewport/simple.viewport.js',
+
+        // Level Maps
+        'render/shader/tilemap.shader.js',
+        'render/shader/heightmap.shader.js',
+        'render/generator/render.generator.js',
+
+        // Sprites
+        'sprite/character/lem/lem.sprite.js',
+        'sprite/vehicle/RAV/RAV.sprite.js',
+    ];
+    Util.loadScript(deps);
+
 
     Stage.Stage1 = Stage1;
 
     /**
      * @param {WebGLRenderingContext} gl
      * @constructor
-     * @augments {Stage.StagePrototype}
+     * @augments {StagePrototype}
      */
     function Stage1(gl) {
         // Constructor
