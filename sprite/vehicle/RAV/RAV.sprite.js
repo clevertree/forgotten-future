@@ -35,7 +35,7 @@
      * @constructor
      */
     function RAV(gl, stage) {
-        Sprite.SpritePrototype.call(this, [gl, stage]); // call parent constructor
+        Sprite.SpritePrototype.call(this, gl, stage); // call parent constructor
 
         var vPosition = [0, 0, 0], vScale = [2,1,0],
             vVelocity = null, vAcceleration = null, vRotation = null;
