@@ -66,12 +66,13 @@
 
             VAO.bind();
 
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
 
-            for(var i=200; i>-2; i--) {
-                gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, -0.8*i));
+            for(var i=-20; i<10; i++) {
+                gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, i));
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
             }
+
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
 
             VAO.unbind();
 
