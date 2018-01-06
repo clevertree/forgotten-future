@@ -20,7 +20,7 @@
 
         // Variables
         var vPosition =         [0, 0, 0];
-        var m4ModelView =        defaultModelViewMatrix;
+        var m4ModelView =       defaultModelViewMatrix;
         var vHighlightColor =   defaultColor.slice(0);
         var vHighlightRange =   [64,128];
 
@@ -63,13 +63,16 @@
             gl.uniform1i(PROGRAM.s2TextureColor, 0);
             gl.bindTexture(gl.TEXTURE_2D, tColor);
 
-            // for(var i=2000; i>-200; i--) {
-            //     gl.uniformMatrix4fv(m4ModelView, false, Util.translate(mModelView, 0, 0, -0.1*i));
-            //     gl.drawArrays(gl.TRIANGLES, 0, 6);
-            // }
 
             VAO.bind();
+
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
+
+            for(var i=200; i>-2; i--) {
+                gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, -0.8*i));
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
+            }
+
             VAO.unbind();
 
         };
@@ -138,12 +141,12 @@
 
         // Map Data
 
-        this.testHeight = function (x, y, z) {
-            if(z !== vPosition[2])
+        this.testHeight = function (spritePosition) {
+            if(spritePosition[2] !== vPosition[2])
                 return null;        // Null means non-applicable
 
-            var rx = x - vPosition[0];
-            var ry = y - vPosition[1];
+            var rx = spritePosition[0] - vPosition[0];
+            var ry = spritePosition[1] - vPosition[1];
             if(rx < 0 || rx > v2MapSize[0] || ry < 0 || ry > v2MapSize[1])
                 return null;
 
@@ -159,9 +162,9 @@
             return (height - ry);
         };
 
-        this.testHit = function(x, y, z) {
-            return this.testHeight(x, y, z) > 0;
-        };
+        // this.testHit = function(x, y, z) {
+        //     return this.testHeight(x, y, z) > 0;
+        // };
         // Model/View
 
         this.setWidthPerPoint = function(newWidthPerPoint)                 {
@@ -317,7 +320,7 @@
         // Fill the texture with a 1x2 pixel.
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE,
             new Uint8Array([
-                0, 0, 0, 255,     255, 255, 255, 0,
+                0, 0, 0, 255,     255, 255, 255, 255,
                 255, 255, 255, 255,     0, 0, 0, 255]));
 
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);

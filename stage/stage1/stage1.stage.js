@@ -17,8 +17,8 @@
         Stage1.prototype.constructor = Stage1;
     });
 
-    // Stage Data
-    var deps = [
+    // Dependencies
+    Util.loadScript([
         // Camera/ViewPort
         'render/viewport/simple.viewport.js',
 
@@ -30,8 +30,7 @@
         // Sprites
         'sprite/character/lem/lem.sprite.js',
         'sprite/vehicle/RAV/RAV.sprite.js',
-    ];
-    Util.loadScript(deps);
+    ]);
 
 
     Stage.Stage1 = Stage1;
@@ -48,6 +47,12 @@
         // Players
         var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
         var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
+        // RAV1.setRotate([0, 0, 1]);
+        RAV1.setPosition([7, 8, 0]);
+
+        Lem.setPosition([10, 10, 0]);
+
+        this.viewPort = Lem .getViewPort();
 
         // Level Sprites
         var mapGen = new ForgottenFuture.Render.Generator();
@@ -66,24 +71,22 @@
             //pfMain,
             hmMain
         ];
-        // RAV1.setRotate([0, 0, 1]);
-        RAV1.setPosition([7, 8, 0]);
 
-        Lem.setPosition([10, 10, 0]);
-        this.setViewPort(Lem .getViewPort());
-
-        // Extras
-        var Lems = [];
-        for(var li=0;li<20;li++) {
-            Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl, this);
-            Lems[li].setPosition([10, 10, 0]);
-            // Lems[li].setVelocity([0.1 * Math.random(), 0, 0]);
-            this.renders.unshift(Lems[li]);
-        }
-
-        console.log(this);
+        initEditorContent(this, gl);
     }
 
 
+
+    function initEditorContent(stage, gl) {
+        /** - EDITOR_CONTENT_START **/
+        var Lems = [];
+        for(var li=0;li<20;li++) {
+            Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl, stage);
+            Lems[li].setPosition([10, 10, 0]);
+            // Lems[li].setVelocity([0.1 * Math.random(), 0, 0]);
+            stage.renders.push(Lems[li]);
+        }
+        /** - EDITOR_CONTENT_END **/
+    }
 
 })();

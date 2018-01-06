@@ -7,9 +7,9 @@
     var Util = ForgottenFuture.Util,
         Render = ForgottenFuture.Render;
 
-    ForgottenFuture.Render.Shader.Sprite = Sprite;
-    function Sprite(gl, pathSpriteSheet, flags) {
-        if(typeof flags === 'undefined') flags = Sprite.FLAG_DEFAULTS;
+    ForgottenFuture.Render.Shader.SpriteShader = SpriteShader;
+    function SpriteShader(gl, pathSpriteSheet, flags) {
+        if(typeof flags === 'undefined') flags = SpriteShader.FLAG_DEFAULTS;
 
         this.frames = {
             'default': [defaultTextureCoordinates]
@@ -25,7 +25,7 @@
 
         // Initiate Shaders
         if(!PROGRAM)
-            Sprite.RENDER_INIT(gl);
+            SpriteShader.RENDER_INIT(gl);
 
         // Create a texture.
         var tSpriteSheet = gl.createTexture();
@@ -180,7 +180,7 @@
             // Set the parameters so we can render any size image.
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
             gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            if (flags & Sprite.FLAG_GENERATE_MIPMAP) {
+            if (flags & SpriteShader.FLAG_GENERATE_MIPMAP) {
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
                 gl.generateMipmap(gl.TEXTURE_2D);
@@ -196,8 +196,8 @@
 
     // Static
 
-    Sprite.FLAG_GENERATE_MIPMAP = 0x01;
-    Sprite.FLAG_DEFAULTS = 0; //SpriteSheet.FLAG_GENERATE_MIPMAP;
+    SpriteShader.FLAG_GENERATE_MIPMAP = 0x01;
+    SpriteShader.FLAG_DEFAULTS = 0; //SpriteSheet.FLAG_GENERATE_MIPMAP;
 
     var defaultModelViewMatrix = Util.translation(0,0,0); //[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     var defaultColor = new Float32Array([1,1,1,1]);
@@ -229,10 +229,10 @@
     var uPMatrix, uMVMatrix, uSampler, uColor;
 
 
-    Sprite.RENDER_INIT = function(gl) {
+    SpriteShader.RENDER_INIT = function(gl) {
 
         // Init Program
-        var program = Util.compileProgram(gl, Sprite.VS, Sprite.FS);
+        var program = Util.compileProgram(gl, SpriteShader.VS, SpriteShader.FS);
         gl.useProgram(program);
 
         // Enable Vertex Position Attribute.
@@ -262,7 +262,7 @@
     };
 
 
-    Sprite.VS = [
+    SpriteShader.VS = [
         "attribute vec4 aVertexPosition;",
         "attribute vec2 aTextureCoordinate;",
 
@@ -277,7 +277,7 @@
         "}"
     ].join("\n");
 
-    Sprite.FS = [
+    SpriteShader.FS = [
         "precision mediump float;",
 
         "uniform sampler2D uSampler;",

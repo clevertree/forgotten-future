@@ -54,10 +54,10 @@
         // Local Variables
         this.velocity       = [0.1, 0, 0];
         this.acceleration   = [Math.random() * 0.001, stage.gravity[1], 0];
-        this.stateScript = Lem.stateScripts.handleFallingMotion;
+        this.stateScript    = Lem.stateScripts.handleFallingMotion;
 
         // Sprite Sheet
-        this.shader = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SHEET);
+        this.shader = new ForgottenFuture.Render.Shader.SpriteShader(gl, DIR_SHEET);
         this.shader.addTileFrameSequence('run', 0, 0, 16, 8, 2);
         this.shader.setCurrentFrame('run');
         this.shader.setFrameRate(15 + Math.random()*10);
@@ -79,10 +79,11 @@
         this.position[1] += this.velocity[1];
 
         // Collision
-        var heightAdjust = stage.testHeight(
+        var heightAdjust = stage.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
-            this.position[2]);
+            this.position[2]
+        ]);
 
         if(!(heightAdjust > 0)) {
             // Falling
@@ -101,11 +102,11 @@
                 this.velocity[1] = 0;
                 if(!this.acceleration || this.acceleration[0] !== 0) {
                     this.stateScript = Lem.stateScripts.handleWalkingMotion;
-                    console.log("Falling => Walking");
+//                     console.log("Falling => Walking");
 
                 } else {
                     this.stateScript = Lem.stateScripts.handleStandingMotion;
-                    console.log("Falling => Standing");
+//                     console.log("Falling => Standing");
                 }
 //                     console.log("Standing: ", this.position[0], " => ", leftHeight, rightHeight);
             }
@@ -114,15 +115,16 @@
 
     Lem.stateScripts.handleStandingMotion = function(t, stage) {
         // Test for map height
-        var heightAdjust = stage.testHeight(
+        var heightAdjust = stage.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
-            this.position[2]);
+            this.position[2]
+        ]);
 
         if(!(heightAdjust > 0)) {
             // Falling
             this.stateScript = Lem.stateScripts.handleFallingMotion;
-            console.log("Standing -> Falling: ", this.position[0], " => ", heightAdjust);
+//             console.log("Standing -> Falling: ", this.position[0], " => ", heightAdjust);
         }
     };
 
@@ -135,16 +137,17 @@
         this.position[0] += this.velocity[0];
 
         // Test for map height
-        var heightAdjust = stage.testHeight(
+        var heightAdjust = stage.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
-            this.position[2]);
+            this.position[2]
+        ]);
 
         // TODO: velocity
         if(heightAdjust < -0.05) {
             // Falling
             this.stateScript = Lem.stateScripts.handleFallingMotion;
-            console.log("Walking -> Falling: ", heightAdjust);
+//             console.log("Walking -> Falling: ", heightAdjust);
 
 
         } else {

@@ -128,25 +128,24 @@
         // gl.enable(gl.DEPTH_TEST); // Depth test creates those ugly opaque textures
         // gl.depthFunc(gl.LESS);
 
-
         // Render
         for(var i=0; i<this.renders.length; i++)
             this.renders[i].render(gl, mProjection);
     };
 
-    StagePrototype.prototype.testHit = function (x, y, z) {
-        for(var i=0; i<this.hitBoxes.length; i++) {
-            var pixel = this.hitBoxes[i].testHit(x, y, z);
-            if(pixel)
-                return pixel;
-        }
-        return false;
-    };
+    // StagePrototype.prototype.testHit = function (spritePosition) {
+    //     for(var i=0; i<this.hitBoxes.length; i++) {
+    //         var pixel = this.hitBoxes[i].testHit(spritePosition;
+    //         if(pixel)
+    //             return pixel;
+    //     }
+    //     return false;
+    // };
 
-    StagePrototype.prototype.testHeight = function (x, y, z) {
+    StagePrototype.prototype.testHeight = function (spritePosition) {
         var finalHeight = -9999;
         for(var i=0; i<this.hitBoxes.length; i++) {
-            var height = this.hitBoxes[i].testHeight(x, y, z);
+            var height = this.hitBoxes[i].testHeight(spritePosition);
             if(height > finalHeight)
                 finalHeight = height;
         }

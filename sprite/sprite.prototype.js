@@ -30,7 +30,7 @@
         this.direction      = 1.0;
         /** @type {Function} **/
         this.stateScript    = handleBounceMotion;
-        /** @type {ForgottenFuture.Render.Shader.Sprite} **/
+        /** @type {ForgottenFuture.Render.Shader.SpriteShader} **/
         this.shader         = null; // Default shader renderer?
     }
 
@@ -81,23 +81,19 @@
         );
     };
 
-    SpritePrototype.prototype.testHit = function (x, y, z) {
-        for(var i=0; i<this.hitBoxes.length; i++) {
-            var pixel = this.hitBoxes[i].testHit(x, y, z);
-            if(pixel)
-                return pixel;
-        }
+    SpritePrototype.prototype.testHit = function (hitBox) {
+        var pixel = hitBox.testHit(this.position[0], this.position[1], this.position[2]);
+        if(pixel)
+            return pixel;
         return false;
     };
 
-    SpritePrototype.prototype.testHeight = function (x, y, z) {
-        var finalHeight = -9999;
-        for(var i=0; i<this.hitBoxes.length; i++) {
-            var height = this.hitBoxes[i].testHeight(x, y, z);
-            if(height > finalHeight)
-                finalHeight = height;
-        }
-        return finalHeight;
+    /**
+     * @param {HeightMap} hitBox
+     * @returns {*}
+     */
+    SpritePrototype.prototype.testHeight = function (hitBox) {
+        return hitBox.testHeight(this.position);
     };
 
     // Physics
@@ -114,10 +110,7 @@
         this.position[1] += this.velocity[1];
 
         // Collision
-        var heightAdjust = stage.testHeight(
-            this.position[0],
-            this.position[1],
-            this.position[2]);
+        var heightAdjust = stage.testHeight(this.position);
 
         if(!(heightAdjust > 0)) {
             // Falling
@@ -127,7 +120,7 @@
             this.position[1] += heightAdjust;
 
             // Hitting the ground
-            console.log("Bounce => y=", this.velocity[1]);
+//             console.log("Bounce => y=", this.velocity[1]);
             this.velocity[1] = Math.abs(this.velocity[1]) * BOUNCE_QUOTIENT;
         }
     }

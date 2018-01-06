@@ -38,7 +38,7 @@
         Sprite.SpritePrototype.call(this, gl, stage); // call parent constructor
 
         // Sprite Sheet
-        this.shader = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SPRITESHEET);
+        this.shader = new ForgottenFuture.Render.Shader.SpriteShader(gl, DIR_SPRITESHEET);
 
     }
 
