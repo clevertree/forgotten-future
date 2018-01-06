@@ -130,8 +130,8 @@
 
 
         // Render
-        for(var i=0; i<this.hitBoxes.length; i++)
-            this.hitBoxes[i].render(gl, mProjection);
+        for(var i=0; i<this.renders.length; i++)
+            this.renders[i].render(gl, mProjection);
     };
 
     StagePrototype.prototype.testHit = function (x, y, z) {
