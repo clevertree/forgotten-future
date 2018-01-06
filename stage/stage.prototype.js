@@ -15,10 +15,9 @@
     Stage.StagePrototype = StagePrototype;
 
     /**
-     * @param {WebGLRenderingContext} gl
      * @constructor
      */
-    function StagePrototype(gl) {
+    function StagePrototype() {
         // Variables
         this.renders = [];
         this.hitBoxes = [];
@@ -96,6 +95,11 @@
         // }
 
     }
+
+    StagePrototype.prototype.setViewPort = function(viewPort) {
+        this.viewPort = viewPort;
+    };
+
     StagePrototype.prototype.update = function(t) {
         // Input
 

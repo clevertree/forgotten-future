@@ -11,7 +11,13 @@
     var Util = ForgottenFuture.Util,
         Input = ForgottenFuture.Input,
         Render = ForgottenFuture.Render,
-        Constant = ForgottenFuture.Constant;
+        Sprite = ForgottenFuture.Sprite;
+
+    // Extends SpritePrototype
+    Util.loadScript('sprite/sprite.prototype.js', function() {
+        Lem.prototype = Object.create(Sprite.SpritePrototype.prototype, {});
+        Lem.prototype.constructor = Lem;
+    });
 
     // Dependencies
     Util.loadScript('render/shader/sprite.shader.js');
@@ -34,13 +40,22 @@
     };
 
 
-    ForgottenFuture.Sprite.Character.Lem = Lem;
+    Sprite.Character.Lem = Lem;
+
+    /**
+     * Create a new sprite instance
+     * @param {WebGLRenderingContext} gl
+     * @param {ForgottenFuture.Stage.StagePrototype} stage
+     * @constructor
+     */
     function Lem(gl, stage) {
+        Sprite.SpritePrototype.call(this, [gl, stage]); // call parent constructor
+
         // Local Variables
         var vScale = [1, 1, 0];
         var vPosition       = [0, 0, 0],
             vVelocity       = [0.1, 0, 0],
-            vAcceleration   = [Math.random() * 0.001, stage.getGravity()[1], 0],
+            vAcceleration   = [Math.random() * 0.001, stage.gravity[1], 0],
             vRotation = null;
         var direction = 1.0;
         var stateScript = handleFallingMotion;
@@ -108,7 +123,7 @@
             // Velocity
             // vVelocity[0] += vAcceleration[0];
             // vVelocity[1] += vAcceleration[1];
-            vVelocity[1] += stage.getGravity()[1];
+            vVelocity[1] += stage.gravity[1];
 
             // Position
             vPosition[0] += vVelocity[0];
@@ -206,8 +221,5 @@
         }
 
     }
-
-    Lem.prototype = Object.create(Sprite.SpritePrototype.prototype, {});
-    Lem.prototype.constructor = Lem;
 
 })();

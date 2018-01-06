@@ -314,7 +314,8 @@ var ForgottenFuture = {
                 document.head.appendChild(scriptElm);
                 scriptsLoading++;
             } else {
-                if(callback) callback();
+                if(callback)
+                    Util.waitForLoadingScripts(callback);
             }
         }
         return scriptsLoading;

@@ -7,12 +7,18 @@
 
 (function() {
     var Util            = ForgottenFuture.Util,
-        Flag            = ForgottenFuture.Constant,
+        Sprite          = ForgottenFuture.Sprite,
         Render          = ForgottenFuture.Render,
         pressedKeys     = ForgottenFuture.Input.pressedKeys;
 
     var DIR = 'sprite/vehicle/RAV/';
     var DIR_SPRITESHEET = DIR + 'RAV.spritesheet.png';
+
+    // Extends SpritePrototype
+    Util.loadScript('sprite/sprite.prototype.js', function() {
+        RAV.prototype = Object.create(Sprite.SpritePrototype.prototype, {});
+        RAV.prototype.constructor = RAV;
+    });
 
     Util.loadScript('render/shader/sprite.shader.js');
 
@@ -20,8 +26,16 @@
         [-0.5,0.5], [0.5,0.5], [0.5,-0.5], [-0.5,-0.5]
     ];
 
-    ForgottenFuture.Sprite.Vehicle.RAV = RAV;
-    function RAV(gl) {
+    Sprite.Vehicle.RAV = RAV;
+
+    /**
+     * Create a new sprite instance
+     * @param {WebGLRenderingContext} gl
+     * @param {ForgottenFuture.Stage.StagePrototype} stage
+     * @constructor
+     */
+    function RAV(gl, stage) {
+        Sprite.SpritePrototype.call(this, [gl, stage]); // call parent constructor
 
         var vPosition = [0, 0, 0], vScale = [2,1,0],
             vVelocity = null, vAcceleration = null, vRotation = null;
