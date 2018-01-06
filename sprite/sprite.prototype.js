@@ -15,7 +15,7 @@
     Sprite.SpritePrototype = SpritePrototype;
 
     /**
-     * Create a new sprite instance
+     * Create a new shader instance
      * @param {WebGLRenderingContext} gl
      * @param {StagePrototype} stage
      * @constructor
@@ -30,19 +30,19 @@
         this.direction      = 1.0;
         /** @type {Function} **/
         this.stateScript    = handleBounceMotion;
-        /** @type {SpritePrototype} **/
-        this.sprite         = null; // Default sprite renderer?
+        /** @type {ForgottenFuture.Render.Shader.Sprite} **/
+        this.shader         = null; // Default shader renderer?
     }
 
     // Update
     SpritePrototype.prototype.update = function(t, stage) {
         this.stateScript(t, stage);
-        this.sprite.update(t, this, stage);
+        this.shader.update(t, this, stage);
     };
 
     // Rendering
     SpritePrototype.prototype.render = function(gl, mProjection) {
-        this.sprite.render(gl, this.position, this.rotation, this.scale, mProjection);
+        this.shader.render(gl, this.position, this.rotation, this.scale, mProjection);
     };
 
     // Model View

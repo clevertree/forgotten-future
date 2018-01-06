@@ -43,7 +43,7 @@
     Sprite.Character.Lem = Lem;
 
     /**
-     * Create a new sprite instance
+     * Create a new shader instance
      * @param {WebGLRenderingContext} gl
      * @param {StagePrototype} stage
      * @constructor
@@ -57,10 +57,10 @@
         this.stateScript = Lem.stateScripts.handleFallingMotion;
 
         // Sprite Sheet
-        this.sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SHEET);
-        this.sprite.addTileFrameSequence('run', 0, 0, 16, 8, 2);
-        this.sprite.setCurrentFrame('run');
-        this.sprite.setFrameRate(15 + Math.random()*10);
+        this.shader = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SHEET);
+        this.shader.addTileFrameSequence('run', 0, 0, 16, 8, 2);
+        this.shader.setCurrentFrame('run');
+        this.shader.setFrameRate(15 + Math.random()*10);
 
     }
 

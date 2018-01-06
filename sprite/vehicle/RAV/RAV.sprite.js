@@ -29,7 +29,7 @@
     Sprite.Vehicle.RAV = RAV;
 
     /**
-     * Create a new sprite instance
+     * Create a new shader instance
      * @param {WebGLRenderingContext} gl
      * @param {ForgottenFuture.Stage.StagePrototype} stage
      * @constructor
@@ -38,7 +38,7 @@
         Sprite.SpritePrototype.call(this, gl, stage); // call parent constructor
 
         // Sprite Sheet
-        this.sprite = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SPRITESHEET);
+        this.shader = new ForgottenFuture.Render.Shader.Sprite(gl, DIR_SPRITESHEET);
 
     }
 
