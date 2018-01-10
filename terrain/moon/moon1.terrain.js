@@ -45,7 +45,7 @@
         var aData0 = mapGen.genSinWaveHeightMap();
 
         var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, aData0)
-            .setGradientPattern(gl, iMoonHeightPattern);
+            .setHeightPattern(gl, iMoonHeightPattern);
 //             .setHeightMap(iHMapMain, 0.2, 10)
 //             .setColor();
 
