@@ -141,15 +141,15 @@
     //     }
     //     return false;
     // };
- 
+
+
+    /**
+     * @depreciated
+     * @param spritePosition
+     * @returns {*}
+     */
     StagePrototype.prototype.testHeight = function (spritePosition) {
-        var finalHeight = -9999;
-        for(var i=0; i<this.hitBoxes.length; i++) {
-            var height = this.hitBoxes[i].testHeight(spritePosition);
-            if(height > finalHeight)
-                finalHeight = height;
-        }
-        return finalHeight;
+        return this.terrain.testHeight(spritePosition);
     };
 
 

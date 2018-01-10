@@ -22,14 +22,12 @@
         // Camera/ViewPort
         'render/viewport/simple.viewport.js',
 
-        // Level Maps
-        'render/shader/tilemap.shader.js',
-        'render/shader/heightmap.shader.js',
-        'render/generator/render.generator.js',
+        // Terrain Maps
+        'terrain/moon/moon1.terrain.js',
 
         // Sprites
         'sprite/character/lem/lem.sprite.js',
-        'sprite/vehicle/RAV/RAV.sprite.js',
+        'sprite/vehicle/RAV/RAV.sprite.js'
     ]);
 
 
@@ -54,22 +52,11 @@
 
         this.viewPort = Lem .getViewPort();
 
-        // Level Sprites
-        var mapGen = new ForgottenFuture.Render.Generator();
-        // var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
-        // var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 2048, DIR_HEIGHT_MAP);
-        var aData0 = mapGen.genSinWaveHeightMap();
-
-        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, aData0);
-//             .setHeightMap(iHMapMain, 0.2, 10)
-//             .setColor();
+        // Terrain
+        this.terrain = new ForgottenFuture.Terrain.MoonTerrain1(gl);
 
         this.renders = [
-            hmMain, Lem, RAV1 // , pfMain
-        ];
-        this.hitBoxes = [
-            //pfMain,
-            hmMain
+            this.terrain, Lem, RAV1 // , pfMain
         ];
 
         initEditorContent(this, gl);

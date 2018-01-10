@@ -15,16 +15,21 @@
 
     /**
      * @param {WebGLRenderingContext} gl
-     * @param {Array} aHeightData
+     * @param {Array} heightData
      * @param {Object=} options
      * @constructor
      */
-    function HeightMap(gl, aHeightData, options) {
+    function HeightMap(gl, heightData, options) {
+        // Initiate Shader program
+        initProgram(gl);
+
         options = options || {};
-        this.flags           = options.flags || HeightMap.FLAG_DEFAULTS;
-        this.widthPerPoint   = options.widthPerPoint || DEFAULT_WIDTH_PER_POINT;
+        this.flags              = options.flags || HeightMap.FLAG_DEFAULTS;
+        this.widthPerPoint      = options.widthPerPoint || DEFAULT_WIDTH_PER_POINT;
+        this.heightData         = heightData;
         // Textures
-        this.txHeightPattern = options.txHeightPattern || PROGRAM.txDefaultColor;
+        this.txHeightPattern    = options.txHeightPattern || PROGRAM.txDefaultPattern;
+        this.txGradientPattern  = options.txGradientPattern || PROGRAM.txDefaultPattern;
 
         // Variables
         this.position           = options.position || [0, 0, 0];
@@ -32,17 +37,15 @@
         var vHighlightColor     = defaultColor.slice(0);
         var vHighlightRange     = [64,128];
 
-        var v2MapSize           = [aHeightData.length * this.widthPerPoint, getMaxHeight(aHeightData)];
+        var v2MapSize           = [heightData.length * this.widthPerPoint, getMaxHeight(heightData)];
 
-        // Initiate Shader program
-        initProgram(gl);
 
         // Vertex Array Object
         var VAO = Util.createVertexArray(gl);
 
         VAO.bind();
         // bindTextureCoordinates();                       // Bind Texture Coordinate
-        var vertexCount = bindVertexCoordinates();      // Bind Vertex Coordinate
+        var vertexCount = bindVertexCoordinates(gl, this);      // Bind Vertex Coordinate
         VAO.unbind();
 
         // Functions
@@ -65,7 +68,11 @@
 
 
             gl.activeTexture(gl.TEXTURE0);
-            gl.uniform1i(PROGRAM.s2TextureColor, 0);
+            gl.uniform1i(PROGRAM.s2GradientPattern, 0);
+            gl.bindTexture(gl.TEXTURE_2D, this.txGradientPattern);
+
+            gl.activeTexture(gl.TEXTURE1);
+            gl.uniform1i(PROGRAM.s2HeightPattern, 0);
             gl.bindTexture(gl.TEXTURE_2D, this.txHeightPattern);
 
 
@@ -73,7 +80,7 @@
 
 
             for(var i=-20; i<10; i++) {
-                gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, i));
+                gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, i*2));
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
             }
 
@@ -108,19 +115,13 @@
         // Textures
 
 
-        this.setColor = function (color) {
-            if(color instanceof WebGLTexture) {
-                tColor = color;
+        this.setHeightPattern = function (gl, txHeightPattern) {
+            this.txHeightPattern = setupTexture(gl, txHeightPattern);
+            return this;
+        };
 
-            } else if (color instanceof HTMLImageElement) {
-                tColor = gl.createTexture();
-                gl.bindTexture(gl.TEXTURE_2D, tColor);
-                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, color);
-
-            } else {
-                throw new Error("Invalid Color");
-            }
-
+        this.setGradientPattern = function (gl, txHeightPattern) {
+            this.txGradientPattern = setupTexture(gl, txHeightPattern);
             return this;
         };
 
@@ -148,24 +149,22 @@
         // Map Data
 
         this.testHeight = function (spritePosition) {
-            if(spritePosition[2] !== vPosition[2])
-                return null;        // Null means non-applicable
-
-            var rx = spritePosition[0] - vPosition[0];
-            var ry = spritePosition[1] - vPosition[1];
-            if(rx < 0 || rx > v2MapSize[0] || ry < 0 || ry > v2MapSize[1])
+            if(    spritePosition[0] < 0
+                || spritePosition[0] > v2MapSize[0]
+                || spritePosition[1] < 0
+                || spritePosition[1] > v2MapSize[1])
                 return null;
 
-            var px = Math.floor(rx / this.widthPerPoint);
-            var pxr = (rx / this.widthPerPoint) - px;
+            var px = Math.floor(spritePosition[0] / this.widthPerPoint);
+            var pxr = (spritePosition[0] / this.widthPerPoint) - px;
             // console.log('px pxr', px, pxr);
             // var py = Math.floor(ry * mapSize[1]);
 
-            var leftHeight = aHeightData [(px+0)] * (1-pxr);
-            var rightHeight = aHeightData [(px+1)] * (pxr);
+            var leftHeight = heightData [(px+0)] * (1-pxr);
+            var rightHeight = heightData [(px+1)] * (pxr);
 
             var height = (leftHeight+rightHeight);
-            return (height - ry);
+            return (height - spritePosition[1]);
         };
 
         // this.testHit = function(x, y, z) {
@@ -178,8 +177,6 @@
 
             // TODO: rebuild verts?
         };
-        // this.setRotate = function(vNewRotation)             { vRotation = vNewRotation; };
-        this.setPosition = function(vNewPosition)           { vPosition = vNewPosition; };
 
 
         // Textures
@@ -213,37 +210,57 @@
         // }
 
 
-        function bindVertexCoordinates() {
-            var bufVertexPosition = gl.createBuffer();
-            var aVertexPositions = new Float32Array(aHeightData.length*6);
-            var vertexCount = 0;
-            for(var i=0; i<aHeightData.length; i++) {
-                var x = i * widthPerPoint;
-                var y = aHeightData[i];
-                aVertexPositions[i*6+0] = x;
-                aVertexPositions[i*6+1] = y;
-                aVertexPositions[i*6+2] = y;
-                // aVertexPositions[i*6+2] = y;
-                aVertexPositions[i*6+3] = x;
-                aVertexPositions[i*6+4] = 0;
-                aVertexPositions[i*6+5] = y;
-                // aVertexPositions[i*6+5] = y;
-                vertexCount += 2;
-            }
-
-            gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
-            gl.bufferData(gl.ARRAY_BUFFER, aVertexPositions, gl.STATIC_DRAW);
-            gl.vertexAttribPointer(PROGRAM.v2VertexPosition, 3, gl.FLOAT, false, 0, 0);
-            gl.enableVertexAttribArray(PROGRAM.v2VertexPosition);
-            // gl.vertexAttribPointer(PROGRAM.v2TexturePosition, 2, gl.FLOAT, false, 0, 0);
-            // gl.enableVertexAttribArray(PROGRAM.v2TexturePosition);
-
-            return vertexCount;
-        }
-
     }
 
     // Utils
+
+
+    function setupTexture(gl, image) {
+        if(image instanceof WebGLTexture) {
+            return image;
+
+        } else if (image instanceof HTMLImageElement) {
+            var texture = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, texture);
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            return texture;
+        }
+
+        throw new Error("Invalid Texture");
+    }
+    
+    function bindVertexCoordinates(gl, shader) {
+        shader.bufVertexPosition = shader.bufVertexPosition || gl.createBuffer();
+        var aVertexPositions = new Float32Array(shader.heightData.length*6);
+        var vertexCount = 0;
+        for(var i=0; i<shader.heightData.length; i++) {
+            var x = i * shader.widthPerPoint;
+            var y = shader.heightData[i];
+            aVertexPositions[i*6+0] = x;
+            aVertexPositions[i*6+1] = y;
+            aVertexPositions[i*6+2] = y;
+            // aVertexPositions[i*6+2] = y;
+            aVertexPositions[i*6+3] = x;
+            aVertexPositions[i*6+4] = 0;
+            aVertexPositions[i*6+5] = y;
+            // aVertexPositions[i*6+5] = y;
+            vertexCount += 2;
+        }
+
+        gl.bindBuffer(gl.ARRAY_BUFFER, shader.bufVertexPosition);
+        gl.bufferData(gl.ARRAY_BUFFER, aVertexPositions, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(PROGRAM.v2VertexPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.enableVertexAttribArray(PROGRAM.v2VertexPosition);
+        // gl.vertexAttribPointer(PROGRAM.v2TexturePosition, 2, gl.FLOAT, false, 0, 0);
+        // gl.enableVertexAttribArray(PROGRAM.v2TexturePosition);
+
+        return vertexCount;
+    }
 
     function getHeightMapDataFromImage(image) {
         var canvas = document.createElement('canvas');
@@ -312,7 +329,8 @@
         PROGRAM.v2MapSize = gl.getUniformLocation(PROGRAM, "v2MapSize");
 
         // uTextureHeightData = gl.getUniformLocation(program, "uTextureHeightData");
-        PROGRAM.s2TextureColor = gl.getUniformLocation(PROGRAM, "s2TextureColor");
+        PROGRAM.s2HeightPattern = gl.getUniformLocation(PROGRAM, "s2HeightPattern");
+        PROGRAM.s2GradientPattern = gl.getUniformLocation(PROGRAM, "s2GradientPattern");
         // uTextureHeightPattern = gl.getUniformLocation(program, "uTextureHeightPattern");
 
         // uLevelMap = gl.getUniformLocation(program, "uLevelMap");
@@ -320,17 +338,17 @@
         PROGRAM.v4HighlightRange = gl.getUniformLocation(PROGRAM, "v4HighlightRange");
         // uTextureSize = gl.getUniformLocation(program, "uTextureSize");
 
-        PROGRAM.txDefaultColor = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, PROGRAM.txDefaultColor);
+        PROGRAM.txDefaultPattern = gl.createTexture();
+        gl.bindTexture(gl.TEXTURE_2D, PROGRAM.txDefaultPattern);
 
         // Fill the texture with a 1x2 pixel.
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE,
             new Uint8Array([
-                0, 128, 0, 255,     255, 255, 255, 255,
-                255, 255, 255, 255,     128, 0, 0, 255]));
+                185, 185, 185, 255,     155, 155, 155, 255,
+                50, 50, 50, 255,     50, 50, 50, 255]));
 
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -362,12 +380,15 @@
         // HeightMap statistics
         "uniform vec2 v2MapSize;",
 
-        "varying vec2 v2TextureVarying;",
+        "varying vec2 v2HeightTextureVarying;",
+        "varying vec2 v2GradientTextureVarying;",
 
         "void main(void) {",
         // "   v2TextureVarying.x = (v2MapSize.x - v2VertexPosition.x) / v2MapSize.x;",
         // "   v2TextureVarying.y = (v2MapSize.y - v2VertexPosition.z) / v2MapSize.y;",
-        "   v2TextureVarying = (v2MapSize - vec2(v2VertexPosition.x, v2VertexPosition.y - v2VertexPosition.z)) / v2MapSize * 400.0;",
+        // "   v2TextureVarying = (v2MapSize - vec2(v2VertexPosition.x, v2VertexPosition.z - v2VertexPosition.y)) / v2MapSize;",
+        "   v2HeightTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.z - v2VertexPosition.y) / 8.0;",
+        "   v2GradientTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.y) / v2MapSize;",
 
         "   vec4 v4Position = vec4(v2VertexPosition.x, v2VertexPosition.y, 0.0, 1.0);", // TODO index stream?
         "   gl_Position = m4Projection * m4ModelView * v4Position;",
@@ -377,15 +398,18 @@
     HeightMap.FS = [
         "precision highp float;",
 
-        "varying vec2 v2TextureVarying;",
+        "varying vec2 v2HeightTextureVarying;",
+        "varying vec2 v2GradientTextureVarying;",
 
-        "uniform sampler2D s2TextureColor;",
+        "uniform sampler2D s2HeightPattern;",
+        "uniform sampler2D s2GradientPattern;",
 
         "uniform vec2 v2MapSize;",
 
         "void main(void) {",
-        "   vec4 pixel = texture2D(s2TextureColor, v2TextureVarying);", //
-        "   gl_FragColor = pixel;",
+        "   vec4 heightPixel = texture2D(s2HeightPattern, v2HeightTextureVarying);", //
+        "   vec4 gradientPixel = texture2D(s2GradientPattern, v2GradientTextureVarying);", //
+        "   gl_FragColor = heightPixel * gradientPixel;",
         // "   gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);",
         "}"
 

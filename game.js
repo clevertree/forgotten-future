@@ -27,6 +27,7 @@ var ForgottenFuture = {
         lastKey: null,
     },
     Stage: {},
+    Terrain: {},
     Util: {
         
     },
@@ -292,11 +293,9 @@ var ForgottenFuture = {
             var callbacks = scriptCallbacks;
             scriptCallbacks = [];
             for(var i=callbacks.length-1; i>=0; i--)
-                try {
-                    callbacks[i](e);
-                } catch (e) {
-                    console.error(e);
-                }
+                (function(callback) {
+                    setTimeout(function() {callback(e)}, 0); // TODO: is instant better?
+                })(callbacks[i]);
         }
     }
 
