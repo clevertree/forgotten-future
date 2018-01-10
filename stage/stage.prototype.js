@@ -141,7 +141,7 @@
     //     }
     //     return false;
     // };
-
+ 
     StagePrototype.prototype.testHeight = function (spritePosition) {
         var finalHeight = -9999;
         for(var i=0; i<this.hitBoxes.length; i++) {

@@ -12,25 +12,30 @@
     var DEFAULT_WIDTH_PER_POINT = 0.25;
 
     Render.Shader.HeightMap = HeightMap;
-    function HeightMap(gl, aData0, widthPerPoint, flags) {
-        if(typeof flags === 'undefined')
-            flags = HeightMap.FLAG_DEFAULTS;
 
-        widthPerPoint =         widthPerPoint || DEFAULT_WIDTH_PER_POINT;
+    /**
+     * @param {WebGLRenderingContext} gl
+     * @param {Array} aHeightData
+     * @param {Object=} options
+     * @constructor
+     */
+    function HeightMap(gl, aHeightData, options) {
+        options = options || {};
+        this.flags           = options.flags || HeightMap.FLAG_DEFAULTS;
+        this.widthPerPoint   = options.widthPerPoint || DEFAULT_WIDTH_PER_POINT;
+        // Textures
+        this.txHeightPattern = options.txHeightPattern || PROGRAM.txDefaultColor;
 
         // Variables
-        var vPosition =         [0, 0, 0];
-        var m4ModelView =       defaultModelViewMatrix;
-        var vHighlightColor =   defaultColor.slice(0);
-        var vHighlightRange =   [64,128];
+        this.position           = options.position || [0, 0, 0];
+        var m4ModelView         = defaultModelViewMatrix;
+        var vHighlightColor     = defaultColor.slice(0);
+        var vHighlightRange     = [64,128];
 
-        var v2MapSize = [aData0.length * widthPerPoint, getMaxHeight(aData0)];
+        var v2MapSize           = [aHeightData.length * this.widthPerPoint, getMaxHeight(aHeightData)];
 
         // Initiate Shader program
         initProgram(gl);
-
-        // Textures
-        var tColor = PROGRAM.txDefaultColor;
 
         // Vertex Array Object
         var VAO = Util.createVertexArray(gl);
@@ -61,7 +66,7 @@
 
             gl.activeTexture(gl.TEXTURE0);
             gl.uniform1i(PROGRAM.s2TextureColor, 0);
-            gl.bindTexture(gl.TEXTURE_2D, tColor);
+            gl.bindTexture(gl.TEXTURE_2D, this.txHeightPattern);
 
 
             VAO.bind();
@@ -151,13 +156,13 @@
             if(rx < 0 || rx > v2MapSize[0] || ry < 0 || ry > v2MapSize[1])
                 return null;
 
-            var px = Math.floor(rx / widthPerPoint);
-            var pxr = (rx / widthPerPoint) - px;
+            var px = Math.floor(rx / this.widthPerPoint);
+            var pxr = (rx / this.widthPerPoint) - px;
             // console.log('px pxr', px, pxr);
             // var py = Math.floor(ry * mapSize[1]);
 
-            var leftHeight = aData0 [(px+0)] * (1-pxr);
-            var rightHeight = aData0 [(px+1)] * (pxr);
+            var leftHeight = aHeightData [(px+0)] * (1-pxr);
+            var rightHeight = aHeightData [(px+1)] * (pxr);
 
             var height = (leftHeight+rightHeight);
             return (height - ry);
@@ -169,7 +174,7 @@
         // Model/View
 
         this.setWidthPerPoint = function(newWidthPerPoint)                 {
-            widthPerPoint = newWidthPerPoint;
+            this.widthPerPoint = newWidthPerPoint;
 
             // TODO: rebuild verts?
         };
@@ -210,11 +215,11 @@
 
         function bindVertexCoordinates() {
             var bufVertexPosition = gl.createBuffer();
-            var aVertexPositions = new Float32Array(aData0.length*6);
+            var aVertexPositions = new Float32Array(aHeightData.length*6);
             var vertexCount = 0;
-            for(var i=0; i<aData0.length; i++) {
+            for(var i=0; i<aHeightData.length; i++) {
                 var x = i * widthPerPoint;
-                var y = aData0[i];
+                var y = aHeightData[i];
                 aVertexPositions[i*6+0] = x;
                 aVertexPositions[i*6+1] = y;
                 aVertexPositions[i*6+2] = y;
@@ -321,11 +326,11 @@
         // Fill the texture with a 1x2 pixel.
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE,
             new Uint8Array([
-                0, 0, 0, 255,     255, 255, 255, 255,
-                255, 255, 255, 255,     0, 0, 0, 255]));
+                0, 128, 0, 255,     255, 255, 255, 255,
+                255, 255, 255, 255,     128, 0, 0, 255]));
 
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.REPEAT);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.REPEAT);
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+        // gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
@@ -362,7 +367,7 @@
         "void main(void) {",
         // "   v2TextureVarying.x = (v2MapSize.x - v2VertexPosition.x) / v2MapSize.x;",
         // "   v2TextureVarying.y = (v2MapSize.y - v2VertexPosition.z) / v2MapSize.y;",
-        "   v2TextureVarying = (v2MapSize - vec2(v2VertexPosition.x, v2VertexPosition.y - v2VertexPosition.z)) / v2MapSize * 10.0;",
+        "   v2TextureVarying = (v2MapSize - vec2(v2VertexPosition.x, v2VertexPosition.y - v2VertexPosition.z)) / v2MapSize * 400.0;",
 
         "   vec4 v4Position = vec4(v2VertexPosition.x, v2VertexPosition.y, 0.0, 1.0);", // TODO index stream?
         "   gl_Position = m4Projection * m4ModelView * v4Position;",
