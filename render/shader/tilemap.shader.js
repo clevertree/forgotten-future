@@ -539,15 +539,15 @@
 
         "   vec2 spriteOffset = floor(tile.xy * 256.0) * uTileSize;", // xy = rg
         "   vec2 spriteCoord = mod(vPixelCoordinate, uTileSize);",
-        "   vec4 sprite = texture2D(uTileSheet, (spriteOffset + spriteCoord) * uInverseSpriteTextureSize);", //  * vColor
-        // "   sprite.w *= tile.w;", //  * vColor
+        "   vec4 shader = texture2D(uTileSheet, (spriteOffset + spriteCoord) * uInverseSpriteTextureSize);", //  * vColor
+        // "   shader.w *= tile.w;", //  * vColor
         // "   if(tile.x > uColorRange.x && tile.y > uColorRange.y && tile.x < uColorRange.z && tile.y < uColorRange.w)",
         "   if(vPixelCoordinate.x >= uColorRange.x && vPixelCoordinate.y >= uColorRange.y && vPixelCoordinate.x <= uColorRange.z && vPixelCoordinate.y <= uColorRange.w)",
-        "       sprite *= uColor;", //  * vColor
+        "       shader *= uColor;", //  * vColor
 
-        "   if(tile.z < 0.50) { sprite.w *= tile.z * 4.0; }",
+        "   if(tile.z < 0.50) { shader.w *= tile.z * 4.0; }",
 
-        "   gl_FragColor = sprite;", //  * vColor
+        "   gl_FragColor = shader;", //  * vColor
         // "    gl_FragColor = texture2D(uTileSheet, vTextureCoordinate);",
 // "   gl_FragColor = tile;",
         "}"

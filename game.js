@@ -10,9 +10,7 @@ var ForgottenFuture = {
         Shader: {
             Editor:{}
         },
-        ViewPort: {
-
-        },
+        ViewPort: {},
         gl: null,
         canvas: null,
         widthToHeightRatio: 1,
@@ -28,9 +26,7 @@ var ForgottenFuture = {
         keyEvents: 0, 
         lastKey: null,
     },
-    Stage: {
-
-    },
+    Stage: {},
     Util: {
         
     },
@@ -150,7 +146,8 @@ var ForgottenFuture = {
                 window.requestAnimationFrame(onFrame);
                 function onFrame(t) {
                     window.requestAnimationFrame(onFrame);
-                    stage.render(t);
+                    stage.update(t);
+                    stage.render(gl, t);
                 }
 
                 console.info("Stage '" + stageName + "' rendering", stage);
@@ -269,6 +266,7 @@ var ForgottenFuture = {
     Util.waitForLoadingScripts = function(callback) {
         if(scriptsLoading > 0) {
             scriptCallbacks.push(callback);
+            console.info("Script callback queued: ", callback);
         } else {
             callback();
         }
@@ -293,45 +291,41 @@ var ForgottenFuture = {
         if(scriptsLoading === 0 && scriptCallbacks.length > 0) {
             var callbacks = scriptCallbacks;
             scriptCallbacks = [];
-            for(var i=0; i<callbacks.length; i++)
-                callbacks[i](e);
+            for(var i=callbacks.length-1; i>=0; i--)
+                try {
+                    callbacks[i](e);
+                } catch (e) {
+                    console.error(e);
+                }
         }
     }
 
     Util.loadScript = function(scriptPath, callback) {
-        var scriptPathEsc = scriptPath.replace(/[/.]/g, '\\$&');
-        var foundScript = document.head.querySelectorAll('script[src=' + scriptPathEsc + ']');
-        if (foundScript.length === 0) {
-//             console.log("Including Script " + scriptPath);
-            var scriptElm = document.createElement('script');
-            scriptElm.src = scriptPath;
-            scriptElm.onload = function(e) {
-                scriptsLoading--;
-                if(callback) callback(e);
-                completeScriptCallbacks(e);
-            };
-            document.head.appendChild(scriptElm);
-            scriptsLoading++;
+        if(Array.isArray(scriptPath)) {
+            for(var i=0; i<scriptPath.length; i++)
+                Util.loadScript(scriptPath[i], callback);
         } else {
-            if(callback) callback();
+            if(callback)
+                scriptCallbacks.push(callback);
+            var scriptPathEsc = scriptPath.replace(/[/.]/g, '\\$&');
+            var foundScript = document.head.querySelectorAll('script[src=' + scriptPathEsc + ']');
+            if (foundScript.length === 0) {
+//             console.log("Including Script " + scriptPath);
+                var scriptElm = document.createElement('script');
+                scriptElm.src = scriptPath;
+                scriptElm.onload = function(e) {
+                    scriptsLoading--;
+                    completeScriptCallbacks(e);
+                };
+                document.head.appendChild(scriptElm);
+                scriptsLoading++;
+            } else {
+
+            }
         }
+        return scriptsLoading;
     };
 
-    Util.loadScripts = function(scriptPathList, callback) {
-        var counter = 0;
-        for(var i=0; i<scriptPathList.length; i++) {
-            counter++;
-            Util.loadScript(scriptPathList[i], scriptLoaded);
-        }
-        if(counter === 0)
-            callback();
-
-        function scriptLoaded() {
-            counter--;
-            if(counter === 0 && callback)
-                callback();
-        }
-    };
 
     // Image Loading
 
@@ -346,10 +340,11 @@ var ForgottenFuture = {
     Util.loadImage = function(imagePath, callback) {
         // Asynchronously load an image
         var image = new Image();
+        if(callback)
+            scriptCallbacks.push(callback);
         scriptsLoading++;
         image.addEventListener('load', function(e) {
             scriptsLoading--;
-            if(callback) callback(e);
             completeScriptCallbacks(e);
         });
         image.src = imagePath;
