@@ -113,7 +113,7 @@
     StagePrototype.prototype.render = function(gl, t) {
         // Clear background
         gl.clear(gl.DEPTH_BUFFER_BIT | gl.COLOR_BUFFER_BIT);
-        gl.clearColor(0.03, 0.1, 0.03, 0.1);
+        gl.clearColor(0.0, 0.0, 0.0, 0.6);
         gl.clearDepth(1.0);
 
         // Enable blending
