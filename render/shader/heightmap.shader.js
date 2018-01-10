@@ -67,19 +67,26 @@
             gl.uniform2fv(PROGRAM.v4HighlightRange, vHighlightRange);
 
 
-            gl.activeTexture(gl.TEXTURE0);
             gl.uniform1i(PROGRAM.s2HeightPattern, 0);
+            gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.txHeightPattern);
 
-            gl.activeTexture(gl.TEXTURE1);
             gl.uniform1i(PROGRAM.s2GradientPattern, 1);
+            gl.activeTexture(gl.TEXTURE1);
             gl.bindTexture(gl.TEXTURE_2D, this.txGradientPattern);
+
+            gl.uniform2fv(PROGRAM.v2HeightTextureScale, [8, 8]);
+            gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [0, 0]);
 
 
             VAO.bind();
 
 
             for(var i=-20; i<10; i++) {
+
+                gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [i/10, 0]);
+                gl.uniform2fv(PROGRAM.v2HeightTextureScale, [20 + 8 * Math.sin(i), 10 + 4 * Math.cos(i)]);
+
                 gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, i*2));
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
             }
@@ -311,32 +318,25 @@
 
         // Init Program
         PROGRAM = Util.compileProgram(gl, HeightMap.VS, HeightMap.FS);
-        // gl.useProgram(program);
-
-        // Enable Vertex Position Attribute.
-        PROGRAM.v2VertexPosition = gl.getAttribLocation(PROGRAM, "v2VertexPosition");
-        PROGRAM.v2TexturePosition = gl.getAttribLocation(PROGRAM, "v2TexturePosition");
-
-        // Enable Texture Position Attribute.
-//         PROGRAM.v2TextureCoordinate = gl.getAttribLocation(PROGRAM, "v2TextureCoordinate");
-//         gl.enableVertexAttribArray(PROGRAM.v2TextureCoordinate);
 
         // Lookup Uniforms
+        PROGRAM.v2VertexPosition = gl.getAttribLocation(PROGRAM, "v2VertexPosition");
+        // PROGRAM.v2TexturePosition = gl.getAttribLocation(PROGRAM, "v2TexturePosition");
         PROGRAM.m4Projection = gl.getUniformLocation(PROGRAM, "m4Projection");
         PROGRAM.m4ModelView = gl.getUniformLocation(PROGRAM, "m4ModelView");
 
         // Statistics
         PROGRAM.v2MapSize = gl.getUniformLocation(PROGRAM, "v2MapSize");
 
-        // uTextureHeightData = gl.getUniformLocation(program, "uTextureHeightData");
+        // Textures
         PROGRAM.s2HeightPattern = gl.getUniformLocation(PROGRAM, "s2HeightPattern");
         PROGRAM.s2GradientPattern = gl.getUniformLocation(PROGRAM, "s2GradientPattern");
-        // uTextureHeightPattern = gl.getUniformLocation(program, "uTextureHeightPattern");
+        PROGRAM.v2HeightTextureScale = gl.getUniformLocation(PROGRAM, "v2HeightTextureScale");
+        PROGRAM.v2HeightTextureOffset = gl.getUniformLocation(PROGRAM, "v2HeightTextureOffset");
 
-        // uLevelMap = gl.getUniformLocation(program, "uLevelMap");
+        // Editor
         PROGRAM.v4HighlightColor = gl.getUniformLocation(PROGRAM, "v4HighlightColor");
         PROGRAM.v4HighlightRange = gl.getUniformLocation(PROGRAM, "v4HighlightRange");
-        // uTextureSize = gl.getUniformLocation(program, "uTextureSize");
 
         PROGRAM.txDefaultPattern = gl.createTexture();
         gl.bindTexture(gl.TEXTURE_2D, PROGRAM.txDefaultPattern);
@@ -353,23 +353,7 @@
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
         gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
 
-        // Create a Vertex Position Buffer.
-        // bufVertexPosition = gl.createBuffer();
 
-        // bufVertexPosition = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
-        // gl.bufferData(gl.ARRAY_BUFFER, defaultVertexPositions, gl.STATIC_DRAW);
-
-
-        // Create a Texture Coordinates Buffer
-        // gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
-        // gl.bufferData(gl.ARRAY_BUFFER, defaultTextureCoordinates, gl.STATIC_DRAW);
-
-        // use texture unit 0
-        // gl.activeTexture(gl.TEXTURE0 + 0);
-
-        // bind to the TEXTURE_2D bind point of texture unit 0
-        // gl.bindTexture(gl.TEXTURE_2D, tTileSheet);
     }
 
     HeightMap.VS = [
@@ -381,14 +365,18 @@
         // HeightMap statistics
         "uniform vec2 v2MapSize;",
 
+        "uniform vec2 v2HeightTextureScale;",
+        "uniform vec2 v2HeightTextureOffset;",
+
         "varying vec2 v2HeightTextureVarying;",
         "varying vec2 v2GradientTextureVarying;",
+
 
         "void main(void) {",
         // "   v2TextureVarying.x = (v2MapSize.x - v2VertexPosition.x) / v2MapSize.x;",
         // "   v2TextureVarying.y = (v2MapSize.y - v2VertexPosition.z) / v2MapSize.y;",
         // "   v2TextureVarying = (v2MapSize - vec2(v2VertexPosition.x, v2VertexPosition.z - v2VertexPosition.y)) / v2MapSize;",
-        "   v2HeightTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.z - v2VertexPosition.y) / 8.0;",
+        "   v2HeightTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.z - v2VertexPosition.y) / v2HeightTextureScale + v2HeightTextureOffset;",
         "   v2GradientTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.y) / v2MapSize;",
 
         "   vec4 v4Position = vec4(v2VertexPosition.x, v2VertexPosition.y, 0.0, 1.0);", // TODO index stream?
