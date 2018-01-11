@@ -9,7 +9,7 @@
 
     // Constants
     var DEFAULT_HEIGHT = 10;
-    var DEFAULT_WIDTH_PER_POINT = 0.25;
+    var DEFAULT_SCALE = [1, 1];
 
     Render.Shader.HeightMap = HeightMap;
 
@@ -25,7 +25,7 @@
 
         options = options || {};
         this.flags              = options.flags || HeightMap.FLAG_DEFAULTS;
-        this.widthPerPoint      = options.widthPerPoint || DEFAULT_WIDTH_PER_POINT;
+        // this.widthPerPoint      = options.widthPerPoint || DEFAULT_WIDTH_PER_POINT;
         this.heightData         = heightData;
         // Textures
         this.txHeightPattern    = options.txHeightPattern || PROGRAM.txDefaultPattern;
@@ -33,20 +33,18 @@
 
         // Variables
         this.position           = options.position || [0, 0, 0];
+        this.scale              = options.scale || DEFAULT_SCALE;
         var m4ModelView         = defaultModelViewMatrix;
         var vHighlightColor     = defaultColor.slice(0);
         var vHighlightRange     = [64,128];
 
-        var v2MapSize           = [heightData.length * this.widthPerPoint, getMaxHeight(heightData)];
-
+        this.size               = [
+            heightData.length * this.scale[0],
+            getMaxHeight(heightData) * this.scale[1]
+        ];
 
         // Vertex Array Object
-        var VAO = Util.createVertexArray(gl);
-
-        VAO.bind();
-        // bindTextureCoordinates();                       // Bind Texture Coordinate
-        var vertexCount = bindVertexCoordinates(gl, this);      // Bind Vertex Coordinate
-        VAO.unbind();
+        var VAO                 = buildVertexArray(gl, this);
 
         // Functions
 
@@ -60,7 +58,8 @@
             gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
 
             // HeightMap statistics
-            gl.uniform2fv(PROGRAM.v2MapSize, v2MapSize);
+            gl.uniform2fv(PROGRAM.v2MapSize, this.size);
+            gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
 
             // Editor Highlights
             gl.uniform4fv(PROGRAM.v4HighlightColor, vHighlightColor);
@@ -82,16 +81,20 @@
             VAO.bind();
 
 
-            for(var i=-20; i<10; i++) {
+            for(var i=-20; i<2; i++) {
+                if(!i) continue;
 
+                gl.uniform2fv(PROGRAM.v2MapScale, [this.scale[0], (i+20)/20]);
                 gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [i/10, 0]);
                 gl.uniform2fv(PROGRAM.v2HeightTextureScale, [20 + 8 * Math.sin(i), 10 + 4 * Math.cos(i)]);
 
                 gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, i*2));
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
+                gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
             }
 
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, vertexCount);
+            gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
+            gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
 
             VAO.unbind();
 
@@ -157,13 +160,13 @@
 
         this.testHeight = function (spritePosition) {
             if(    spritePosition[0] < 0
-                || spritePosition[0] > v2MapSize[0]
+                || spritePosition[0] > this.size[0]
                 || spritePosition[1] < 0
-                || spritePosition[1] > v2MapSize[1])
+                || spritePosition[1] > this.size[1])
                 return null;
 
-            var px = Math.floor(spritePosition[0] / this.widthPerPoint);
-            var pxr = (spritePosition[0] / this.widthPerPoint) - px;
+            var px = Math.floor(spritePosition[0] / this.scale[0]);
+            var pxr = (spritePosition[0] / this.scale[0]) - px;
             // console.log('px pxr', px, pxr);
             // var py = Math.floor(ry * mapSize[1]);
 
@@ -179,11 +182,11 @@
         // };
         // Model/View
 
-        this.setWidthPerPoint = function(newWidthPerPoint)                 {
-            this.widthPerPoint = newWidthPerPoint;
-
-            // TODO: rebuild verts?
-        };
+        // this.setWidthPerPoint = function(newWidthPerPoint)                 {
+        //     this.widthPerPoint = newWidthPerPoint;
+        //
+        //     // TODO: rebuild verts?
+        // };
 
 
         // Textures
@@ -241,13 +244,17 @@
         throw new Error("Invalid Texture");
     }
     
-    function bindVertexCoordinates(gl, shader) {
+    function buildVertexArray(gl, shader) {
+        // Vertex Array Object
+        var VAO = Util.createVertexArray(gl);
+
+        VAO.bind();
+        // bindTextureCoordinates();                       // Bind Texture Coordinate
         shader.bufVertexPosition = shader.bufVertexPosition || gl.createBuffer();
         var aVertexPositions = new Float32Array(shader.heightData.length*6);
-        var vertexCount = 0;
         for(var i=0; i<shader.heightData.length; i++) {
-            var x = i * shader.widthPerPoint;
-            var y = shader.heightData[i];
+            var x = i                       * shader.scale[0];
+            var y = shader.heightData[i]    * shader.scale[1];
             aVertexPositions[i*6+0] = x;
             aVertexPositions[i*6+1] = y;
             aVertexPositions[i*6+2] = y;
@@ -256,17 +263,20 @@
             aVertexPositions[i*6+4] = 0;
             aVertexPositions[i*6+5] = y;
             // aVertexPositions[i*6+5] = y;
-            vertexCount += 2;
         }
 
         gl.bindBuffer(gl.ARRAY_BUFFER, shader.bufVertexPosition);
         gl.bufferData(gl.ARRAY_BUFFER, aVertexPositions, gl.STATIC_DRAW);
+
+        // TODO: X coordinate buffer with 1,0,1,0 height index using shorts
         gl.vertexAttribPointer(PROGRAM.v2VertexPosition, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(PROGRAM.v2VertexPosition);
         // gl.vertexAttribPointer(PROGRAM.v2TexturePosition, 2, gl.FLOAT, false, 0, 0);
         // gl.enableVertexAttribArray(PROGRAM.v2TexturePosition);
 
-        return vertexCount;
+        VAO.unbind();
+        VAO.count = shader.heightData.length / 2;
+        return VAO;
     }
 
     function getHeightMapDataFromImage(image) {
@@ -327,6 +337,7 @@
 
         // Statistics
         PROGRAM.v2MapSize = gl.getUniformLocation(PROGRAM, "v2MapSize");
+        PROGRAM.v2MapScale = gl.getUniformLocation(PROGRAM, "v2MapScale");
 
         // Textures
         PROGRAM.s2HeightPattern = gl.getUniformLocation(PROGRAM, "s2HeightPattern");
@@ -364,6 +375,7 @@
 
         // HeightMap statistics
         "uniform vec2 v2MapSize;",
+        "uniform vec2 v2MapScale;",
 
         "uniform vec2 v2HeightTextureScale;",
         "uniform vec2 v2HeightTextureOffset;",
@@ -379,7 +391,7 @@
         "   v2HeightTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.z - v2VertexPosition.y) / v2HeightTextureScale + v2HeightTextureOffset;",
         "   v2GradientTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.y) / v2MapSize;",
 
-        "   vec4 v4Position = vec4(v2VertexPosition.x, v2VertexPosition.y, 0.0, 1.0);", // TODO index stream?
+        "   vec4 v4Position = vec4(v2VertexPosition.x * v2MapScale.x, v2VertexPosition.y * v2MapScale.y, 0.0, 1.0);", // TODO index stream?
         "   gl_Position = m4Projection * m4ModelView * v4Position;",
         "}"
     ].join("\n");

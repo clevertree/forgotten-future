@@ -15,7 +15,7 @@
             mapLength = mapLength || 2048;
             var aData0 = new Float32Array(mapLength);
             for(var ii=0;ii<mapLength;ii++) {
-                aData0[ii] = Math.abs(Math.sin(ii / 100) * (0.9 + Math.random()/20) * 400 * (ii/10000));
+                aData0[ii] = Math.abs(Math.sin(ii / 20) * (0.9 + Math.random()/20) * 1400 * (ii/10000));
             }
             return aData0;
         }
