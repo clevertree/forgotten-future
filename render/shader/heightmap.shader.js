@@ -485,15 +485,16 @@
         "   v2GradientTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.y) / v2MapSize;",
 
         "   vec4 v4Position = vec4(v2VertexPosition.x * v2MapScale.x, v2VertexPosition.y * v2MapScale.y, 0.0, 1.0);", // TODO index stream?
+        "   mat4 m4ProjectionNormal = m4Projection * m4ModelNormal;",
         "   gl_Position = m4Projection * m4ModelView * v4Position;",
 
         // Lighting
-        "   ts_frag_pos = vec3(m4ModelView * vec4(v2VertexPosition, 1.0));",
+        "   ts_frag_pos = vec3(m4ProjectionNormal * vec4(v2VertexPosition, 1.0));",
         "   vec3 vert_norm = cross(vec3( 0, -1,  0), vec3(1, 0, 0));",
 
-        "   vec3 t = normalize(mat3(m4ModelNormal) * vec3(1, 0, 0));",
-        "   vec3 b = normalize(mat3(m4ModelNormal) * vec3( 0, -1,  0));",
-        "   vec3 n = normalize(mat3(m4ModelNormal) * vert_norm);",
+        "   vec3 t = normalize(mat3(m4ProjectionNormal) * vec3(1, 0, 0));",
+        "   vec3 b = normalize(mat3(m4ProjectionNormal) * vec3( 0, -1,  0));",
+        "   vec3 n = normalize(mat3(m4ProjectionNormal) * vert_norm);",
         "   mat3 tbn = transpose(mat3(t, b, n));",
 
         "   vec3 light_pos = vec3(1, 2, 0);",
@@ -522,6 +523,7 @@
 
         "void main(void) {",
         "   vec4 heightPixel = texture2D(s2HeightPattern, v2HeightTextureVarying);", //
+        "   vec4 normalPixel = texture2D(s2HeightNormal, v2HeightTextureVarying);", //
         "   vec4 gradientPixel = texture2D(s2GradientPattern, v2GradientTextureVarying);", //
         "   vec4 pixel = heightPixel * gradientPixel;",
 
@@ -529,7 +531,7 @@
         "   vec3 light_dir = normalize(ts_light_pos - ts_frag_pos);",
         "   vec3 view_dir = normalize(ts_view_pos - ts_frag_pos);",
         "   vec3 ambient = 0.05 * heightPixel.rgb;",
-        "   vec3 norm = normalize(texture2D(s2HeightNormal, v2HeightTextureVarying).rgb * 2.0 - 1.0);",
+        "   vec3 norm = normalize(normalPixel.rgb * 2.0 - 1.0);",
         "   float diffuse = max(dot(light_dir, norm), 0.0);",
         "   gl_FragColor = vec4(diffuse * pixel.rgb + ambient, 1.0);",
 
