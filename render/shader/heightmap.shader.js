@@ -82,7 +82,7 @@
 
 
             for(var i=-20; i<2; i++) {
-                if(!i) continue;
+                // if(!i) continue;
 
                 gl.uniform2fv(PROGRAM.v2MapScale, [this.scale[0], (i+20)/20]);
                 gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [i/10, 0]);
@@ -92,9 +92,9 @@
                 gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
             }
 
-            gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
-            gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
-            gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
+            // gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
+            // gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
+            // gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
 
             VAO.unbind();
 
@@ -268,7 +268,7 @@
         gl.bindBuffer(gl.ARRAY_BUFFER, shader.bufVertexPosition);
         gl.bufferData(gl.ARRAY_BUFFER, aVertexPositions, gl.STATIC_DRAW);
 
-        // TODO: X coordinate buffer with 1,0,1,0 height index using shorts
+        // TODO: X coordinate buffer with 1,1,2,2,3,3,4,4... Y buffer with height,0,height,0,height,0,
         gl.vertexAttribPointer(PROGRAM.v2VertexPosition, 3, gl.FLOAT, false, 0, 0);
         gl.enableVertexAttribArray(PROGRAM.v2VertexPosition);
         // gl.vertexAttribPointer(PROGRAM.v2TexturePosition, 2, gl.FLOAT, false, 0, 0);
