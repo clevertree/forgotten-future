@@ -26,6 +26,7 @@
     ]);
 
     var iMoonHeightPattern = Util.loadImage('terrain/moon/textures/moon.heighttexture.png');
+    var iMoonHeightNormal = Util.loadImage('terrain/moon/textures/moon.normalmap.png');
 
     Terrain.MoonTerrain1 = MoonTerrain1;
 
@@ -45,7 +46,8 @@
         var aData0 = mapGen.genSinWaveHeightMap();
 
         var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, aData0)
-            .setHeightPattern(gl, iMoonHeightPattern);
+            .setHeightPatternTexture(gl, iMoonHeightPattern)
+            .setHeightNormalTexture(gl, iMoonHeightPattern);
 //             .setHeightMap(iHMapMain, 0.2, 10)
 //             .setColor();
 

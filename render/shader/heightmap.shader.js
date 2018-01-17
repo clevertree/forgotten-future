@@ -29,12 +29,14 @@
         this.heightData         = heightData;
         // Textures
         this.txHeightPattern    = options.txHeightPattern || PROGRAM.txDefaultPattern;
+        this.txHeightNormal     = options.txHeightNormal || PROGRAM.txDefaultPattern;
         this.txGradientPattern  = options.txGradientPattern || PROGRAM.txDefaultPattern;
 
         // Variables
         this.position           = options.position || [0, 0, 0];
         this.scale              = options.scale || DEFAULT_SCALE;
         var m4ModelView         = defaultModelViewMatrix;
+        var m4ModelNormal       = calculateNormalMatrix(m4ModelView);
         var vHighlightColor     = defaultColor.slice(0);
         var vHighlightRange     = [64,128];
 
@@ -56,6 +58,7 @@
             // Set the projection and viewport.
             gl.uniformMatrix4fv(PROGRAM.m4Projection, false, m4Projection);
             gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
+            gl.uniformMatrix4fv(PROGRAM.m4ModelNormal, false, m4ModelNormal);
 
             // HeightMap statistics
             gl.uniform2fv(PROGRAM.v2MapSize, this.size);
@@ -70,8 +73,12 @@
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, this.txHeightPattern);
 
-            gl.uniform1i(PROGRAM.s2GradientPattern, 1);
+            gl.uniform1i(PROGRAM.s2HeightNormal, 1);
             gl.activeTexture(gl.TEXTURE1);
+            gl.bindTexture(gl.TEXTURE_2D, this.txHeightNormal);
+
+            gl.uniform1i(PROGRAM.s2GradientPattern, 2);
+            gl.activeTexture(gl.TEXTURE2);
             gl.bindTexture(gl.TEXTURE_2D, this.txGradientPattern);
 
             gl.uniform2fv(PROGRAM.v2HeightTextureScale, [8, 8]);
@@ -125,8 +132,13 @@
         // Textures
 
 
-        this.setHeightPattern = function (gl, txHeightPattern) {
+        this.setHeightPatternTexture = function (gl, txHeightPattern) {
             this.txHeightPattern = setupTexture(gl, txHeightPattern);
+            return this;
+        };
+
+        this.setHeightNormalTexture = function (gl, txHeightNormal) {
+            this.txHeightNormal = setupTexture(gl, txHeightNormal);
             return this;
         };
 
@@ -316,6 +328,64 @@
         return maxHeight;
     }
 
+    function calculateNormalMatrix(m4ModelView) {
+        return mtx_transpose(mtx_inverse(m4ModelView));
+    }
+
+
+    function mtx_zero() {
+        return [
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0,
+            0, 0, 0, 0
+        ];
+    }
+
+
+    function mtx_transpose(a) {
+        var b = mtx_zero();
+
+        for (var i = 0; i < 4; i++) {
+            for (var j = 0; j < 4; j++) {
+                b[i + j*4] = a[j + i*4];
+            }
+        }
+
+        return b;
+    }
+
+    function mtx_inverse(m) {
+        var inv = mtx_zero();
+        inv[0]  =  m[5] * m[10] * m[15] - m[5]  * m[11] * m[14] - m[9]  * m[6] * m[15] + m[9] * m[7] * m[14] + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
+        inv[4]  = -m[4] * m[10] * m[15] + m[4]  * m[11] * m[14] + m[8]  * m[6] * m[15] - m[8] * m[7] * m[14] - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
+        inv[8]  =  m[4] * m[9]  * m[15] - m[4]  * m[11] * m[13] - m[8]  * m[5] * m[15] + m[8] * m[7] * m[13] + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
+        inv[12] = -m[4] * m[9]  * m[14] + m[4]  * m[10] * m[13] + m[8]  * m[5] * m[14] - m[8] * m[6] * m[13] - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
+        inv[1]  = -m[1] * m[10] * m[15] + m[1]  * m[11] * m[14] + m[9]  * m[2] * m[15] - m[9] * m[3] * m[14] - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
+        inv[5]  =  m[0] * m[10] * m[15] - m[0]  * m[11] * m[14] - m[8]  * m[2] * m[15] + m[8] * m[3] * m[14] + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
+        inv[9]  = -m[0] * m[9]  * m[15] + m[0]  * m[11] * m[13] + m[8]  * m[1] * m[15] - m[8] * m[3] * m[13] - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
+        inv[13] =  m[0] * m[9]  * m[14] - m[0]  * m[10] * m[13] - m[8]  * m[1] * m[14] + m[8] * m[2] * m[13] + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
+        inv[2]  =  m[1] * m[6]  * m[15] - m[1]  * m[7]  * m[14] - m[5]  * m[2] * m[15] + m[5] * m[3] * m[14] + m[13] * m[2] * m[7]  - m[13] * m[3] * m[6];
+        inv[6]  = -m[0] * m[6]  * m[15] + m[0]  * m[7]  * m[14] + m[4]  * m[2] * m[15] - m[4] * m[3] * m[14] - m[12] * m[2] * m[7]  + m[12] * m[3] * m[6];
+        inv[10] =  m[0] * m[5]  * m[15] - m[0]  * m[7]  * m[13] - m[4]  * m[1] * m[15] + m[4] * m[3] * m[13] + m[12] * m[1] * m[7]  - m[12] * m[3] * m[5];
+        inv[14] = -m[0] * m[5]  * m[14] + m[0]  * m[6]  * m[13] + m[4]  * m[1] * m[14] - m[4] * m[2] * m[13] - m[12] * m[1] * m[6]  + m[12] * m[2] * m[5];
+        inv[3]  = -m[1] * m[6]  * m[11] + m[1]  * m[7]  * m[10] + m[5]  * m[2] * m[11] - m[5] * m[3] * m[10] - m[9]  * m[2] * m[7]  + m[9]  * m[3] * m[6];
+        inv[7]  =  m[0] * m[6]  * m[11] - m[0]  * m[7]  * m[10] - m[4]  * m[2] * m[11] + m[4] * m[3] * m[10] + m[8]  * m[2] * m[7]  - m[8]  * m[3] * m[6];
+        inv[11] = -m[0] * m[5]  * m[11] + m[0]  * m[7]  * m[9]  + m[4]  * m[1] * m[11] - m[4] * m[3] * m[9]  - m[8]  * m[1] * m[7]  + m[8]  * m[3] * m[5];
+        inv[15] =  m[0] * m[5]  * m[10] - m[0]  * m[6]  * m[9]  - m[4]  * m[1] * m[10] + m[4] * m[2] * m[9]  + m[8]  * m[1] * m[6]  - m[8]  * m[2] * m[5];
+        var det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
+
+        if (det == 0) {
+            console.log("Error: Non-invertible matrix");
+            return mtx_zero();
+        }
+
+        det = 1.0 / det;
+        for (var i = 0; i < 16; i++) {
+            inv[i] *= det;
+        }
+        return inv;
+    }
 
     // Texture Program
 
@@ -334,6 +404,7 @@
         // PROGRAM.v2TexturePosition = gl.getAttribLocation(PROGRAM, "v2TexturePosition");
         PROGRAM.m4Projection = gl.getUniformLocation(PROGRAM, "m4Projection");
         PROGRAM.m4ModelView = gl.getUniformLocation(PROGRAM, "m4ModelView");
+        PROGRAM.m4ModelNormal = gl.getUniformLocation(PROGRAM, "m4ModelNormal");
 
         // Statistics
         PROGRAM.v2MapSize = gl.getUniformLocation(PROGRAM, "v2MapSize");
@@ -341,6 +412,7 @@
 
         // Textures
         PROGRAM.s2HeightPattern = gl.getUniformLocation(PROGRAM, "s2HeightPattern");
+        PROGRAM.s2HeightNormal = gl.getUniformLocation(PROGRAM, "s2HeightNormal");
         PROGRAM.s2GradientPattern = gl.getUniformLocation(PROGRAM, "s2GradientPattern");
         PROGRAM.v2HeightTextureScale = gl.getUniformLocation(PROGRAM, "v2HeightTextureScale");
         PROGRAM.v2HeightTextureOffset = gl.getUniformLocation(PROGRAM, "v2HeightTextureOffset");
@@ -372,6 +444,7 @@
 
         "uniform mat4 m4Projection;",
         "uniform mat4 m4ModelView;",
+        "uniform mat4 m4ModelNormal;",
 
         // HeightMap statistics
         "uniform vec2 v2MapSize;",
@@ -383,16 +456,52 @@
         "varying vec2 v2HeightTextureVarying;",
         "varying vec2 v2GradientTextureVarying;",
 
+        "varying vec3 ts_light_pos;", // Tangent space values
+        "varying vec3 ts_view_pos;",  //
+        "varying vec3 ts_frag_pos;",  //
+
+        "mat3 transpose(in mat3 inMatrix)",
+        "{",
+        "    vec3 i0 = inMatrix[0];",
+        "    vec3 i1 = inMatrix[1];",
+        "    vec3 i2 = inMatrix[2];",
+
+        "    mat3 outMatrix = mat3(",
+        "        vec3(i0.x, i1.x, i2.x),",
+        "        vec3(i0.y, i1.y, i2.y),",
+        "        vec3(i0.z, i1.z, i2.z)",
+        "    );",
+
+        "    return outMatrix;",
+        "}",
 
         "void main(void) {",
         // "   v2TextureVarying.x = (v2MapSize.x - v2VertexPosition.x) / v2MapSize.x;",
         // "   v2TextureVarying.y = (v2MapSize.y - v2VertexPosition.z) / v2MapSize.y;",
         // "   v2TextureVarying = (v2MapSize - vec2(v2VertexPosition.x, v2VertexPosition.z - v2VertexPosition.y)) / v2MapSize;",
+
+        // Height texturing
         "   v2HeightTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.z - v2VertexPosition.y) / v2HeightTextureScale + v2HeightTextureOffset;",
         "   v2GradientTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.y) / v2MapSize;",
 
         "   vec4 v4Position = vec4(v2VertexPosition.x * v2MapScale.x, v2VertexPosition.y * v2MapScale.y, 0.0, 1.0);", // TODO index stream?
         "   gl_Position = m4Projection * m4ModelView * v4Position;",
+
+        // Lighting
+        "   ts_frag_pos = vec3(m4ModelView * vec4(v2VertexPosition, 1.0));",
+        "   vec3 vert_norm = cross(vec3( 0, -1,  0), vec3(1, 0, 0));",
+
+        "   vec3 t = normalize(mat3(m4ModelNormal) * vec3(1, 0, 0));",
+        "   vec3 b = normalize(mat3(m4ModelNormal) * vec3( 0, -1,  0));",
+        "   vec3 n = normalize(mat3(m4ModelNormal) * vert_norm);",
+        "   mat3 tbn = transpose(mat3(t, b, n));",
+
+        "   vec3 light_pos = vec3(1, 2, 0);",
+        "   ts_light_pos = tbn * light_pos;",
+        // Our camera is always at the origin
+        "   ts_view_pos = tbn * vec3(0, 0, 0);",
+        "   ts_frag_pos = tbn * ts_frag_pos;",
+
         "}"
     ].join("\n");
 
@@ -401,8 +510,12 @@
 
         "varying vec2 v2HeightTextureVarying;",
         "varying vec2 v2GradientTextureVarying;",
+        "varying vec3 ts_light_pos;",
+        "varying vec3 ts_view_pos;",
+        "varying vec3 ts_frag_pos;",
 
         "uniform sampler2D s2HeightPattern;",
+        "uniform sampler2D s2HeightNormal;",
         "uniform sampler2D s2GradientPattern;",
 
         "uniform vec2 v2MapSize;",
@@ -411,6 +524,15 @@
         "   vec4 heightPixel = texture2D(s2HeightPattern, v2HeightTextureVarying);", //
         "   vec4 gradientPixel = texture2D(s2GradientPattern, v2GradientTextureVarying);", //
         "   gl_FragColor = heightPixel * gradientPixel;",
+
+        // Normal mapping
+        "   vec3 light_dir = normalize(ts_light_pos - ts_frag_pos);",
+        "   vec3 view_dir = normalize(ts_view_pos - ts_frag_pos);",
+        "   vec3 ambient = 0.05 * heightPixel.rgb;",
+        "   vec3 norm = normalize(texture2D(s2HeightNormal, v2HeightTextureVarying).rgb * 2.0 - 1.0);",
+        "   float diffuse = max(dot(light_dir, norm), 0.0);",
+        "   gl_FragColor = vec4(diffuse * heightPixel.rgb + ambient, 1.0);",
+
         // "   gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);",
         "}"
 
