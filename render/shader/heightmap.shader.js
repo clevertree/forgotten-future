@@ -523,7 +523,7 @@
         "void main(void) {",
         "   vec4 heightPixel = texture2D(s2HeightPattern, v2HeightTextureVarying);", //
         "   vec4 gradientPixel = texture2D(s2GradientPattern, v2GradientTextureVarying);", //
-        "   gl_FragColor = heightPixel * gradientPixel;",
+        "   vec4 pixel = heightPixel * gradientPixel;",
 
         // Normal mapping
         "   vec3 light_dir = normalize(ts_light_pos - ts_frag_pos);",
@@ -531,7 +531,7 @@
         "   vec3 ambient = 0.05 * heightPixel.rgb;",
         "   vec3 norm = normalize(texture2D(s2HeightNormal, v2HeightTextureVarying).rgb * 2.0 - 1.0);",
         "   float diffuse = max(dot(light_dir, norm), 0.0);",
-        "   gl_FragColor = vec4(diffuse * heightPixel.rgb + ambient, 1.0);",
+        "   gl_FragColor = vec4(diffuse * pixel.rgb + ambient, 1.0);",
 
         // "   gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);",
         "}"

@@ -47,7 +47,7 @@
 
         var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, aData0)
             .setHeightPatternTexture(gl, iMoonHeightPattern)
-            .setHeightNormalTexture(gl, iMoonHeightPattern);
+            .setHeightNormalTexture(gl, iMoonHeightNormal);
 //             .setHeightMap(iHMapMain, 0.2, 10)
 //             .setColor();
 
