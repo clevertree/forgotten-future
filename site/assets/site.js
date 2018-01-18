@@ -4,19 +4,10 @@ var urlParams = {};
 document.addEventListener("DOMContentLoaded", function() {
 
     // Event Listeners
-    eachClass('page-button-play', function(button) { button.addEventListener('click', siteButtonPlay)});
-    eachClass('page-button-subscribe', function(button) { button.addEventListener('click', siteButtonSubscribe)});
     eachClass('toggle-page-menu', function(button) { button.addEventListener('click', togglePageMenu)});
 
     // Functions
 
-    function siteButtonPlay(e) {
-        ForgottenFuture.play();
-    }
-
-    function siteButtonSubscribe(e) {
-        document.location.href = 'site/contribute.html';
-    }
 
     function togglePageMenu(e) {
         document.body.classList.toggle('menu');

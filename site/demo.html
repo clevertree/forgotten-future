@@ -1,13 +1,29 @@
 <!DOCTYPE html>
 <html>
     <head>
-        <title>Forgotten Future: Payment</title>
-
-        <meta name="keywords" CONTENT="payment, bitcoin, visa, mastercard">
+        <title>Forgotten Future</title>
+        <meta name="keywords" CONTENT="forgotten future, game, music, relay, open-source, platformer, 2.5D, sidescroller, action, moon, demo">
         <meta name="viewport" content="width=device-width, initial-scale=1">
-        <script src="assets/site.js"></script>
         <link rel="stylesheet" href="assets/site.css" />
         <link rel="stylesheet" href="assets/theme/minimal.css" />
+
+        <link rel="stylesheet" href="assets/game.css" />
+        <script src="../game.js"></script>
+
+        <script>"use strict";
+
+            document.addEventListener("DOMContentLoaded", function() {
+                ForgottenFuture.setBaseURL('../');
+                ForgottenFuture.play();
+            });
+            setTimeout(
+                function () {
+                    console.log("Reloading...");
+                    document.location.reload();
+                },
+                380000
+            );
+        </script>
     </head>
     <body class='theme-minimal'>
         <header class="page-header">
@@ -20,35 +36,8 @@
                 <li><a href="locations.html">Locations</a></li>
                 <li><a href="technology.html">Technology</a></li>
                 <li><a href="faq.html">FAQ</a></li>
-                <li><a href="demo.html">Demo</a></li>
+                <li class="highlight"><a href="demo.html">Demo</a></li>
             </ul>
         </header>
-
-        <article>
-            <h1>Payment Methods</h1>
-            <p>
-                Coming soon...
-            </p>
-
-
-            <h2 id="card">Credit Card</h2>
-            <p>
-                Pay by Credit Card
-            </p>
-
-            <h2 id="paypal">PayPal</h2>
-            <p>
-                Pay by PayPal
-            </p>
-
-            <h2 id="bitcoin">Bitcoin</h2>
-            <p>
-                Pay by bitcoin
-            </p>
-
-        </article>
-        <footer>
-            <a class="created-by" target='_blank' href='https://github.com/clevertree'>Created by CleverTree</a>
-        </footer>
     </body>
 </html>

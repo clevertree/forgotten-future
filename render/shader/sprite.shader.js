@@ -39,7 +39,7 @@
 
         // Asynchronously load the spritesheet
         var iSpriteSheet = new Image();
-        iSpriteSheet.src = pathSpriteSheet;
+        iSpriteSheet.src = Render.baseURL + pathSpriteSheet;
         iSpriteSheet.addEventListener('load', loadTexture);
 
         // Functions

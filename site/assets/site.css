@@ -13,7 +13,7 @@
 
 
 /** Page Button **/
-.page-button {
+.page-button a {
     display: block;
     padding: 10%;
     margin: 5%;
@@ -24,10 +24,10 @@
     cursor: pointer;
     transition: transform 0.2s ease-out;
     transform: scale(0.9);
-    cursor: not-allowed;
+/*     cursor: not-allowed; */
 }
 
-.page-button:hover {
+.page-button a:hover {
     transform: scale(1);
 }
 

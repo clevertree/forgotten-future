@@ -14,6 +14,7 @@ var ForgottenFuture = {
         gl: null,
         canvas: null,
         widthToHeightRatio: 1,
+        baseURL: ''
     },
     Sprite: {
         Character: {},
@@ -58,6 +59,7 @@ var ForgottenFuture = {
         Input = ForgottenFuture.Input;
     var pressedKeys = ForgottenFuture.Input.pressedKeys, keyCount = ForgottenFuture.Input.keyCount;
     ForgottenFuture.play = play;
+    ForgottenFuture.setBaseURL = setBaseURL;
 
     // Event Handlers
 
@@ -66,11 +68,6 @@ var ForgottenFuture = {
     document.addEventListener('keyup', handleKeyUp);
 
     window.addEventListener('resize', handleWindowResize);
-
-    function init() {
-        Util.loadStyleSheet('site/assets/game.css');
-        console.info("Forgotten Future initiated", ForgottenFuture);
-    }
 
     // Canvas Loading
 
@@ -103,12 +100,18 @@ var ForgottenFuture = {
         // e.preventDefault();
     }
 
+    function setBaseURL(url) {
+        Render.baseURL = url;
+    }
+
     /**
      * Launch the game
      * @param {String=} stageName Specify which stage to load
      * @param {HTMLCanvasElement=} canvas Specify the canvas to render the game on
      */
     function play(stageName, canvas) {
+        console.info("Forgotten Future initiated", ForgottenFuture);
+
         stageName = stageName || ForgottenFuture.Constant.STAGE_DEFAULT;
         var stagePath = 'stage/' + stageName.toLowerCase() + '/' + stageName.toLowerCase() + '.stage.js';
         // console.info("Loading stage file: " + stagePath);
@@ -276,10 +279,11 @@ var ForgottenFuture = {
 
 
     Util.loadStyleSheet = function(cssPath) {
+        cssPath = Render.baseURL + cssPath;
         var cssPathEsc = cssPath.replace(/[/.]/g, '\\$&');
         var foundCSS = document.head.querySelectorAll('link[href=' + cssPathEsc + ']');
         if (foundCSS.length === 0) {
-//                 console.log("Including " + scriptPath);
+                console.log("Including " + cssPath);
             var linkElm = document.createElement('link');
             linkElm.setAttribute('rel', 'stylesheet');
             linkElm.setAttribute('type', 'text/css');
@@ -304,6 +308,7 @@ var ForgottenFuture = {
             for(var i=0; i<scriptPath.length; i++)
                 Util.loadScript(scriptPath[i], callback);
         } else {
+            scriptPath = Render.baseURL + scriptPath;
             if(callback)
                 scriptCallbacks.push(callback);
             var scriptPathEsc = scriptPath.replace(/[/.]/g, '\\$&');
@@ -337,6 +342,7 @@ var ForgottenFuture = {
     };
 
     Util.loadImage = function(imagePath, callback) {
+        imagePath = Render.baseURL + imagePath;
         // Asynchronously load an image
         var image = new Image();
         if(callback)
@@ -518,6 +524,4 @@ var ForgottenFuture = {
         return Util.multiply(m, Util.scaling(sx, sy, sz));
     };
 
-    // Initiate
-    init();
 })();
