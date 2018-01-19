@@ -7,7 +7,20 @@
         <meta http-equiv="Cache-Control" content="no-store" />
         <link rel="stylesheet" href="assets/site.css" />
         <link rel="stylesheet" href="assets/theme/minimal.css" />
+        <link rel="manifest" href="assets/manifest.json">
+
         <script src="assets/site.js"></script>
+        <script src="messenger/messenger-client.js"></script>
+
+        <!--<script src="https://www.gstatic.com/firebasejs/4.9.0/firebase.js"></script>-->
+
+        <script>
+            document.addEventListener("DOMContentLoaded", function() {
+                site.onEvent('page-button-subscribe', 'click', function() {
+                    messenger.subscribe();
+                });
+            });
+        </script>
     </head>
     <body class='theme-minimal'>
         <header class="page-header">
@@ -27,7 +40,7 @@
         <article>
             <h1>Forgotten Future</h1>
             <p>an upcoming 2.5D <a href='https://en.wikipedia.org/wiki/Platform_game'>side-scroller</a> action/adventure video game.</p>
-            <div class="page-button page-button-subscribe"><a href="contribute.html">Contribute</a></div>
+            <div class="page-button page-button-subscribe"><a href="#subscribe.html">Subscribe</a></div>
             <div class="page-button page-button-play"><a href="demo.html">WebGL Demo</a></div>
         </article>
         <footer>
