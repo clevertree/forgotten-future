@@ -22,7 +22,7 @@ class PaymentRow
     protected $type;
     protected $amount;
     protected $email;
-    protected $created;
+    protected $date;
     protected $full_name;
     protected $user_id;
     protected $extra;
@@ -38,7 +38,7 @@ class PaymentRow
 
     public function getID()             { return $this->id; }
     public function getUserID()         { return $this->user_id; }
-    public function getCreateDate()     { return $this->created; }
+    public function getCreateDate()     { return $this->date; }
     public function getExtra() {
         if(!is_array($this->extra))
             $this->extra = json_decode($this->extra, false);
@@ -123,7 +123,7 @@ class PaymentRow
             ':amount' => $amount,
             ':email' => $email,
             ':full_name' => $full_name,
-            ':created' => $timestamp ?: time(),
+            ':date' => $timestamp ?: time(),
             ':user_id' => $UserRow ? $UserRow->getID() : NULL,
             ':extra' => $extra ? json_encode($extra, JSON_PRETTY_PRINT) : NULL,
         );
@@ -137,7 +137,7 @@ class PaymentRow
             `full_name` = :full_name,
             `user_id` = :user_id,
             `extra` = :extra,
-            `created` = FROM_UNIXTIME(:created)
+            `date` = FROM_UNIXTIME(:date)
             ";
 
         $DB = Database::getInstance();
