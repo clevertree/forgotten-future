@@ -1,3 +1,3 @@
 <?php
 
-require('payment/paypal/api_paypal.php');
+require('payment/paypal/api.php');
