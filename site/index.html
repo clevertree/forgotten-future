@@ -16,13 +16,14 @@
 
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                site.onEvent('subscription-method-checkbox', 'click', function(e) {
+                site.onEvent('subscription-checkbox', 'click', function(e) {
                     var input = e.target;
                     switch(input.name) {
-                        case 'subscription-method-email':
+                        case 'subscription-topic-news':
+                            messenger.subscribe('news');
                             break;
-                        case 'subscription-method-notification':
-                            messenger.subscribe();
+                        case 'subscription-topic-dev':
+                            messenger.subscribe('dev');
                             break;
                         default:
                             throw new Error("Invalid Subscription Method: " + input.name);
@@ -49,40 +50,57 @@
 
         <article>
             <h1>Forgotten Future</h1>
-            <p>Subscribe for updates to this upcoming <a href='https://en.wikipedia.org/wiki/Parallax_scrolling'>parallax-scrolling</a> action/adventure video game.</p>
 
             <section class="page-section">
+                <p>Subscribe for updates to this upcoming <a href='https://en.wikipedia.org/wiki/Parallax_scrolling' target="_blank">parallax-scrolling</a> action/adventure video game.</p>
                 <div class="page-option page-option-header">
                     Subscribe for updates
                 </div>
                 <div class="page-option">
-                    <span>Browser Notifications</span>
+                    <span>News & Announcements</span>
 
                     <!-- Rounded switch -->
                     <label class="page-option-slider">
-                        <input name="subscription-method-notification" class="subscription-method-checkbox" type="checkbox" />
+                        <input name="subscription-topic-dev" class="subscription-checkbox" type="checkbox" />
                         <span class="slider round"></span>
                     </label>
                 </div>
                 <div class="page-option">
-                    <span>Email Notifications</span>
+                    <span>Developer Updates</span>
 
                     <!-- Rounded switch -->
                     <label class="page-option-slider">
-                        <input name="subscription-method-email" class="subscription-method-checkbox" type="checkbox" />
+                        <input name="subscription-topic-dev" class="subscription-checkbox" type="checkbox" />
                         <span class="slider round"></span>
                     </label>
-
-                    <br />
-
-                    <label class="input-label" style="display: block; text-align: center;">
-                        <input name="subscription-method-email-value" type="email" placeholder="your@email.com" class="page-input"/>
-                    </label>
+                </div>
+                <div class="page-option page-option-footer">
+                    You will get a browser notification for updates.
                 </div>
             </section>
 
             <section class="page-section">
-                <p>Check out this <a href='https://en.wikipedia.org/wiki/WebGL'>WebGL</a> for a taste of what's to come:</p>
+                <p>The Forgotten Future Project needs your help. Become an official <a href="contribute.html">sponsor</a> and
+                    help bring this game to life:
+                <div class="page-option page-option-header">
+                    Make a donation
+                </div>
+                <div class="page-option">
+                    <span>By PayPal</span>
+                    <form action="https://www.paypal.com/cgi-bin/webscr" method="post" target="_top">
+                        <input type="hidden" name="cmd" value="_s-xclick">
+                        <input type="hidden" name="hosted_button_id" value="GV3VQ8K2LZD8G">
+                        <input type="image" src="https://www.paypalobjects.com/en_US/i/btn/btn_donateCC_LG.gif" border="0" name="submit" alt="PayPal - The safer, easier way to pay online!">
+                        <img alt="" border="0" src="https://www.paypalobjects.com/en_US/i/scr/pixel.gif" width="1" height="1">
+                    </form>
+                </div>
+                <div class="page-option page-option-footer">
+                    Sponsors receive <a href="contribute.html">Tier Rewards</a> based on their donation.
+                </div>
+            </section>
+
+            <section class="page-section">
+                <p>Check out this <a href='https://en.wikipedia.org/wiki/WebGL'>WebGL</a> demo for a taste of what's to come:</p>
 
                 <div class="page-button page-button-play"><a href="demo.html">WebGL Demo</a></div>
             </section>

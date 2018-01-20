@@ -129,6 +129,12 @@ ul.tier-description .includes {
     font-weight: bold;
     text-align: center;
 }
+.page-option-footer {
+    border-top: 1px solid #0059b5;
+    border-bottom: 1px solid #0059b5;
+    border-radius: 0 0 1em 1em;
+    text-align: center;
+}
 
 /** Input **/
 
