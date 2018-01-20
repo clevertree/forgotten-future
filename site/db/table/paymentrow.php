@@ -98,6 +98,8 @@ class PaymentRow
      * @param $amount
      * @param $email
      * @param $full_name
+     * @param $timestamp
+     * @param null $uid
      * @param UserRow $UserRow
      * @param array|null $extra
      * @return PaymentRow
@@ -109,12 +111,13 @@ class PaymentRow
         $email,
         $full_name,
         $timestamp,
+        $uid = null,
         UserRow $UserRow=null,
         Array $extra = NULL
     ){
 
         $values = array(
-            ':uid' => self::generateReferenceNumber(),
+            ':uid' => $uid ?: self::generateReferenceNumber(),
             ':status' => $status,
             ':type' => $type,
             ':amount' => $amount,
