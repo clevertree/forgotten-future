@@ -25,11 +25,10 @@ try {
          * https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/
          */
     }
-    $Row = storeVerifiedEntry($_POST);
+    $PaymentRow = storeVerifiedEntry($_POST);
     // Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
     header("HTTP/1.1 200 OK");
     header("Content-Type: text/plain");
-    error_log("PAYPAL ROW " . print_r($Row, true));
 
 } catch (\Exception $e) {
     header("HTTP/1.1 400 " . $e->getMessage());
@@ -46,6 +45,7 @@ function storeVerifiedEntry($post, UserRow $UserRow=null) {
         $post['payment_type'],
         $post['mc_gross'],
         $post['payer_email'],
+        strtotime($post['payment_date']),
         $post['first_name'] . ' ' . $post['last_name'],
         $UserRow,
         $post

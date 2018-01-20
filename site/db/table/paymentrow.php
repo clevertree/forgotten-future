@@ -108,6 +108,7 @@ class PaymentRow
         $amount,
         $email,
         $full_name,
+        $timestamp,
         UserRow $UserRow=null,
         Array $extra = NULL
     ){
@@ -119,6 +120,7 @@ class PaymentRow
             ':amount' => $amount,
             ':email' => $email,
             ':full_name' => $full_name,
+            ':created' => $timestamp ?: time(),
             ':user_id' => $UserRow ? $UserRow->getID() : NULL,
             ':extra' => $extra ? json_encode($extra, JSON_PRETTY_PRINT) : NULL,
         );
@@ -132,7 +134,7 @@ class PaymentRow
             `full_name` = :full_name,
             `user_id` = :user_id,
             `extra` = :extra,
-            `created` = UTC_TIMESTAMP()
+            `created` = FROM_UNIXTIME(:created)
             ";
 
         $DB = Database::getInstance();
