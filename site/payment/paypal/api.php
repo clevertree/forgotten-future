@@ -45,7 +45,7 @@ function storeVerifiedEntry($post, UserRow $UserRow=null) {
         $post['payment_type'],
         $post['mc_gross'],
         $post['payer_email'],
-        strtotime($post['payment_date']),
+        strtotime(strstr($post['payment_date'], '(', true)),
         $post['first_name'] . ' ' . $post['last_name'],
         $UserRow,
         $post
