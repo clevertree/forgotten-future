@@ -2,13 +2,13 @@
 
 require('PaypalIPN.php');
 
-chdir('../../../');
+//chdir('../../../');
+set_include_path(dirname(dirname(dirname(__DIR__))));
 spl_autoload_register();
 
 use PaypalIPN;
 use Site\DB\Table\PaymentRow;
 use Site\DB\Table\UserRow;
-
 
 $ipn = new PaypalIPN();
 
