@@ -40,7 +40,8 @@ try {
 
         case 'subscribe':
             $token = htmlspecialchars($params['token']);
-            $topic = htmlspecialchars($params['topic'] ?: 'default');
+            $topic = htmlspecialchars(@$params['topic'] ?: 'default');
+
             $Token = UserTokenRow::fetchByToken($token, false);
             if($Token) {
                 http_response_code(409);

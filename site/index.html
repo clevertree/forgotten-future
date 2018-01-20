@@ -16,8 +16,18 @@
 
         <script>
             document.addEventListener("DOMContentLoaded", function() {
-                site.onEvent('page-button-subscribe', 'click', function() {
-                    messenger.subscribe();
+                site.onEvent('subscription-method-checkbox', 'click', function(e) {
+                    var input = e.target;
+                    switch(input.name) {
+                        case 'subscription-method-email':
+                            break;
+                        case 'subscription-method-notification':
+                            messenger.subscribe();
+                            break;
+                        default:
+                            throw new Error("Invalid Subscription Method: " + input.name);
+
+                    }
                 });
             });
         </script>
@@ -39,9 +49,43 @@
 
         <article>
             <h1>Forgotten Future</h1>
-            <p>an upcoming 2.5D <a href='https://en.wikipedia.org/wiki/Platform_game'>side-scroller</a> action/adventure video game.</p>
-            <div class="page-button page-button-subscribe"><a href="#subscribe.html">Subscribe</a></div>
-            <div class="page-button page-button-play"><a href="demo.html">WebGL Demo</a></div>
+            <p>Subscribe for updates to this upcoming <a href='https://en.wikipedia.org/wiki/Parallax_scrolling'>parallax-scrolling</a> action/adventure video game.</p>
+
+            <section class="page-section">
+                <div class="page-option page-option-header">
+                    Subscribe for updates
+                </div>
+                <div class="page-option">
+                    <span>Browser Notifications</span>
+
+                    <!-- Rounded switch -->
+                    <label class="page-option-slider">
+                        <input name="subscription-method-notification" class="subscription-method-checkbox" type="checkbox" />
+                        <span class="slider round"></span>
+                    </label>
+                </div>
+                <div class="page-option">
+                    <span>Email Notifications</span>
+
+                    <!-- Rounded switch -->
+                    <label class="page-option-slider">
+                        <input name="subscription-method-email" class="subscription-method-checkbox" type="checkbox" />
+                        <span class="slider round"></span>
+                    </label>
+
+                    <br />
+
+                    <label class="input-label" style="display: block; text-align: center;">
+                        <input name="subscription-method-email-value" type="email" placeholder="your@email.com" class="page-input"/>
+                    </label>
+                </div>
+            </section>
+
+            <section class="page-section">
+                <p>Check out this <a href='https://en.wikipedia.org/wiki/WebGL'>WebGL</a> for a taste of what's to come:</p>
+
+                <div class="page-button page-button-play"><a href="demo.html">WebGL Demo</a></div>
+            </section>
         </article>
         <footer>
             <a class="created-by" target='_blank' href='https://github.com/clevertree'>Created by CleverTree</a>

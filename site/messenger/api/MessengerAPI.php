@@ -34,7 +34,7 @@ class MessengerAPI
 
         $result = curl_exec($ch);
         $httpcode = curl_getinfo($ch, CURLINFO_HTTP_CODE);
-        echo $httpcode;
+//        echo $httpcode;
         if($httpcode !== 200)
             throw new \Exception($result);
     }
