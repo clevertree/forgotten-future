@@ -328,8 +328,11 @@
         return maxHeight;
     }
 
-    function calculateNormalMatrix(m4ModelView) {
-        return mtx_transpose(mtx_inverse(m4ModelView));
+    function calculateNormalMatrix(m4) {
+        m4 = mtx_inverse(m4);
+        m4 = mtx_transpose(m4);
+        return m4;
+        // return mtx_transpose(mtx_inverse(m4ModelView));
     }
 
 
