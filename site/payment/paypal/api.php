@@ -15,16 +15,20 @@ $ipn = new PaypalIPN();
 // Use the sandbox endpoint during testing.
 $ipn->useSandbox();
 
-error_log("PAYPAL RESPONSE " . print_r($_POST, true));
+//error_log("PAYPAL RESPONSE " . print_r($_POST, true));
 try {
     $verified = $ipn->verifyIPN();
-    if ($verified) {
-        /*
-         * Process IPN
-         * A list of variables is available here:
-         * https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/
-         */
+    if (!$verified) {
+        error_log("PAYPAL RESPONSE WAS NOT VERIFIED: " . print_r($_POST, true));
+        header("HTTP/1.1 400 Not Verified");
+        die();
     }
+
+    /*
+     * Process IPN
+     * A list of variables is available here:
+     * https://developer.paypal.com/webapps/developer/docs/classic/ipn/integration-guide/IPNandPDTVariables/
+     */
     $PaymentRow = storeVerifiedEntry($_POST);
     // Reply with an empty 200 response to indicate to paypal the IPN was received correctly.
     header("HTTP/1.1 200 OK");
@@ -34,7 +38,7 @@ try {
     header("HTTP/1.1 400 " . $e->getMessage());
     header("Content-Type: text/plain");
     echo $e;
-    error_log("PAYPAL RESPONSE FAILED: " . $e);
+    error_log("PAYPAL RESPONSE FAILED: " . $e . print_r($_POST, true));
 }
 
 

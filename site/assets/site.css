@@ -34,6 +34,7 @@
 }
 
 
+
 /** Tier Content **/
 
 .tier-header {
@@ -88,7 +89,7 @@ ul.tier-description .includes {
     font-size: 12px;
     float: right;
 }
-.tier-backers {
+.tier-sponsors {
     color: #a6a6a6;
     font-size: 12px;
 }
@@ -109,9 +110,9 @@ ul.tier-description .includes {
 /** Page Options **/
 
 .page-option {
-    padding: 1em;
+    padding: 8px;
     margin: 0 auto;
-    max-width: 36em;
+    max-width: 560px;
     background-color: rgba(0, 49, 77, 0.9);
     text-align: right;
 }
@@ -133,7 +134,10 @@ ul.tier-description .includes {
     border-top: 1px solid #0059b5;
     border-bottom: 1px solid #0059b5;
     border-radius: 0 0 1em 1em;
-    text-align: center;
+    text-align: right;
+    font-size: 10px;
+    /*font-style: italic;*/
+    color: #888888;;
 }
 
 /** Input **/

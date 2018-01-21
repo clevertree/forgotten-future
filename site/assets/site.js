@@ -2,6 +2,17 @@
 
 var site = (function() {
     function Site() {
+        this.links = [
+            ['Game', 'index.html'],
+            ['Contribute', 'contribute.html'],
+            ['Media', 'media.html'],
+            ['FAQ', 'faq.html'],
+            ['Cataclysm', 'timeline.html'],
+            ['Characters', 'characters.html'],
+            ['Locations', 'locations.html'],
+            ['Technology', 'technology.html'],
+            ['Demo', 'demo.html']
+        ]
     }
 
     Site.prototype.getUrlParams = function() {
@@ -31,6 +42,21 @@ var site = (function() {
         document.head.appendChild(scriptElm);
     };
 
+    Site.prototype.generateNavLinks = function(container) {
+        var fileName = location.href.split("/").slice(-1)[0];
+        for (var i = 0; i < this.links.length; i++) {
+            var liElm = document.createElement('li');
+            var aElm = document.createElement('a');
+            aElm.href = this.links[i][1];
+            aElm.innerHTML = this.links[i][0];
+            container.appendChild(liElm);
+            liElm.appendChild(aElm);
+
+            if(this.links[i][1] === fileName)
+                liElm.classList.add('highlight');
+        }
+    };
+
     return new Site;
 })();
 
@@ -44,4 +70,11 @@ document.addEventListener("DOMContentLoaded", function() {
         document.body.classList.toggle('menu');
     }
 
+    // Auto-generate nav bar
+    (function() {
+        var pageLinks = document.getElementsByClassName('page-links');
+        for(var i=0; i<pageLinks.length; i++)
+            if(pageLinks[i].classList.contains('autogenerate'))
+                site.generateNavLinks(pageLinks[i]);
+    })();
 });

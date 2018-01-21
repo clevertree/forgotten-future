@@ -40,6 +40,18 @@
     text-align: justify;
 }
 
+.theme-minimal p.themed {
+    text-indent: 1em;
+    max-width: 960px;
+    margin: 1em auto;
+}
+.theme-minimal p:first-letter {
+    font-size: 24px;
+    line-height: 1.25em;
+    font-weight: bold;
+    padding-right: 3px;
+}
+
 /** Footer **/
 
 .theme-minimal > footer {
@@ -65,12 +77,14 @@
     margin: 0 0;
     background-color: rgba(0, 49, 77, 0.9);
     /* border-radius: 4px; */
+    font-size: 0px;
 }
 
 .theme-minimal ul.page-links > li {
     display: inline-block;
     margin: 1px;
     transition: background-color  .2s ease-in;
+    font-size: 16px;
 }
 
 
@@ -86,7 +100,7 @@
 .theme-minimal ul.page-links li:hover {
     background-color: rgba(0, 0, 0, 0.5);
     font-weight: bold;
-    transition: background-color 0.1s ease-in;
+    transition: background-color 0.9s ease-in;
     border-radius: 4px;
 }
 
