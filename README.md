@@ -18,10 +18,10 @@ Welcome to the Forgotten Future Development Team, this document will get you sta
 
 ### Folders
 
-* character - Character-specific designs
-* game - Game related data
-* lib - 3rd party libraries
-* site - Game related website
+* render - Shaders and other render functions
+* spite - Characters and vehicles
+* stage - Stages
+* terrain - Terrain and Level Textures
 
 
 ### Human History Timeline
