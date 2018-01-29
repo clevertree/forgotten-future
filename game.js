@@ -12,7 +12,7 @@ var ForgottenFuture = {
         },
         ViewPort: {},
         gl: null,
-        canvas: null,
+        canvas: [],
         widthToHeightRatio: 1,
         baseURL: ''
     },
@@ -58,8 +58,6 @@ var ForgottenFuture = {
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
     var pressedKeys = ForgottenFuture.Input.pressedKeys, keyCount = ForgottenFuture.Input.keyCount;
-    ForgottenFuture.play = play;
-    ForgottenFuture.setBaseURL = setBaseURL;
 
     // Event Handlers
 
@@ -100,38 +98,37 @@ var ForgottenFuture = {
         // e.preventDefault();
     }
 
-    function setBaseURL(url) {
+
+    ForgottenFuture.setBaseURL = function(url) {
         Render.baseURL = url;
-    }
+    };
+    ForgottenFuture.addCanvas = function(canvas) {
+        if(!canvas || canvas.nodeName.toLowerCase() !== 'canvas')
+            throw new Error("Invalid Canvas: " + canvas);
+        Render.canvas.push(canvas);
+    };
 
     /**
      * Launch the game
      * @param {String=} stageName Specify which stage to load
-     * @param {HTMLCanvasElement=} canvas Specify the canvas to render the game on
      */
-    function play(stageName, canvas) {
+    ForgottenFuture.play = function (stageName) {
         console.info("Forgotten Future initiated", ForgottenFuture);
 
         stageName = stageName || ForgottenFuture.Constant.STAGE_DEFAULT;
         var stagePath = 'stage/' + stageName.toLowerCase() + '/' + stageName.toLowerCase() + '.stage.js';
         // console.info("Loading stage file: " + stagePath);
 
-        if(!canvas) {
-            if(!document.body)
-                throw new Error("DOM isn't loaded yet. Be patient... or try document.addEventListener(\"DOMContentLoaded\", function() {");
-            canvas = document.createElement('canvas');
-            canvas.setAttribute('class', 'ff-default-canvas fullscreen');
+        if(Render.canvas.length === 0)
+            throw new Error("No canvas has been added. Use ForgottenFuture.addCanvas({canvas});");
 
-            // Event listeners
-            // canvas.addEventListener('click', handleClickEvent);
-
-            // Append to DOM
-            document.body.appendChild(canvas);
-        }
-
+        var canvas = Render.canvas[0];
         var gl = canvas.getContext('webgl');
 
-        Render.canvas = canvas;
+        /**
+         * @deprecated
+         * @type {CanvasRenderingContext2D | WebGLRenderingContext}
+         */
         Render.gl = gl;
 
 
@@ -161,7 +158,7 @@ var ForgottenFuture = {
 
 
     function handleWindowResize(e) {
-        var canvas = Render.canvas;
+        var canvas = Render.canvas[0];
         if(canvas) {
             var gl = Render.gl;
             if(canvas.classList.contains('fullscreen')) {
