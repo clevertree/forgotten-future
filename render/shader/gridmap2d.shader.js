@@ -168,15 +168,26 @@
                 || spritePosition[1] > this.size[1])
                 return null;
 
-            var px = Math.floor(spritePosition[0] / this.scale[0]);
-            var pxr = (spritePosition[0] / this.scale[0]) - px;
-            // console.log('px pxr', px, pxr);
-            // var py = Math.floor(ry * mapSize[1]);
+            var px = (spritePosition[0] / this.scale[0]);
 
-            var leftHeight = gridData [(px+0)] * (1-pxr);
-            var rightHeight = gridData [(px+1)] * (pxr);
+            // Binary search
+            var left = -1, right = gridData.length;
+            while (1 + left !== right) {
+                var mi = left + ((right - left) >> 1);
+                if (gridData[mi][0] > px) {
+                    right = mi;
+                } else {
+                    left = mi;
+                }
+            }
 
-            var height = (leftHeight+rightHeight);
+
+            // var leftHeight = gridData [(px+0)] * (1-pxr);
+            // var rightHeight = gridData [(px+1)] * (pxr);
+
+            var pxr = (px - gridData[left][0]) / (gridData[right][0] - gridData[left][0]);
+            var height = (gridData[left][1] * (1-pxr)+gridData[right][1] * (pxr));
+//             console.log("Grid: l=", left, ", r=", right, " h=", height, " pxr=", pxr);
             return (height - spritePosition[1]);
         };
 

@@ -58,7 +58,7 @@
         this.hitBoxes = [
             //pfMain,
             gmMain,
-            hmMain,
+            // hmMain,
         ];
 
     }
