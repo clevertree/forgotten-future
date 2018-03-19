@@ -5,28 +5,30 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
+        Constant = ForgottenFuture.Constant,
         Render = ForgottenFuture.Render;
 
     // Constants
     var DEFAULT_HEIGHT = 10;
     var DEFAULT_SCALE = [1, 1];
 
-    Render.Shader.HeightMap = HeightMap;
+    Render.Shader.GridMap2D = GridMap2D;
 
     /**
      * @param {WebGLRenderingContext} gl
-     * @param {Array} heightData
+     * @param {Array} gridData
      * @param {Object=} options
      * @constructor
      */
-    function HeightMap(gl, heightData, options) {
+    function GridMap2D(gl, gridData, options) {
         // Initiate Shader program
         initProgram(gl);
 
         options = options || {};
-        this.flags              = options.flags || HeightMap.FLAG_DEFAULTS;
+        this.flags              = options.flags || GridMap2D.FLAG_DEFAULTS;
         // this.widthPerPoint      = options.widthPerPoint || DEFAULT_WIDTH_PER_POINT;
-        this.heightData         = heightData;
+        this.gridData           = gridData;
+
         // Textures
         this.txHeightPattern    = options.txHeightPattern || PROGRAM.txDefaultPattern;
         this.txHeightNormal     = options.txHeightNormal || PROGRAM.txDefaultPattern;
@@ -40,10 +42,7 @@
         var vHighlightColor     = defaultColor.slice(0);
         var vHighlightRange     = [64,128];
 
-        this.size               = [
-            heightData.length * this.scale[0],
-            getMaxHeight(heightData) * this.scale[1]
-        ];
+        this.size               = getGridDimensions(gridData);
 
         // Vertex Array Object
         var VAO                 = buildVertexArray(gl, this);
@@ -60,7 +59,7 @@
             gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
             gl.uniformMatrix4fv(PROGRAM.m4ModelNormal, false, m4ModelNormal);
 
-            // HeightMap statistics
+            // GridMap2D statistics
             gl.uniform2fv(PROGRAM.v2MapSize, this.size);
             gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
 
@@ -117,7 +116,7 @@
             // if(mVelocity)
             //     mModelView = Util.multiply(mModelView, mVelocity);
 
-            if(flags & ForgottenFuture.Constant.RENDER_SELECTED) {
+            if(flags & Constant.RENDER_SELECTED) {
                 vHighlightColor[0] = Math.abs(Math.sin(t/500));
                 vHighlightColor[1] = Math.abs(Math.sin(t/1800));
                 vHighlightColor[2] = Math.abs(Math.sin(t/1000));
@@ -149,14 +148,6 @@
 
         // Properties
 
-        this.getHighlightRange = function()         { return vHighlightRange; };
-        this.setHighlightRange = function(left, right) {
-            if(left < 0 || left > mapLength) left = 0;
-            if(right <= left) right = left+1;
-            else if(right > mapLength) right = mapLength;
-            vHighlightRange = [left, right];
-        };
-
         this.getViewPort = function() {
             return new Render.ViewPort.SimpleViewPort(
                 function(vViewPosition) {
@@ -182,32 +173,20 @@
             // console.log('px pxr', px, pxr);
             // var py = Math.floor(ry * mapSize[1]);
 
-            var leftHeight = heightData [(px+0)] * (1-pxr);
-            var rightHeight = heightData [(px+1)] * (pxr);
+            var leftHeight = gridData [(px+0)] * (1-pxr);
+            var rightHeight = gridData [(px+1)] * (pxr);
 
             var height = (leftHeight+rightHeight);
             return (height - spritePosition[1]);
         };
-
-        // this.testHit = function(x, y, z) {
-        //     return this.testHeight(x, y, z) > 0;
-        // };
-        // Model/View
-
-        // this.setWidthPerPoint = function(newWidthPerPoint)                 {
-        //     this.widthPerPoint = newWidthPerPoint;
-        //
-        //     // TODO: rebuild verts?
-        // };
-
 
         // Textures
 
         // Editor
 
         var updateEditor = function(t, stage, flags) {
-            if(ForgottenFuture.Render.Shader.Editor.HeightMapEditor) {
-                var editor = new ForgottenFuture.Render.Shader.Editor.HeightMapEditor(THIS);
+            if(ForgottenFuture.Render.Shader.Editor.GridMap2DEditor) {
+                var editor = new ForgottenFuture.Render.Shader.Editor.GridMap2DEditor(THIS);
                 updateEditor = editor.update;
                 updateEditor(t, stage, flags);
                 THIS.editor = editor;
@@ -263,10 +242,10 @@
         VAO.bind();
         // bindTextureCoordinates();                       // Bind Texture Coordinate
         shader.bufVertexPosition = shader.bufVertexPosition || gl.createBuffer();
-        var aVertexPositions = new Float32Array(shader.heightData.length*6);
-        for(var i=0; i<shader.heightData.length; i++) {
-            var x = i                       * shader.scale[0];
-            var y = shader.heightData[i]    * shader.scale[1];
+        var aVertexPositions = new Float32Array(shader.gridData.length*6);
+        for(var i=0; i<shader.gridData.length; i++) {
+            var x = shader.gridData[i][0]  * shader.scale[0];
+            var y = shader.gridData[i][1]  * shader.scale[1];
             aVertexPositions[i*6+0] = x;
             aVertexPositions[i*6+1] = y;
             aVertexPositions[i*6+2] = y;
@@ -287,46 +266,29 @@
         // gl.enableVertexAttribArray(PROGRAM.v2TexturePosition);
 
         VAO.unbind();
-        VAO.count = shader.heightData.length / 2;
+        VAO.count = shader.gridData.length / 2;
         return VAO;
     }
 
-    function getHeightMapDataFromImage(image) {
-        var canvas = document.createElement('canvas');
-        var mapContext = canvas.getContext('2d');
-        mapContext.drawImage(image, 0, 0);
-        var pixelData = mapContext.getImageData(0, 0, image.width, image.height);
-
-        var floatData = new Float32Array(pixelData.data.length/4);
-
-        for(var i=0; i<pixelData.data.length; i+=4) {
-            floatData[i/4] =
-                pixelData.data[i+0]/256
-                + pixelData.data[i+1]/(256*256)
-                + pixelData.data[i+2]/(256*256*256)
-                + pixelData.data[i+3]/(256*256*256*256);
-//                     /(256*256*256);
-        }
-        return floatData;
-    }
-
-
     // Static
 
-    HeightMap.FLAG_DEFAULTS = 0; //0x10; // HeightMap.FLAG_GENERATE_MIPMAP;
+    GridMap2D.FLAG_DEFAULTS = 0; //0x10; // GridMap2D.FLAG_GENERATE_MIPMAP;
 
     var defaultModelViewMatrix = Util.translation(0,0,0); //[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     var defaultColor = new Float32Array([1,1,1,1]);
 
-    function getMaxHeight(aData0) {
-        var maxHeight = 0;
-        for(var ii=0;ii<aData0.length;ii++) {
-            if(aData0[ii] > maxHeight)
-                maxHeight = aData0[ii];
+    function getGridDimensions(gridData) {
+        var vSize = [0,0];
+        for(var i=0;i<gridData.length;i++) {
+            if(gridData[i][0] > vSize[0])
+                vSize[0] = gridData[i][0];
+            if(gridData[i][1] > vSize[1])
+                vSize[1] = gridData[i][1];
         }
-        console.log("Max Height: ", maxHeight);
-        return maxHeight;
+        console.log("Grid Dimensions: ", vSize, this);
+        return vSize;
     }
+
 
     function calculateNormalMatrix(m4) {
         m4 = mtx_inverse(m4);
@@ -400,7 +362,7 @@
             return;
 
         // Init Program
-        PROGRAM = Util.compileProgram(gl, HeightMap.VS, HeightMap.FS);
+        PROGRAM = Util.compileProgram(gl, GridMap2D.VS, GridMap2D.FS);
 
         // Lookup Uniforms
         PROGRAM.v2VertexPosition = gl.getAttribLocation(PROGRAM, "v2VertexPosition");
@@ -442,14 +404,14 @@
 
     }
 
-    HeightMap.VS = [
+    GridMap2D.VS = [
         "attribute vec3 v2VertexPosition;",
 
         "uniform mat4 m4Projection;",
         "uniform mat4 m4ModelView;",
         "uniform mat4 m4ModelNormal;",
 
-        // HeightMap statistics
+        // GridMap2D statistics
         "uniform vec2 v2MapSize;",
         "uniform vec2 v2MapScale;",
 
@@ -509,7 +471,7 @@
         "}"
     ].join("\n");
 
-    HeightMap.FS = [
+    GridMap2D.FS = [
         "precision highp float;",
 
         "varying vec2 v2HeightTextureVarying;",

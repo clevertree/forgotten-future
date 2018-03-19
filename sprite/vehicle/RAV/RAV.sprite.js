@@ -42,4 +42,55 @@
 
     }
 
+
+    // Physics Scripts
+
+    RAV.handleRovingMotion = function(t, stage) {
+        // Velocity
+        this.velocity[0] += this.acceleration[0]
+            * (1 - Math.abs(this.velocity[0]) / MAX_VELOCITY);
+
+        // Position
+        this.position[0] += this.velocity[0];
+
+        var heights = new Array(HITPOINTS.length);
+        for(var i=0; i<HITPOINTS.length; i++) {
+            // Test for map height
+            heights[i] = stage.testHeight([
+                this.position[0]+HITPOINTS[i][0],
+                this.position[1]+HITPOINTS[i][1],
+                this.position[2]
+            ]);
+        }
+
+
+        // TODO: velocity
+        if(heightAdjust < -0.05) {
+            // Falling
+            this.stateScript = Lem.stateScripts.handleFallingMotion;
+//             console.log("Walking -> Falling: ", heightAdjust);
+
+
+        } else {
+            // Walking
+
+            // Adjust footing
+            this.position[1] += heightAdjust;
+
+            // Adjust Velocity
+            if(heightAdjust > 0) {
+                var vv = this.velocity[0];
+                if(this.direction < 0) {
+                    this.velocity[0] += heightAdjust * SLOPE_QUOTIENT;
+                    if(this.velocity[0] > 0) this.velocity[0] = 0;
+                } else {
+                    this.velocity[0] -= heightAdjust * SLOPE_QUOTIENT;
+                    if(this.velocity[0] < 0) this.velocity[0] = 0;
+                }
+                // console.log(vv, '=>', this.velocity[0]);
+            }
+//                 console.log("Height adjust: ", this.position[1], heightAdjust);
+        }
+
+    }
 })();

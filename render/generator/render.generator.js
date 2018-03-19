@@ -11,15 +11,29 @@
     Render.Generator = Generator;
     function Generator() {
 
-        this.genSinWaveHeightMap = function(mapLength) {
-            mapLength = mapLength || 2048;
-            var aData0 = new Float32Array(mapLength);
-            for(var ii=0;ii<mapLength;ii++) {
-                aData0[ii] = Math.abs(Math.sin(ii / 20) * (0.9 + Math.random()/20) * 1400 * (ii/10000));
-            }
-            return aData0;
-        }
     }
+
+    Generator.prototype.genSinWaveHeightMap = function(mapLength) {
+        mapLength = mapLength || 2048;
+        var heightData = new Float32Array(mapLength);
+        for(var ii=0;ii<mapLength;ii++) {
+            heightData[ii] = Math.abs(Math.sin(ii / 20) * (0.9 + Math.random()/20) * 1400 * (ii/10000));
+        }
+        return heightData;
+    };
+
+
+    Generator.prototype.genSinWaveGridMap2D = function(mapLength) {
+        mapLength = mapLength || 2048;
+        var gridData = []; // new Float32Array(mapLength);
+        for(var ii=0;ii<mapLength;ii++) {
+            gridData[ii] = [
+                ii*0.9,
+                Math.abs(Math.sin(ii / 20) * (0.9 + Math.random()/20) * 1400 * (ii/10000))
+            ];
+        }
+        return gridData;
+    };
 
 
 })();

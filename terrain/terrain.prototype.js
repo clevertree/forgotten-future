@@ -11,7 +11,7 @@
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
-
+// TODO: [[x, y, slope], [x, y, ridge]]
     Terrain.TerrainPrototype = TerrainPrototype;
 
     /**

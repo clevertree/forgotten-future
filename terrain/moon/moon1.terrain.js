@@ -22,6 +22,7 @@
         // Terrain Shaders
         // 'render/shader/tilemap.shader.js',
         'render/shader/heightmap.shader.js',
+        'render/shader/gridmap2d.shader.js',
         'render/generator/render.generator.js',
     ]);
 
@@ -41,11 +42,14 @@
 
         // Level Sprites
         var mapGen = new ForgottenFuture.Render.Generator();
-        // var pfMain = new ForgottenFuture.Render.Shader.TileMap(gl, this, DIR_LEVEL_MAP, DIR_TILE_SHEET, 64);
-        // var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, this, 2048, DIR_HEIGHT_MAP);
-        var aData0 = mapGen.genSinWaveHeightMap();
 
-        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, aData0)
+        var gridData = mapGen.genSinWaveGridMap2D();
+        var gmMain = new ForgottenFuture.Render.Shader.GridMap2D(gl, gridData)
+            .setHeightPatternTexture(gl, iMoonHeightPattern)
+            .setHeightNormalTexture(gl, iMoonHeightNormal);
+
+        var heightData = mapGen.genSinWaveHeightMap();
+        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, heightData)
             .setHeightPatternTexture(gl, iMoonHeightPattern)
             .setHeightNormalTexture(gl, iMoonHeightNormal);
 //             .setHeightMap(iHMapMain, 0.2, 10)
@@ -53,7 +57,8 @@
 
         this.hitBoxes = [
             //pfMain,
-            hmMain
+            gmMain,
+            hmMain,
         ];
 
     }
