@@ -161,34 +161,41 @@
 
         // Map Data
 
-        this.testHeight = function (spritePosition) {
-            if(    spritePosition[0] < 0
-                || spritePosition[0] > this.size[0]
-                || spritePosition[1] < 0
-                || spritePosition[1] > this.size[1])
-                return null;
+        var statGridCalc = 0;
+        setInterval(function() {
+            console.log("statGridCalc: ", statGridCalc);
+        }, 1000);
 
-            var px = (spritePosition[0] / this.scale[0]);
-
+        this.findIndexRange = function (x) {
             // Binary search
             var left = -1, right = gridData.length;
             while (1 + left !== right) {
                 var mi = left + ((right - left) >> 1);
-                if (gridData[mi][0] > px) {
+                if (gridData[mi][0] > x) {
                     right = mi;
                 } else {
                     left = mi;
                 }
+                statGridCalc++;
             }
 
+            return [left, right];
+        };
 
-            // var leftHeight = gridData [(px+0)] * (1-pxr);
-            // var rightHeight = gridData [(px+1)] * (pxr);
+        this.getHeight = function (x, leftIndex, rightIndex) {
+            var pxr = (x - gridData[leftIndex][0]) / (gridData[rightIndex][0] - gridData[leftIndex][0]);
+            var height = (gridData[leftIndex][1] * (1-pxr)+gridData[rightIndex][1] * (pxr));
+            return (height);
+        };
 
-            var pxr = (px - gridData[left][0]) / (gridData[right][0] - gridData[left][0]);
-            var height = (gridData[left][1] * (1-pxr)+gridData[right][1] * (pxr));
-//             console.log("Grid: l=", left, ", r=", right, " h=", height, " pxr=", pxr);
-            return (height - spritePosition[1]);
+        this.testHeight = function (spritePosition) {
+            if (spritePosition[0] < 0
+                || spritePosition[0] > this.size[0]
+                || spritePosition[1] < 0
+                || spritePosition[1] > this.size[1])
+                return null;
+            var range = this.findIndexRange(spritePosition[0]);
+            return this.getHeight(spritePosition[0], range[0], range[1]) - spritePosition[1];
         };
 
         // Textures
