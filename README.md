@@ -21,7 +21,7 @@ Welcome to the Forgotten Future Development Team, this document will get you sta
 * render - Shaders and other render functions
 * spite - Characters and vehicles
 * stage - Stages
-* terrain - Terrain and Level Textures
+* Platform - Platform and Level Textures
 
 
 # Human History Timeline

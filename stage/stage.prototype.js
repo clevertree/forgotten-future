@@ -19,80 +19,13 @@
      */
     function StagePrototype() {
         // Variables
-        this.renders = [];
-        this.hitBoxes = [];
+        this.platforms = [];
 
         // Stage Gravity
         this.gravity = [0, -0.0004, 0];
 
         // Default ViewPort
         this.viewPort = new Render.ViewPort.SimpleViewPort();
-
-
-        // // Set up render loop
-        // var lastKeyCount = 0;
-        // var CHAR_TILDE = 192, CHAR_TAB = 9, CHAR_SHIFT = 16;
-        // var keyTildeCount = 0, keyTabCount = 0;
-        // var selectedRender = -1; // renderList.length - 1;
-        // function handleKeyChange() {
-        //     if(lastKeyCount < Input.keyEvents) {
-        //         lastKeyCount = Input.keyEvents;
-        //         if(keyTildeCount < Input.keyCount[CHAR_TILDE]) {
-        //             keyTildeCount = Input.keyCount[CHAR_TILDE];
-        //             if(stageFlags & Constant.MODE_EDITOR) {
-        //                 stageFlags &= ~Constant.MODE_EDITOR;
-        //                 stageFlags |= Constant.MODE_CONSOLE;
-        //                 console.log("Stage Mode changed to: Console");
-        //
-        //             } else if(stageFlags & Constant.MODE_CONSOLE) {
-        //                 stageFlags &= ~Constant.MODE_CONSOLE;
-        //                 stageFlags |= Constant.MODE_DEFAULT;
-        //                 console.log("Stage Mode changed to: Default");
-        //
-        //             } else {
-        //                 stageFlags &= ~Constant.MODE_DEFAULT;
-        //                 stageFlags |= Constant.MODE_EDITOR;
-        //                 console.log("Stage Mode changed to: Editor");
-        //             }
-        //         }
-        //
-        //         if(keyTabCount < Input.keyCount[CHAR_TAB]) {
-        //             keyTabCount = Input.keyCount[CHAR_TAB];
-        //             selectedRender++;
-        //             if(selectedRender >= renderList.length)
-        //                 selectedRender = -1;
-        //             if(selectedRender === -1) {
-        //                 THIS.setViewPort(new Render.ViewPort.SimpleViewPort());
-        //                 console.log("Selected: ", THIS);
-        //             } else {
-        //                 THIS.setViewPort(renderList[selectedRender].getViewPort());
-        //                 console.log("Selected:", renderList[selectedRender]);
-        //             }
-        //         }
-        //     }
-        //
-        //     if(selectedRender === -1) {
-        //         var V = 0.1;
-        //         var pressedKeys = Input.pressedKeys;
-        //         if(pressedKeys[CHAR_SHIFT]) {
-        //             V/=10;
-        //             if(pressedKeys[39])     viewPort.rotate(-V,  0,  0);  // Right:
-        //             if(pressedKeys[37])     viewPort.rotate( V,  0,  0);  // Left:
-        //             if(pressedKeys[40])     viewPort.rotate( 0,  V,  0);  // Down:
-        //             if(pressedKeys[38])     viewPort.rotate( 0, -V,  0);  // Up:
-        //             if(pressedKeys[34])     viewPort.rotate( 0,  0,  V);  // Page Down:
-        //             if(pressedKeys[33])     viewPort.rotate( 0,  0, -V);  // Page Up:
-        //         } else {
-        //             if(pressedKeys[39])     viewPort.move(-V,  0,  0);  // Right:
-        //             if(pressedKeys[37])     viewPort.move( V,  0,  0);  // Left:
-        //             if(pressedKeys[40])     viewPort.move( 0,  V,  0);  // Down:
-        //             if(pressedKeys[38])     viewPort.move( 0, -V,  0);  // Up:
-        //             if(pressedKeys[34])     viewPort.move( 0,  0,  V);  // Page Down:
-        //             if(pressedKeys[33])     viewPort.move( 0,  0, -V);  // Page Up:
-        //         }
-        //
-        //     }
-        // }
 
     }
 
@@ -101,13 +34,9 @@
     };
 
     StagePrototype.prototype.update = function(t) {
-        // Input
-
-        // handleKeyChange();
-
         // Update
-        for(var i=0; i<this.renders.length; i++)
-            this.renders[i].update(t, this);
+        for(var i=0; i<this.platforms.length; i++)
+            this.platforms[i].update(t, this);
     };
 
     StagePrototype.prototype.render = function(gl, t) {
@@ -129,8 +58,8 @@
         // gl.depthFunc(gl.LESS);
 
         // Render
-        for(var i=0; i<this.renders.length; i++)
-            this.renders[i].render(gl, mProjection);
+        for(var i=0; i<this.platforms.length; i++)
+            this.platforms[i].render(gl, mProjection);
     };
 
     // StagePrototype.prototype.testHit = function (spritePosition) {
@@ -143,14 +72,71 @@
     // };
 
 
-    /**
-     * @depreciated
-     * @param spritePosition
-     * @returns {*}
-     */
-    StagePrototype.prototype.testHeight = function (spritePosition) {
-        return this.terrain.testHeight(spritePosition);
-    };
+
+    // // Set up render loop
+    // var lastKeyCount = 0;
+    // var CHAR_TILDE = 192, CHAR_TAB = 9, CHAR_SHIFT = 16;
+    // var keyTildeCount = 0, keyTabCount = 0;
+    // var selectedRender = -1; // renderList.length - 1;
+    // function handleKeyChange() {
+    //     if(lastKeyCount < Input.keyEvents) {
+    //         lastKeyCount = Input.keyEvents;
+    //         if(keyTildeCount < Input.keyCount[CHAR_TILDE]) {
+    //             keyTildeCount = Input.keyCount[CHAR_TILDE];
+    //             if(stageFlags & Constant.MODE_EDITOR) {
+    //                 stageFlags &= ~Constant.MODE_EDITOR;
+    //                 stageFlags |= Constant.MODE_CONSOLE;
+    //                 console.log("Stage Mode changed to: Console");
+    //
+    //             } else if(stageFlags & Constant.MODE_CONSOLE) {
+    //                 stageFlags &= ~Constant.MODE_CONSOLE;
+    //                 stageFlags |= Constant.MODE_DEFAULT;
+    //                 console.log("Stage Mode changed to: Default");
+    //
+    //             } else {
+    //                 stageFlags &= ~Constant.MODE_DEFAULT;
+    //                 stageFlags |= Constant.MODE_EDITOR;
+    //                 console.log("Stage Mode changed to: Editor");
+    //             }
+    //         }
+    //
+    //         if(keyTabCount < Input.keyCount[CHAR_TAB]) {
+    //             keyTabCount = Input.keyCount[CHAR_TAB];
+    //             selectedRender++;
+    //             if(selectedRender >= renderList.length)
+    //                 selectedRender = -1;
+    //             if(selectedRender === -1) {
+    //                 THIS.setViewPort(new Render.ViewPort.SimpleViewPort());
+    //                 console.log("Selected: ", THIS);
+    //             } else {
+    //                 THIS.setViewPort(renderList[selectedRender].getViewPort());
+    //                 console.log("Selected:", renderList[selectedRender]);
+    //             }
+    //         }
+    //     }
+    //
+    //     if(selectedRender === -1) {
+    //         var V = 0.1;
+    //         var pressedKeys = Input.pressedKeys;
+    //         if(pressedKeys[CHAR_SHIFT]) {
+    //             V/=10;
+    //             if(pressedKeys[39])     viewPort.rotate(-V,  0,  0);  // Right:
+    //             if(pressedKeys[37])     viewPort.rotate( V,  0,  0);  // Left:
+    //             if(pressedKeys[40])     viewPort.rotate( 0,  V,  0);  // Down:
+    //             if(pressedKeys[38])     viewPort.rotate( 0, -V,  0);  // Up:
+    //             if(pressedKeys[34])     viewPort.rotate( 0,  0,  V);  // Page Down:
+    //             if(pressedKeys[33])     viewPort.rotate( 0,  0, -V);  // Page Up:
+    //         } else {
+    //             if(pressedKeys[39])     viewPort.move(-V,  0,  0);  // Right:
+    //             if(pressedKeys[37])     viewPort.move( V,  0,  0);  // Left:
+    //             if(pressedKeys[40])     viewPort.move( 0,  V,  0);  // Down:
+    //             if(pressedKeys[38])     viewPort.move( 0, -V,  0);  // Up:
+    //             if(pressedKeys[34])     viewPort.move( 0,  0,  V);  // Page Down:
+    //             if(pressedKeys[33])     viewPort.move( 0,  0, -V);  // Page Up:
+    //         }
+    //
+    //     }
+    // }
 
 
 })();

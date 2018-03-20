@@ -28,7 +28,7 @@ var ForgottenFuture = {
         lastKey: null,
     },
     Stage: {},
-    Terrain: {},
+    Platform: {},
     Util: {
         
     },

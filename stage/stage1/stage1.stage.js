@@ -22,8 +22,8 @@
         // Camera/ViewPort
         'render/viewport/simple.viewport.js',
 
-        // Terrain Maps
-        'terrain/moon/moon1.terrain.js',
+        // Platform Maps
+        'platform/moon/moon1.platform.js',
 
         // Sprites
         'sprite/character/lem/lem.sprite.js',
@@ -52,12 +52,11 @@
 
         this.viewPort = Lem .getViewPort();
 
-        // Terrain
-        this.terrain = new ForgottenFuture.Terrain.MoonTerrain1(gl);
-
-        this.renders = [
-            this.terrain, Lem, RAV1 // , pfMain
+        // Platform
+        this.platforms = [
+            new ForgottenFuture.Platform.MoonPlatform1(gl)
         ];
+        this.platforms[0].renders.push(Lem, RAV1); // , pfMain
 
         initEditorContent(this, gl);
     }
@@ -71,7 +70,7 @@
             Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl, stage);
             Lems[li].setPosition([10, 10, 0]);
             // Lems[li].setVelocity([0.1 * Math.random(), 0, 0]);
-            stage.renders.push(Lems[li]);
+            stage.platforms[0].renders.push(Lems[li]);
         }
         /** - EDITOR_CONTENT_END **/
     }

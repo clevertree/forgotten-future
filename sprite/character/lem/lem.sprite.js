@@ -68,7 +68,7 @@
     // State Scripts
 
     Lem.stateScripts = {};
-    Lem.stateScripts.handleFallingMotion = function(t, stage) {
+    Lem.stateScripts.handleFallingMotion = function(t, platform, stage) {
         // Velocity
         // this.velocity[0] += vAcceleration[0];
         // this.velocity[1] += vAcceleration[1];
@@ -79,7 +79,7 @@
         this.position[1] += this.velocity[1];
 
         // Collision
-        var heightAdjust = stage.testHeight([
+        var heightAdjust = platform.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
             this.position[2]
@@ -113,9 +113,9 @@
         }
     };
 
-    Lem.stateScripts.handleStandingMotion = function(t, stage) {
+    Lem.stateScripts.handleStandingMotion = function(t, platform, stage) {
         // Test for map height
-        var heightAdjust = stage.testHeight([
+        var heightAdjust = platform.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
             this.position[2]
@@ -128,7 +128,7 @@
         }
     };
 
-    Lem.stateScripts.handleWalkingMotion = function(t, stage) {
+    Lem.stateScripts.handleWalkingMotion = function(t, platform, stage) {
         // Velocity
         if(Math.abs(this.velocity[0]) < MAX_VELOCITY)
             this.velocity[0] += this.acceleration[0];
@@ -137,7 +137,7 @@
         this.position[0] += this.velocity[0];
 
         // Test for map height
-        var heightAdjust = stage.testHeight([
+        var heightAdjust = platform.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
             this.position[2]

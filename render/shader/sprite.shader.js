@@ -48,7 +48,7 @@
         var mLastFrame = null;
         var lastFrameTime = 0;
 
-        this.update = function (t, sprite, stage, flags) {
+        this.update = function (t, sprite, flags) {
             // Update highlight color
             if(flags & ForgottenFuture.Constant.RENDER_SELECTED) {
                 if(vActiveColor === vColor)

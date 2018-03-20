@@ -45,7 +45,7 @@
 
     // Physics Scripts
 
-    RAV.handleRovingMotion = function(t, stage) {
+    RAV.handleRovingMotion = function(t, platform, stage) {
         // Velocity
         this.velocity[0] += this.acceleration[0]
             * (1 - Math.abs(this.velocity[0]) / MAX_VELOCITY);
@@ -56,7 +56,7 @@
         var heights = new Array(HITPOINTS.length);
         for(var i=0; i<HITPOINTS.length; i++) {
             // Test for map height
-            heights[i] = stage.testHeight([
+            heights[i] = platform.testHeight([
                 this.position[0]+HITPOINTS[i][0],
                 this.position[1]+HITPOINTS[i][1],
                 this.position[2]

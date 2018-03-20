@@ -7,39 +7,39 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
-        Terrain = ForgottenFuture.Terrain,
+        Platform = ForgottenFuture.Platform,
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
 // TODO: [[x, y, slope], [x, y, ridge]]
-    Terrain.TerrainPrototype = TerrainPrototype;
+    Platform.PlatformPrototype = PlatformPrototype;
 
     /**
      * @constructor
      */
-    function TerrainPrototype() {
+    function PlatformPrototype() {
         // Variables
         this.hitBoxes = [];
-
+        this.renders = [];
     }
 
-    TerrainPrototype.prototype.update = function(t, stage) {
+    PlatformPrototype.prototype.update = function(t, stage) {
         // Input
 
         // handleKeyChange();
 
         // Update
-        for(var i=0; i<this.hitBoxes.length; i++)
-            this.hitBoxes[i].update(t, stage);
+        for(var i=0; i<this.renders.length; i++)
+            this.renders[i].update(t, this, stage);
     };
 
-    TerrainPrototype.prototype.render = function(gl, mProjection) {
+    PlatformPrototype.prototype.render = function(gl, mProjection) {
         // Render
-        for(var i=0; i<this.hitBoxes.length; i++)
-            this.hitBoxes[i].render(gl, mProjection);
+        for(var i=0; i<this.renders.length; i++)
+            this.renders[i].render(gl, mProjection);
     };
 
-    // TerrainPrototype.prototype.testHit = function (spritePosition) {
+    // PlatformPrototype.prototype.testHit = function (spritePosition) {
     //     for(var i=0; i<this.hitBoxes.length; i++) {
     //         var pixel = this.hitBoxes[i].testHit(spritePosition;
     //         if(pixel)
@@ -48,7 +48,7 @@
     //     return false;
     // };
  
-    TerrainPrototype.prototype.testHeight = function (spritePosition) {
+    PlatformPrototype.prototype.testHeight = function (spritePosition) {
         var finalHeight = -9999;
         for(var i=0; i<this.hitBoxes.length; i++) {
             var height = this.hitBoxes[i].testHeight(spritePosition);

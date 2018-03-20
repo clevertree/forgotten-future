@@ -35,9 +35,9 @@
     }
 
     // Update
-    SpritePrototype.prototype.update = function(t, stage) {
-        this.stateScript(t, stage);
-        this.shader.update(t, this, stage);
+    SpritePrototype.prototype.update = function(t, platform, stage) {
+        this.stateScript(t, platform, stage);
+        this.shader.update(t, this);
     };
 
     // Rendering
@@ -89,17 +89,22 @@
     };
 
     /**
-     * @param {HeightMap} hitBox
-     * @returns {*}
+     * @returns float
+     * @param {PlatformPrototype} platform
+     * @param {array} offset
      */
-    SpritePrototype.prototype.testHeight = function (hitBox) {
-        return hitBox.testHeight(this.position);
-    };
+    // SpritePrototype.prototype.testHeight = function (platform, offset) {
+    //     return platform.testHeight([
+    //         this.position[0]+offset[0],
+    //         this.position[1]+offset[1],
+    //         this.position[2]+offset[2]
+    //     ]);
+    // };
 
     // Physics
 
     var BOUNCE_QUOTIENT = 0.25;
-    function handleBounceMotion(t, stage) {
+    function handleBounceMotion(t, platform, stage) {
         // Velocity
         // this.velocity[0] += vAcceleration[0];
         // this.velocity[1] += vAcceleration[1];
@@ -110,7 +115,7 @@
         this.position[1] += this.velocity[1];
 
         // Collision
-        var heightAdjust = stage.testHeight(this.position);
+        var heightAdjust = platform.testHeight(this.position);
 
         if(!(heightAdjust > 0)) {
             // Falling

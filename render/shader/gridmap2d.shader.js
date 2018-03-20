@@ -60,7 +60,7 @@
             gl.uniformMatrix4fv(PROGRAM.m4ModelNormal, false, m4ModelNormal);
 
             // GridMap2D statistics
-            gl.uniform2fv(PROGRAM.v2MapSize, this.size);
+            gl.uniform2fv(PROGRAM.v2MapSize, [this.size[2] - this.size[0], this.size[3] - this.size[1]]);
             gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
 
             // Editor Highlights
@@ -161,10 +161,17 @@
 
         // Map Data
 
-        var statGridCalc = 0;
+        var stats = {calcCount: 0};
         setInterval(function() {
-            console.log("statGridCalc: ", statGridCalc);
-        }, 1000);
+            console.log("stats: ", stats);
+        }, 10000);
+
+        this.checkLastIndex = function (x, lastIndex) {
+            if(gridData[lastIndex][0] < x
+            && gridData[lastIndex+1][0] > x)
+                return [lastIndex, lastIndex+1];
+            return null;
+        };
 
         this.findIndexRange = function (x) {
             // Binary search
@@ -176,23 +183,24 @@
                 } else {
                     left = mi;
                 }
-                statGridCalc++;
+                stats.calcCount++;
             }
 
             return [left, right];
         };
 
         this.getHeight = function (x, leftIndex, rightIndex) {
-            var pxr = (x - gridData[leftIndex][0]) / (gridData[rightIndex][0] - gridData[leftIndex][0]);
-            var height = (gridData[leftIndex][1] * (1-pxr)+gridData[rightIndex][1] * (pxr));
+            var left = gridData[leftIndex], right = gridData[rightIndex];
+            var pxr = (x - left[0]) / (right[0] - left[0]);
+            var height = (left[1] * (1-pxr) + right[1] * (pxr));
             return (height);
         };
 
         this.testHeight = function (spritePosition) {
-            if (spritePosition[0] < 0
-                || spritePosition[0] > this.size[0]
-                || spritePosition[1] < 0
-                || spritePosition[1] > this.size[1])
+            if (spritePosition[0] < this.size[0]
+                || spritePosition[0] > this.size[2]
+                || spritePosition[1] < this.size[1]
+                || spritePosition[1] > this.size[3])
                 return null;
             var range = this.findIndexRange(spritePosition[0]);
             return this.getHeight(spritePosition[0], range[0], range[1]) - spritePosition[1];
@@ -252,7 +260,7 @@
 
         throw new Error("Invalid Texture");
     }
-    
+
     function buildVertexArray(gl, shader) {
         // Vertex Array Object
         var VAO = Util.createVertexArray(gl);
@@ -296,12 +304,12 @@
     var defaultColor = new Float32Array([1,1,1,1]);
 
     function getGridDimensions(gridData) {
-        var vSize = [0,0];
+        var vSize = [gridData[0][0],gridData[0][1],gridData[0][0],gridData[0][1]];
         for(var i=0;i<gridData.length;i++) {
-            if(gridData[i][0] > vSize[0])
-                vSize[0] = gridData[i][0];
-            if(gridData[i][1] > vSize[1])
-                vSize[1] = gridData[i][1];
+            if(gridData[i][0] < vSize[0])   vSize[0] = gridData[i][0];
+            if(gridData[i][1] < vSize[1])   vSize[1] = gridData[i][1];
+            if(gridData[i][0] > vSize[0])   vSize[2] = gridData[i][0];
+            if(gridData[i][1] > vSize[1])   vSize[3] = gridData[i][1];
         }
         console.log("Grid Dimensions: ", vSize, this);
         return vSize;
