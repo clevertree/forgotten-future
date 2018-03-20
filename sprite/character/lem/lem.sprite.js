@@ -60,13 +60,22 @@
         this.stateScript    = Lem.stateScripts.handleFallingMotion;
 
         // Sprite Sheet
-        this.shader = new ForgottenFuture.Render.Shader.SpriteShader(gl, DIR_SHEET);
-        this.shader.addTileFrameSequence('run', 0, 0, 16, 8, 2);
-        this.shader.setCurrentFrame('run');
-        this.shader.setFrameRate(15 + Math.random()*10);
+        this.shader = initShader(gl);
+
 
     }
 
+    var DEFAULT_SHADER = null;
+    function initShader(gl) {
+        if(DEFAULT_SHADER)
+            return DEFAULT_SHADER;
+
+        DEFAULT_SHADER = new ForgottenFuture.Render.Shader.SpriteShader(gl, DIR_SHEET);
+        DEFAULT_SHADER.addTileFrameSequence('run', 0, 0, 16, 8, 2);
+        DEFAULT_SHADER.setCurrentFrame('run');
+        DEFAULT_SHADER.setFrameRate(15 + Math.random()*10); // TODO Custom framerate
+        return DEFAULT_SHADER;
+    }
 
     // State Scripts
 

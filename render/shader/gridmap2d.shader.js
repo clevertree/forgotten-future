@@ -28,7 +28,7 @@
      */
     function GridMap2D(gl, gridData, options) {
         // Initiate Shader program
-        var PROGRAM = initProgram(gl);
+        initProgram(gl);
 
         options = options || {};
         this.flags              = options.flags || GridMap2D.FLAG_DEFAULTS;
@@ -50,26 +50,8 @@
 
         this.size               = getGridDimensions(gridData);
 
-        // Set up uniforms and textures once
-        gl.useProgram(PROGRAM);
-
         // Vertex Array Object
-        var VAO                 = buildVertexArray(gl, this, PROGRAM);
-
-        gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
-        gl.uniformMatrix4fv(PROGRAM.m4ModelNormal, false, m4ModelNormal);
-
-        // GridMap2D statistics
-        gl.uniform2fv(PROGRAM.v2MapSize, [this.size[2] - this.size[0], this.size[3] - this.size[1]]);
-        gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
-
-        // Editor Highlights
-        gl.uniform4fv(PROGRAM.v4HighlightColor, vHighlightColor);
-        gl.uniform2fv(PROGRAM.v4HighlightRange, vHighlightRange);
-
-
-        gl.uniform2fv(PROGRAM.v2HeightTextureScale, [8, 8]);
-        gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [0, 0]);
+        var VAO                 = buildVertexArray(gl, this);
 
         // Functions
 
@@ -77,6 +59,22 @@
 
             // Render
             gl.useProgram(PROGRAM);
+
+            gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
+            gl.uniformMatrix4fv(PROGRAM.m4ModelNormal, false, m4ModelNormal);
+
+            // GridMap2D statistics
+            gl.uniform2fv(PROGRAM.v2MapSize, [this.size[2] - this.size[0], this.size[3] - this.size[1]]);
+            gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
+
+            // Editor Highlights
+            gl.uniform4fv(PROGRAM.v4HighlightColor, vHighlightColor);
+            gl.uniform2fv(PROGRAM.v4HighlightRange, vHighlightRange);
+
+
+            gl.uniform2fv(PROGRAM.v2HeightTextureScale, [8, 8]);
+            gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [0, 0]);
+
 
             gl.uniform1i(PROGRAM.s2HeightPattern, 0);
             gl.activeTexture(gl.TEXTURE0);
@@ -267,7 +265,7 @@
         throw new Error("Invalid Texture");
     }
 
-    function buildVertexArray(gl, shader, PROGRAM) {
+    function buildVertexArray(gl, shader) {
         // Vertex Array Object
         var VAO = Util.createVertexArray(gl);
 
@@ -388,14 +386,14 @@
 
     // Shader
 
-    // var PROGRAM;
+    var PROGRAM;
     var DEFAULT_TEXTURE = null;
     function initProgram(gl) {
-        // if(PROGRAM)
-        //     return;
+        if(PROGRAM)
+            return;
 
         // Init Program
-        var PROGRAM = Util.compileProgram(gl, GridMap2D.VS, GridMap2D.FS);
+        PROGRAM = Util.compileProgram(gl, GridMap2D.VS, GridMap2D.FS);
 
         // Lookup Uniforms
         PROGRAM.v2VertexPosition = gl.getAttribLocation(PROGRAM, "v2VertexPosition");
