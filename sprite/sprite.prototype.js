@@ -18,16 +18,19 @@
      * Create a new shader instance
      * @param {WebGLRenderingContext} gl
      * @param {StagePrototype} stage
+     * @param {Object=} options
      * @constructor
      */
-    function SpritePrototype(gl, stage) {
+    function SpritePrototype(gl, stage, options) {
+        options = options || {};
+
         /** @type {Array} **/
-        this.scale          = [1, 1, 0];
-        this.position       = [0, 0, 0];
-        this.velocity       = [0.1, 0, 0];
-        this.acceleration   = [Math.random() * 0.001, stage.gravity[1], 0];
-        this.rotation       = null;
-        this.direction      = 1.0;
+        this.scale          = options.scale || [1, 1, 0];
+        this.position       = options.position || [0, 0, 0];
+        this.velocity       = options.velocity || [0.1, 0, 0];
+        this.acceleration   = options.acceleration || [Math.random() * 0.001, stage.gravity[1], 0];
+        this.rotation       = options.rotation || null;
+        this.direction      = options.direction || 1.0;
         /** @type {Function} **/
         this.stateScript    = handleBounceMotion;
         /** @type {ForgottenFuture.Render.Shader.SpriteShader} **/

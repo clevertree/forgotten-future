@@ -50,27 +50,30 @@
 
         Lem.setPosition([10, 10, 0]);
 
-        this.viewPort = Lem .getViewPort();
-
-        // Platform
-        this.platforms = [
-            new ForgottenFuture.Platform.MoonPlatform1(gl)
-        ];
-        this.platforms[0].renders.push(Lem, RAV1); // , pfMain
+        this.viewPort = Lem.getViewPort();
 
         initEditorContent(this, gl);
+        this.platforms[19].renders.push(Lem, RAV1); // , pfMain
+
     }
 
 
 
     function initEditorContent(stage, gl) {
         /** - EDITOR_CONTENT_START **/
-        var Lems = [];
-        for(var li=0;li<20;li++) {
-            Lems[li] = new ForgottenFuture.Sprite.Character.Lem(gl, stage);
-            Lems[li].setPosition([10, 10, 0]);
-            // Lems[li].setVelocity([0.1 * Math.random(), 0, 0]);
-            stage.platforms[0].renders.push(Lems[li]);
+        for(var i=20;i>0;i--) {
+            var options = {
+                position: [0, 0, -i]
+            };
+            var Platform = new ForgottenFuture.Platform.MoonPlatform1(gl, options);
+            stage.platforms.push(Platform);
+
+            for (var j = 0; j < 5; j++) {
+                var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, stage);
+                Lem.setPosition([10 + i, 10, -i]);
+                // Lem.setVelocity([0.1 * Math.random(), 0, 0]);
+                Platform.renders.push(Lem);
+            }
         }
         /** - EDITOR_CONTENT_END **/
     }

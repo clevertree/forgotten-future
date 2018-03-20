@@ -46,10 +46,13 @@
      * Create a new shader instance
      * @param {WebGLRenderingContext} gl
      * @param {StagePrototype} stage
+     * @param {Object=} options
      * @constructor
      */
-    function Lem(gl, stage) {
-        Sprite.SpritePrototype.call(this, gl, stage); // call parent constructor
+    function Lem(gl, stage, options) {
+        options = options || {};
+
+        Sprite.SpritePrototype.call(this, gl, stage, options); // call parent constructor
 
         // Local Variables
         this.velocity       = [0.1, 0, 0];

@@ -36,7 +36,7 @@
      * @constructor
      * @augments {PlatformPrototype}
      */
-    function MoonPlatform1(gl) {
+    function MoonPlatform1(gl, options) {
         // Constructor
         Platform.PlatformPrototype.call(this);
 
@@ -44,12 +44,12 @@
         var mapGen = new ForgottenFuture.Render.Generator();
 
         var gridData = mapGen.genSinWaveGridMap2D();
-        var gmMain = new ForgottenFuture.Render.Shader.GridMap2D(gl, gridData)
+        var gmMain = new ForgottenFuture.Render.Shader.GridMap2D(gl, gridData, options)
             .setHeightPatternTexture(gl, iMoonHeightPattern)
             .setHeightNormalTexture(gl, iMoonHeightNormal);
 
         var heightData = mapGen.genSinWaveHeightMap();
-        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, heightData)
+        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, heightData, options)
             .setHeightPatternTexture(gl, iMoonHeightPattern)
             .setHeightNormalTexture(gl, iMoonHeightNormal);
 //             .setHeightMap(iHMapMain, 0.2, 10)

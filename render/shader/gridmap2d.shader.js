@@ -14,6 +14,12 @@
 
     Render.Shader.GridMap2D = GridMap2D;
 
+    // Stats
+    var stats = {calcCount: 0};
+    setInterval(function() {
+        console.log("stats: ", stats);
+    }, 10000);
+
     /**
      * @param {WebGLRenderingContext} gl
      * @param {Array} gridData
@@ -22,7 +28,7 @@
      */
     function GridMap2D(gl, gridData, options) {
         // Initiate Shader program
-        initProgram(gl);
+        var PROGRAM = initProgram(gl);
 
         options = options || {};
         this.flags              = options.flags || GridMap2D.FLAG_DEFAULTS;
@@ -30,22 +36,40 @@
         this.gridData           = gridData;
 
         // Textures
-        this.txHeightPattern    = options.txHeightPattern || PROGRAM.txDefaultPattern;
-        this.txHeightNormal     = options.txHeightNormal || PROGRAM.txDefaultPattern;
-        this.txGradientPattern  = options.txGradientPattern || PROGRAM.txDefaultPattern;
+        this.txHeightPattern    = options.txHeightPattern || DEFAULT_TEXTURE;
+        this.txHeightNormal     = options.txHeightNormal || DEFAULT_TEXTURE;
+        this.txGradientPattern  = options.txGradientPattern || DEFAULT_TEXTURE;
 
         // Variables
         this.position           = options.position || [0, 0, 0];
         this.scale              = options.scale || DEFAULT_SCALE;
-        var m4ModelView         = defaultModelViewMatrix;
+        var m4ModelView         = Util.translation(this.position[0], this.position[1], this.position[2]);
         var m4ModelNormal       = calculateNormalMatrix(m4ModelView);
         var vHighlightColor     = defaultColor.slice(0);
         var vHighlightRange     = [64,128];
 
         this.size               = getGridDimensions(gridData);
 
+        // Set up uniforms and textures once
+        gl.useProgram(PROGRAM);
+
         // Vertex Array Object
-        var VAO                 = buildVertexArray(gl, this);
+        var VAO                 = buildVertexArray(gl, this, PROGRAM);
+
+        gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
+        gl.uniformMatrix4fv(PROGRAM.m4ModelNormal, false, m4ModelNormal);
+
+        // GridMap2D statistics
+        gl.uniform2fv(PROGRAM.v2MapSize, [this.size[2] - this.size[0], this.size[3] - this.size[1]]);
+        gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
+
+        // Editor Highlights
+        gl.uniform4fv(PROGRAM.v4HighlightColor, vHighlightColor);
+        gl.uniform2fv(PROGRAM.v4HighlightRange, vHighlightRange);
+
+
+        gl.uniform2fv(PROGRAM.v2HeightTextureScale, [8, 8]);
+        gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [0, 0]);
 
         // Functions
 
@@ -53,20 +77,6 @@
 
             // Render
             gl.useProgram(PROGRAM);
-
-            // Set the projection and viewport.
-            gl.uniformMatrix4fv(PROGRAM.m4Projection, false, m4Projection);
-            gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
-            gl.uniformMatrix4fv(PROGRAM.m4ModelNormal, false, m4ModelNormal);
-
-            // GridMap2D statistics
-            gl.uniform2fv(PROGRAM.v2MapSize, [this.size[2] - this.size[0], this.size[3] - this.size[1]]);
-            gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
-
-            // Editor Highlights
-            gl.uniform4fv(PROGRAM.v4HighlightColor, vHighlightColor);
-            gl.uniform2fv(PROGRAM.v4HighlightRange, vHighlightRange);
-
 
             gl.uniform1i(PROGRAM.s2HeightPattern, 0);
             gl.activeTexture(gl.TEXTURE0);
@@ -80,27 +90,28 @@
             gl.activeTexture(gl.TEXTURE2);
             gl.bindTexture(gl.TEXTURE_2D, this.txGradientPattern);
 
-            gl.uniform2fv(PROGRAM.v2HeightTextureScale, [8, 8]);
-            gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [0, 0]);
+
+            // Set the projection and viewport.
+            gl.uniformMatrix4fv(PROGRAM.m4Projection, false, m4Projection);
 
 
             VAO.bind();
 
 
-            for(var i=-20; i<2; i++) {
-                // if(!i) continue;
+            // for(var i=-20; i<2; i++) {
+            //     // if(!i) continue;
+            //
+            //     gl.uniform2fv(PROGRAM.v2MapScale, [this.scale[0], (i+20)/20]);
+            //     gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [i/10, 0]);
+            //     gl.uniform2fv(PROGRAM.v2HeightTextureScale, [20 + 8 * Math.sin(i), 10 + 4 * Math.cos(i)]);
+            //
+            //     gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, i*2));
+            //     gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
+            // }
 
-                gl.uniform2fv(PROGRAM.v2MapScale, [this.scale[0], (i+20)/20]);
-                gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [i/10, 0]);
-                gl.uniform2fv(PROGRAM.v2HeightTextureScale, [20 + 8 * Math.sin(i), 10 + 4 * Math.cos(i)]);
-
-                gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, i*2));
-                gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
-            }
-
-            // gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
-            // gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
-            // gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
+            gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
+            gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
+            gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
 
             VAO.unbind();
 
@@ -160,11 +171,6 @@
         };
 
         // Map Data
-
-        var stats = {calcCount: 0};
-        setInterval(function() {
-            console.log("stats: ", stats);
-        }, 10000);
 
         this.checkLastIndex = function (x, lastIndex) {
             if(gridData[lastIndex][0] < x
@@ -261,7 +267,7 @@
         throw new Error("Invalid Texture");
     }
 
-    function buildVertexArray(gl, shader) {
+    function buildVertexArray(gl, shader, PROGRAM) {
         // Vertex Array Object
         var VAO = Util.createVertexArray(gl);
 
@@ -382,13 +388,14 @@
 
     // Shader
 
-    var PROGRAM;
+    // var PROGRAM;
+    var DEFAULT_TEXTURE = null;
     function initProgram(gl) {
-        if(PROGRAM)
-            return;
+        // if(PROGRAM)
+        //     return;
 
         // Init Program
-        PROGRAM = Util.compileProgram(gl, GridMap2D.VS, GridMap2D.FS);
+        var PROGRAM = Util.compileProgram(gl, GridMap2D.VS, GridMap2D.FS);
 
         // Lookup Uniforms
         PROGRAM.v2VertexPosition = gl.getAttribLocation(PROGRAM, "v2VertexPosition");
@@ -412,22 +419,24 @@
         PROGRAM.v4HighlightColor = gl.getUniformLocation(PROGRAM, "v4HighlightColor");
         PROGRAM.v4HighlightRange = gl.getUniformLocation(PROGRAM, "v4HighlightRange");
 
-        PROGRAM.txDefaultPattern = gl.createTexture();
-        gl.bindTexture(gl.TEXTURE_2D, PROGRAM.txDefaultPattern);
+        if(!DEFAULT_TEXTURE) {
+            DEFAULT_TEXTURE = gl.createTexture();
+            gl.bindTexture(gl.TEXTURE_2D, DEFAULT_TEXTURE);
 
-        // Fill the texture with a 1x2 pixel.
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array([
-                50, 50, 50, 255,     50, 50, 50, 255,
-                185, 185, 185, 255,     155, 155, 155, 255
-            ]));
+            // Fill the texture with a 1x2 pixel.
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 2, 2, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                new Uint8Array([
+                    50, 50, 50, 255, 50, 50, 50, 255,
+                    185, 185, 185, 255, 155, 155, 155, 255
+                ]));
 
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+        }
 
-
+        return PROGRAM;
     }
 
     GridMap2D.VS = [
