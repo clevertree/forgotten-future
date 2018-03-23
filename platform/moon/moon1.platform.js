@@ -55,16 +55,12 @@
 //             .setHeightMap(iHMapMain, 0.2, 10)
 //             .setColor();
 
-        this.renders = [
+        this.sprites = [
             gmMain,
             // hmMain,
         ];
 
-        this.hitBoxes = [
-            //pfMain,
-            gmMain,
-            // hmMain,
-        ];
+        this.hitBox = gmMain;
 
     }
 

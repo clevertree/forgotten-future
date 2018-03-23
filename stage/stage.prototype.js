@@ -62,9 +62,14 @@
             this.platforms[i].render(gl, mProjection);
     };
 
+    StagePrototype.prototype.addSprites = function(spriteList) {
+        for(var i=0; i<spriteList.length; i++)
+            spriteList[i].setPlatform(this);
+    };
+
     // StagePrototype.prototype.testHit = function (spritePosition) {
-    //     for(var i=0; i<this.hitBoxes.length; i++) {
-    //         var pixel = this.hitBoxes[i].testHit(spritePosition;
+    //     for(var i=0; i<this.hitBox.length; i++) {
+    //         var pixel = this.hitBox[i].testHit(spritePosition;
     //         if(pixel)
     //             return pixel;
     //     }

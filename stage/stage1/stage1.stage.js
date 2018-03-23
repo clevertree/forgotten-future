@@ -53,7 +53,7 @@
         this.viewPort = Lem.getViewPort();
 
         initEditorContent(this, gl);
-        this.platforms[19].renders.push(Lem, RAV1); // , pfMain
+        this.platforms[19].sprites.push(Lem, RAV1); // , pfMain
 
     }
 
@@ -72,7 +72,8 @@
                 var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, stage);
                 Lem.setPosition([10 + i, 10, -i]);
                 // Lem.setVelocity([0.1 * Math.random(), 0, 0]);
-                Platform.renders.push(Lem);
+//                 Platform.sprites.push(Lem);
+                Lem.setPlatform(Platform);
             }
         }
         /** - EDITOR_CONTENT_END **/

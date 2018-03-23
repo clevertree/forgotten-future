@@ -91,11 +91,11 @@
         this.position[1] += this.velocity[1];
 
         // Collision
-        var heightAdjust = platform.testHeight([
+        var heightAdjust = platform.hitBox.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
             this.position[2]
-        ]);
+        ], this.lastIndex);
 
         if(!(heightAdjust > 0)) {
             // Falling
@@ -127,11 +127,11 @@
 
     Lem.stateScripts.handleStandingMotion = function(t, platform, stage) {
         // Test for map height
-        var heightAdjust = platform.testHeight([
+        var heightAdjust = platform.hitBox.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
             this.position[2]
-        ]);
+        ], this.lastIndex);
 
         if(!(heightAdjust > 0)) {
             // Falling
@@ -149,11 +149,11 @@
         this.position[0] += this.velocity[0];
 
         // Test for map height
-        var heightAdjust = platform.testHeight([
+        var heightAdjust = platform.hitBox.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
             this.position[2]
-        ]);
+        ], this.lastIndex);
 
         // TODO: velocity
         if(heightAdjust < -0.05) {

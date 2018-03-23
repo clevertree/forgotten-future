@@ -324,7 +324,7 @@
             if(aData0[ii] > maxHeight)
                 maxHeight = aData0[ii];
         }
-        console.log("Max Height: ", maxHeight);
+//         console.log("Max Height: ", maxHeight);
         return maxHeight;
     }
 

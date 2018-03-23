@@ -5,6 +5,7 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
+        Stats = ForgottenFuture.Stats,
         Constant = ForgottenFuture.Constant,
         Render = ForgottenFuture.Render;
 
@@ -13,12 +14,6 @@
     var DEFAULT_SCALE = [1, 1];
 
     Render.Shader.GridMap2D = GridMap2D;
-
-    // Stats
-    var stats = {calcCount: 0};
-    setInterval(function() {
-        console.log("stats: ", stats);
-    }, 10000);
 
     /**
      * @param {WebGLRenderingContext} gl
@@ -170,14 +165,16 @@
 
         // Map Data
 
-        this.checkLastIndex = function (x, lastIndex) {
-            if(gridData[lastIndex][0] < x
-            && gridData[lastIndex+1][0] > x)
-                return [lastIndex, lastIndex+1];
+        this.checkLastIndex = function (x, lastIndex, indexPos) {
+            var index = lastIndex[indexPos || 0];
+            if(index && gridData[index][0] < x
+            && gridData[index+1][0] > x)
+                return [index, index+1];
+            Stats.count++;
             return null;
         };
 
-        this.findIndexRange = function (x) {
+        this.findIndexRange = function (x, lastIndex, indexPos) {
             // Binary search
             var left = -1, right = gridData.length;
             while (1 + left !== right) {
@@ -187,9 +184,11 @@
                 } else {
                     left = mi;
                 }
-                stats.calcCount++;
+                Stats.count++;
             }
-
+            if(lastIndex) {
+                lastIndex[indexPos || 0] = left;
+            }
             return [left, right];
         };
 
@@ -200,13 +199,16 @@
             return (height);
         };
 
-        this.testHeight = function (spritePosition) {
+        this.testHeight = function (spritePosition, lastIndex, indexPos) {
             if (spritePosition[0] < this.size[0]
                 || spritePosition[0] > this.size[2]
                 || spritePosition[1] < this.size[1]
                 || spritePosition[1] > this.size[3])
                 return null;
-            var range = this.findIndexRange(spritePosition[0]);
+
+            var range =
+                (lastIndex ? this.checkLastIndex(spritePosition[0], lastIndex, indexPos) : null)
+                || this.findIndexRange(spritePosition[0], lastIndex, indexPos);
             return this.getHeight(spritePosition[0], range[0], range[1]) - spritePosition[1];
         };
 
@@ -315,7 +317,7 @@
             if(gridData[i][0] > vSize[0])   vSize[2] = gridData[i][0];
             if(gridData[i][1] > vSize[1])   vSize[3] = gridData[i][1];
         }
-        console.log("Grid Dimensions: ", vSize, this);
+//         console.log("Grid Dimensions: ", vSize, this);
         return vSize;
     }
 

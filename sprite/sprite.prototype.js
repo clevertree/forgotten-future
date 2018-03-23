@@ -35,6 +35,8 @@
         this.stateScript    = handleBounceMotion;
         /** @type {ForgottenFuture.Render.Shader.SpriteShader} **/
         this.shader         = null; // Default shader renderer?
+        this.platform       = null;
+        this.lastIndex      = [];
     }
 
     // Update
@@ -89,6 +91,21 @@
         if(pixel)
             return pixel;
         return false;
+    };
+
+    SpritePrototype.prototype.setPlatform = function(platform) {
+        var p = platform.sprites.indexOf(this);
+        if(p >= 0)
+            throw new Error("Sprite already associated with platform");
+
+        // Check for existing platform assignment
+        if(this.platform) {
+            p = this.platform.sprites.indexOf(this);
+            if(p >= 0)
+                this.platform.sprites.splice(p, 1);
+        }
+        this.platform = platform;
+        platform.sprites.push(this);
     };
 
     /**

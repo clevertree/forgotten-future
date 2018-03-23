@@ -1,34 +1,41 @@
 <!DOCTYPE html>
 <html>
-<head>
-    <title>Forgotten Future</title>
-    <meta name="keywords" CONTENT="forgotten future, game, music, relay, open-source, platformer, 2.5D, sidescroller, action, moon, demo">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
-    <script src="game.js"></script>
+    <head>
+        <title>Forgotten Future</title>
+        <meta name="keywords" CONTENT="forgotten future, game, music, relay, open-source, platformer, 2.5D, sidescroller, action, moon, demo">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <script src="game.js"></script>
+        <script src="render/stats/stats.js"></script>
 
-    <script>"use strict";
-        document.addEventListener("DOMContentLoaded", function() {
-            ForgottenFuture.play();
-        });
-    </script>
-    <style>
-        .ff-default-canvas {
-            width: 100%;
-            height: 100%;
-            position: fixed;
-            left: 0;
-            top: 0;
-            /* background: rgb(216, 216, 216); */
-            background-image: linear-gradient(0deg, #070707 58%, #0059b5 100%);
-        }
-    </style>
-</head>
-<body class='theme-minimal'>
-<header class="page-header">
-    <button class="toggle-page-menu"></button>
-    <ul class="menu-links autogenerate">
-        <!--<li><a href="demo.html">Demo</a></li>-->
-    </ul>
-</header>
-</body>
+        <script>"use strict";
+
+            document.addEventListener("DOMContentLoaded", function() {
+                var canvas = document.getElementById('ff-default-canvas');
+                // ForgottenFuture.setBaseURL('game/');
+                ForgottenFuture.addCanvas(canvas);
+                ForgottenFuture.play();
+            });
+            setTimeout(
+                function () {
+                    console.log("Reloading...");
+                    document.location.reload();
+                },
+                380000
+            );
+        </script>
+        <style>
+            #ff-default-canvas {
+                width: 100%;
+                height: 100%;
+                position: fixed;
+                left: 0;
+                top: 0;
+                /* background: rgb(216, 216, 216); */
+                background-image: linear-gradient(0deg, #070707 58%, #0059b5 100%);
+            }
+        </style>
+    </head>
+    <body class='theme-minimal'>
+        <canvas id="ff-default-canvas"></canvas>
+    </body>
 </html>

@@ -29,9 +29,8 @@ var ForgottenFuture = {
     },
     Stage: {},
     Platform: {},
-    Util: {
-        
-    },
+    Util: {},
+    Stats: {},
     Constant: {
 
         // Flags
