@@ -7,40 +7,29 @@
     var Util = ForgottenFuture.Util,
         Render = ForgottenFuture.Render;
 
-    ForgottenFuture.Render.Shader.SpriteShader = SpriteShader;
-    function SpriteShader(gl, pathSpriteSheet, flags) {
-        if(typeof flags === 'undefined') flags = SpriteShader.FLAG_DEFAULTS;
+    var TEXTURES = [];
 
-        this.frames = {
-            'default': [defaultTextureCoordinates]
-        };
-        var currentFrameName = 'default';
-        var frameLength = 1000;
+    ForgottenFuture.Render.Shader.SpriteShader = SpriteShader;
+    function SpriteShader(gl, pathSpriteSheet, options) {
+        options = options || {};
 
         // Variables
-        var glLineMode = 4; // gl.TRIANGLES;
+        this.flags              = options.flags || SpriteShader.FLAG_DEFAULTS;
+        this.frames             = options.frames || {
+            'default': [defaultTextureCoordinates]
+        };
+        this.currentFrameName   = options.currentFrameName || 'default';
+        this.frameLength        = options.frameLength || 1000;
+        this.glLineMode         = options.glLineMode || 4;
 
-        var vColor =                defaultColor;
-        var vActiveColor =          vColor.slice(0);
+        this.color              = options.color || defaultColor;
+        this.activeColor        = options.activeColor || defaultColor.slice(0);
 
         // Initiate Shaders
-        if(!PROGRAM)
-            SpriteShader.RENDER_INIT(gl);
+        SpriteShader.RENDER_INIT(gl);
 
-        // Create a texture.
-        var tSpriteSheet = gl.createTexture();
-        tSpriteSheet.loaded = false;
-        gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, tSpriteSheet);
-
-        // Fill the texture with a 1x1 blue pixel.
-        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
-            new Uint8Array([0, 256, 0, 128]));
-
-        // Asynchronously load the spritesheet
-        var iSpriteSheet = new Image();
-        iSpriteSheet.src = Render.baseURL + pathSpriteSheet;
-        iSpriteSheet.addEventListener('load', loadTexture);
+        // Create or get the sprite texture
+        var tSpriteSheet = loadSpriteSheetTexture(pathSpriteSheet);
 
         // Functions
         
@@ -51,20 +40,20 @@
         this.update = function (t, sprite, flags) {
             // Update highlight color
             if(flags & ForgottenFuture.Constant.RENDER_SELECTED) {
-                if(vActiveColor === vColor)
-                    vActiveColor = vColor.slice(0);
-                vActiveColor[0] = vColor[0] * Math.abs(Math.sin(t/500));
-                vActiveColor[1] = vColor[1] * Math.abs(Math.sin(t/1800));
-                vActiveColor[2] = vColor[2] * Math.abs(Math.sin(t/1000));
-                vActiveColor[3] = vColor[3] * Math.abs(Math.sin(t/300));
+                if(this.activeColor === this.color)
+                    this.activeColor = this.color.slice(0);
+                this.activeColor[0] = this.color[0] * Math.abs(Math.sin(t/500));
+                this.activeColor[1] = this.color[1] * Math.abs(Math.sin(t/1800));
+                this.activeColor[2] = this.color[2] * Math.abs(Math.sin(t/1000));
+                this.activeColor[3] = this.color[3] * Math.abs(Math.sin(t/300));
             } else {
-                vActiveColor = vColor
+                this.activeColor = this.color
             }
 
             // Update Frame
-            if(!mLastFrame || (lastFrameTime + frameLength < t)) {
+            if(!mLastFrame || (lastFrameTime + this.frameLength < t)) {
                 lastFrameTime = t;
-                var frameSequence = this.frames[currentFrameName];
+                var frameSequence = this.frames[this.currentFrameName];
                 frameNo++;
                 if(frameNo >= frameSequence.length)
                     frameNo = 0;
@@ -103,7 +92,7 @@
             // Set the projection and viewport.
             gl.uniformMatrix4fv(uPMatrix, false, mProjection);
             gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
-            gl.uniform4fv(uColor, vColor);
+            gl.uniform4fv(uColor, this.color);
 
             // Tell the shader to get the texture from texture unit 0
             gl.activeTexture(gl.TEXTURE0 + 0);
@@ -111,24 +100,20 @@
             gl.uniform1i(uSampler, 0);
 
             // draw the quad (2 triangles, 6 vertices)
-            gl.drawArrays(glLineMode, 0, 6);
+            gl.drawArrays(this.glLineMode, 0, 6);
         };
 
 
         // Frames
 
         this.setFrameRate = function (framesPerSecond) {
-            frameLength = 1000/framesPerSecond;
+            this.frameLength = 1000/framesPerSecond;
         };
 
         this.setCurrentFrame = function(frameName) {
-            currentFrameName = frameName;
+            this.currentFrameName = frameName;
         };
         
-        this.getCurrentFrame = function() {
-            return currentFrameName;
-        };
-
         this.addFrame = function(newFrameName, left, top, right, bottom) {
             this.frames[newFrameName] = new Float32Array([
                 left,    bottom,
@@ -169,28 +154,52 @@
         // Textures
 
 
-        function loadTexture() {
-            // Now that the image has loaded make copy it to the texture.
+        function loadSpriteSheetTexture(pathSpriteSheet) {
+            for(var i=0; i<TEXTURES.length; i++)
+                if(TEXTURES[i][1] === pathSpriteSheet)
+                    return TEXTURES[i][0];
+
+            // Create a texture.
+            var tSpriteSheet = gl.createTexture();
+            tSpriteSheet.loaded = false;
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, tSpriteSheet);
 
-            // Upload the image into the texture.
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, iSpriteSheet);
+            // Fill the texture with a 1x1 blue pixel.
+            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, 1, 1, 0, gl.RGBA, gl.UNSIGNED_BYTE,
+                new Uint8Array([0, 256, 0, 128]));
 
-            // Set the parameters so we can render any size image.
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
-            if (flags & SpriteShader.FLAG_GENERATE_MIPMAP) {
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-                gl.generateMipmap(gl.TEXTURE_2D);
-            } else {
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
-                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+            // Asynchronously load the spritesheet
+            var iSpriteSheet = new Image();
+            iSpriteSheet.addEventListener('load', loadTexture);
+            iSpriteSheet.src = Render.baseURL + pathSpriteSheet;
+
+            TEXTURES.push([tSpriteSheet, pathSpriteSheet]);
+            return tSpriteSheet;
+
+            function loadTexture() {
+                // Now that the image has loaded make copy it to the texture.
+                gl.activeTexture(gl.TEXTURE0);
+                gl.bindTexture(gl.TEXTURE_2D, tSpriteSheet);
+
+                // Upload the image into the texture.
+                gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, iSpriteSheet);
+
+                // Set the parameters so we can render any size image.
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.CLAMP_TO_EDGE);
+                gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.CLAMP_TO_EDGE);
+                if (this.flags & SpriteShader.FLAG_GENERATE_MIPMAP) {
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR_MIPMAP_LINEAR);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+                    gl.generateMipmap(gl.TEXTURE_2D);
+                } else {
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.NEAREST);
+                    gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
+                }
+
+                // THIS.ratio = iSpriteSheet.height / iSpriteSheet.width;
+                // vScale[1] = vScale[0] * spriteSheetRatio;
             }
-
-            // THIS.ratio = iSpriteSheet.height / iSpriteSheet.width;
-            // vScale[1] = vScale[0] * spriteSheetRatio;
         }
     }
 
@@ -230,6 +239,8 @@
 
 
     SpriteShader.RENDER_INIT = function(gl) {
+        if(PROGRAM)
+            return PROGRAM;
 
         // Init Program
         var program = Util.compileProgram(gl, SpriteShader.VS, SpriteShader.FS);

@@ -53,8 +53,8 @@
         this.viewPort = Lem.getViewPort();
 
         initEditorContent(this, gl);
-        this.platforms[19].sprites.push(Lem, RAV1); // , pfMain
-
+        Lem.setPlatform(this.platforms[19]);
+        RAV1.setPlatform(this.platforms[19]);
     }
 
 
