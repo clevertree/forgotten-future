@@ -54,6 +54,7 @@ var ForgottenFuture = {
 
 (function() {
     var Util = ForgottenFuture.Util,
+        Stats = ForgottenFuture.Stats,
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
     var pressedKeys = ForgottenFuture.Input.pressedKeys, keyCount = ForgottenFuture.Input.keyCount;
@@ -350,6 +351,29 @@ var ForgottenFuture = {
         });
         image.src = imagePath;
         return image;
+    };
+
+    // Textures
+
+    Util.setupTexture = function(gl, image) {
+        if(image instanceof WebGLTexture)
+            return image;
+
+        if(image.texture)
+            return image.texture;
+
+        var texture = gl.createTexture();
+        console.log("Setting up Texture: ", image);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+
+        image.texture = texture;
+        return texture;
     };
 
     // Editor Utils

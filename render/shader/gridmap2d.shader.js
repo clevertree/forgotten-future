@@ -121,19 +121,16 @@
         // Textures
 
 
-        this.setHeightPatternTexture = function (gl, txHeightPattern) {
-            this.txHeightPattern = setupTexture(gl, txHeightPattern);
-            return this;
+        this.setHeightPatternTexture = function (txHeightPattern) {
+            this.txHeightPattern = txHeightPattern;
         };
 
-        this.setHeightNormalTexture = function (gl, txHeightNormal) {
-            this.txHeightNormal = setupTexture(gl, txHeightNormal);
-            return this;
+        this.setHeightNormalTexture = function (txHeightNormal) {
+            this.txHeightNormal = txHeightNormal;
         };
 
-        this.setGradientPattern = function (gl, txHeightPattern) {
-            this.txGradientPattern = setupTexture(gl, txHeightPattern);
-            return this;
+        this.setGradientPattern = function (txHeightPattern) {
+            this.txGradientPattern = txHeightPattern;
         };
 
         // Properties
@@ -215,26 +212,6 @@
     }
 
     // Utils
-
-
-    function setupTexture(gl, image) {
-        if(image instanceof WebGLTexture) {
-            return image;
-
-        } else if (image instanceof HTMLImageElement) {
-            var texture = gl.createTexture();
-            gl.bindTexture(gl.TEXTURE_2D, texture);
-            gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, image);
-
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
-            gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
-            return texture;
-        }
-
-        throw new Error("Invalid Texture");
-    }
 
     function buildVertexArray(gl, shader) {
         // Vertex Array Object

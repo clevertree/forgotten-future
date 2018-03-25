@@ -5,6 +5,7 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
+        // Stats = ForgottenFuture.Stats,
         Render = ForgottenFuture.Render;
 
     var TEXTURES = [];

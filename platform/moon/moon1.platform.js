@@ -33,38 +33,45 @@
 
     /**
      * @param {WebGLRenderingContext} gl
+     * @param gridData
+     * @param iHeightPattern
+     * @param iHeightNormal
      * @param {array} options
      * @constructor
      * @augments {PlatformPrototype}
      */
-    function MoonPlatform1(gl, options) {
+    function MoonPlatform1(gl, gridData, iHeightPattern, iHeightNormal, options) {
         // Constructor
         Platform.PlatformPrototype.call(this, options);
 
-        // Level Sprites
-        var mapGen = new ForgottenFuture.Render.Generator();
-
-        var gridData = mapGen.genSinWaveGridMap2D();
-        var gmMain = new ForgottenFuture.Render.Shader.GridMap2D(gl, gridData, options)
-            .setHeightPatternTexture(gl, iMoonHeightPattern)
-            .setHeightNormalTexture(gl, iMoonHeightNormal);
-
-        var heightData = mapGen.genSinWaveHeightMap();
-        var hmMain = new ForgottenFuture.Render.Shader.HeightMap(gl, heightData, options)
-            .setHeightPatternTexture(gl, iMoonHeightPattern)
-            .setHeightNormalTexture(gl, iMoonHeightNormal);
-//             .setHeightMap(iHMapMain, 0.2, 10)
-//             .setColor();
-
-        this.sprites = [
-            // gmMain,
-            // hmMain,
-        ];
-
-        this.hitBox = gmMain;
-
+        this.hitBox = this.hitBox || new ForgottenFuture.Render.Shader.GridMap2D(gl, gridData);
+        this.hitBox.setHeightPatternTexture(Util.setupTexture(gl, iHeightPattern));
+        this.hitBox.setHeightNormalTexture(Util.setupTexture(gl, iHeightNormal));
     }
 
+    // Templates
 
+    MoonPlatform1.generateSineWave = function(gl, options) {
+        options.mapLength       = options.mapLength || 2048;
+        options.iHeightPattern  = options.iHeightPattern || iMoonHeightPattern;
+        options.iHeightNormal   = options.iHeightNormal || iMoonHeightNormal;
+
+        // Generate Map
+        var gridData = []; // new Float32Array(mapLength);
+        for(var ii=0;ii<options.mapLength;ii++) {
+            gridData[ii] = [
+                ii*0.9,
+                Math.abs(Math.sin(ii / 20) * (0.9 + Math.random()/20) * 1400 * (ii/10000))
+            ];
+        }
+
+        // Create Instance
+        return new MoonPlatform1(
+            gl,
+            gridData,
+            options.iHeightPattern,
+            options.iHeightNormal,
+            options);
+    };
 
 })();

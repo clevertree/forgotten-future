@@ -6,6 +6,7 @@
 (function() {
     var Util = ForgottenFuture.Util,
         Input = ForgottenFuture.Input,
+        // Stats = ForgottenFuture.Stats,
         Render = ForgottenFuture.Render,
         Constant = ForgottenFuture.Constant;
     var PIXELS_PER_UNIT = ForgottenFuture.Constant.PIXELS_PER_UNIT;

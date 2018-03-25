@@ -61,7 +61,7 @@
             var options = {
                 position: [0, 0, -i]
             };
-            var Platform = new ForgottenFuture.Platform.MoonPlatform1(gl, options);
+            var Platform = ForgottenFuture.Platform.MoonPlatform1.generateSineWave(gl, options);
             stage.platforms.push(Platform);
 
             for (var j = 0; j < 15; j++) {

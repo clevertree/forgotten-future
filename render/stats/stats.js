@@ -14,7 +14,7 @@
     function Stats() {
         this.perSec = 0;
         this.count = 0;
-
+        // this.tCount = 0;
     }
 
     var start = Date.now();

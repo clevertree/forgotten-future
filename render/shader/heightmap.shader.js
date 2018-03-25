@@ -132,19 +132,16 @@
         // Textures
 
 
-        this.setHeightPatternTexture = function (gl, txHeightPattern) {
-            this.txHeightPattern = setupTexture(gl, txHeightPattern);
-            return this;
+        this.setHeightPatternTexture = function (txHeightPattern) {
+            this.txHeightPattern = txHeightPattern;
         };
 
-        this.setHeightNormalTexture = function (gl, txHeightNormal) {
-            this.txHeightNormal = setupTexture(gl, txHeightNormal);
-            return this;
+        this.setHeightNormalTexture = function (txHeightNormal) {
+            this.txHeightNormal = txHeightNormal;
         };
 
-        this.setGradientPattern = function (gl, txHeightPattern) {
-            this.txGradientPattern = setupTexture(gl, txHeightPattern);
-            return this;
+        this.setGradientPattern = function (txHeightPattern) {
+            this.txGradientPattern = txHeightPattern;
         };
 
         // Properties
