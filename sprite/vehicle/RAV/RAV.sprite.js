@@ -37,6 +37,10 @@
     function RAV(gl, stage) {
         Sprite.SpritePrototype.call(this, gl, stage); // call parent constructor
 
+        // Local Variables
+        this.velocity       = [0.1, 0, 0];
+        this.acceleration   = [Math.random() * 0.001, stage.gravity[1], 0];
+        
         // Sprite Sheet
         this.shader = new ForgottenFuture.Render.Shader.SpriteShader(gl, DIR_SPRITESHEET);
 
@@ -92,5 +96,6 @@
 //                 console.log("Height adjust: ", this.position[1], heightAdjust);
         }
 
+        this.updateModelView();
     }
 })();

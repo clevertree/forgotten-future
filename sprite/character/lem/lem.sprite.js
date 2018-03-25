@@ -113,6 +113,7 @@
 //                     console.log("Standing: ", this.position[0], " => ", leftHeight, rightHeight);
             }
         }
+        this.updateModelView();
     };
 
     Lem.stateScripts.handleStandingMotion = function(t, platform, stage) {
@@ -172,6 +173,7 @@
             }
 //                 console.log("Height adjust: ", this.position[1], heightAdjust);
         }
+        this.updateModelView();
     };
 
 })();

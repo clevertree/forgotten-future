@@ -33,12 +33,13 @@
 
     /**
      * @param {WebGLRenderingContext} gl
+     * @param {array} options
      * @constructor
      * @augments {PlatformPrototype}
      */
     function MoonPlatform1(gl, options) {
         // Constructor
-        Platform.PlatformPrototype.call(this);
+        Platform.PlatformPrototype.call(this, options);
 
         // Level Sprites
         var mapGen = new ForgottenFuture.Render.Generator();
@@ -56,7 +57,7 @@
 //             .setColor();
 
         this.sprites = [
-            gmMain,
+            // gmMain,
             // hmMain,
         ];
 

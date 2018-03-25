@@ -25,8 +25,8 @@
         this.color              = options.color || defaultColor;
         this.activeColor        = options.activeColor || defaultColor.slice(0);
 
-        // Initiate Shaders
-        SpriteShader.RENDER_INIT(gl);
+        // Initiate Program
+        this.init(gl);
 
         // Create or get the sprite texture
         var tSpriteSheet = loadSpriteSheetTexture(pathSpriteSheet);
@@ -62,20 +62,7 @@
             }
         };
 
-        this.render = function(gl, vPosition, vRotation, vScale, mProjection, flags) {
-            // Update
-            var mModelView = defaultModelViewMatrix;
-
-            mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
-            if(vRotation) {
-                if(vRotation[0]) mModelView = Util.xRotate(mModelView, vRotation[0]);
-                if(vRotation[1]) mModelView = Util.yRotate(mModelView, vRotation[1]);
-                if(vRotation[2]) mModelView = Util.zRotate(mModelView, vRotation[2]);
-            }
-            mModelView = Util.scale(mModelView, vScale[0], vScale[1], 1);
-
-            // mModelView = Util.translate(mModelView, vPosition[0], vPosition[1], vPosition[2]);
-
+        this.render = function(gl, mModelView, mProjection, flags) {
 
             // Render
             gl.useProgram(PROGRAM);
@@ -104,52 +91,6 @@
         };
 
 
-        // Frames
-
-        this.setFrameRate = function (framesPerSecond) {
-            this.frameLength = 1000/framesPerSecond;
-        };
-
-        this.setCurrentFrame = function(frameName) {
-            this.currentFrameName = frameName;
-        };
-        
-        this.addFrame = function(newFrameName, left, top, right, bottom) {
-            this.frames[newFrameName] = new Float32Array([
-                left,    bottom,
-                left,    top,
-                right,   bottom,
-                right,   bottom,
-                left,    top,
-                right,   top,
-            ]);
-        };
-
-        this.addTileFrameSequence = function(newFrameName, x, y, length, tileSizeX, tileSizeY) {
-            for(var i=0; i<length; i++) {
-                this.addTileFrame(newFrameName, x, y, tileSizeX, tileSizeY);
-                x++;
-                if(x>=tileSizeX) {
-                    x = 0;
-                    y++;
-                }
-            }
-        };
-
-        this.addTileFrame = function(newFrameName, x, y, tileSizeX, tileSizeY) {
-            var tileScaleX = 1 / tileSizeX;
-            var tileScaleY = 1 / tileSizeY;
-            if(typeof this.frames[newFrameName] === 'undefined')
-                this.frames[newFrameName] = [];
-            this.frames[newFrameName].push(new Float32Array([
-                (x+0)*tileScaleX,   (y+1)*tileScaleY,
-                (x+0)*tileScaleX,   (y+0)*tileScaleY,
-                (x+1)*tileScaleX,   (y+1)*tileScaleY,
-                (x+1)*tileScaleX,   (y+1)*tileScaleY,
-                (x+0)*tileScaleX,   (y+0)*tileScaleY,
-                (x+1)*tileScaleX,   (y+0)*tileScaleY,
-            ]));
-        };
 
         // Textures
 
@@ -203,12 +144,60 @@
         }
     }
 
+
+    // Frames
+
+    SpriteShader.prototype.setFrameRate = function (framesPerSecond) {
+        this.frameLength = 1000/framesPerSecond;
+    };
+
+    SpriteShader.prototype.setCurrentFrame = function(frameName) {
+        this.currentFrameName = frameName;
+    };
+
+    SpriteShader.prototype.addFrame = function(newFrameName, left, top, right, bottom) {
+        this.frames[newFrameName] = new Float32Array([
+            left,    bottom,
+            left,    top,
+            right,   bottom,
+            right,   bottom,
+            left,    top,
+            right,   top,
+        ]);
+    };
+
+    SpriteShader.prototype.addTileFrameSequence = function(newFrameName, x, y, length, tileSizeX, tileSizeY) {
+        for(var i=0; i<length; i++) {
+            this.addTileFrame(newFrameName, x, y, tileSizeX, tileSizeY);
+            x++;
+            if(x>=tileSizeX) {
+                x = 0;
+                y++;
+            }
+        }
+    };
+
+    SpriteShader.prototype.addTileFrame = function(newFrameName, x, y, tileSizeX, tileSizeY) {
+        var tileScaleX = 1 / tileSizeX;
+        var tileScaleY = 1 / tileSizeY;
+        if(typeof this.frames[newFrameName] === 'undefined')
+            this.frames[newFrameName] = [];
+        this.frames[newFrameName].push(new Float32Array([
+            (x+0)*tileScaleX,   (y+1)*tileScaleY,
+            (x+0)*tileScaleX,   (y+0)*tileScaleY,
+            (x+1)*tileScaleX,   (y+1)*tileScaleY,
+            (x+1)*tileScaleX,   (y+1)*tileScaleY,
+            (x+0)*tileScaleX,   (y+0)*tileScaleY,
+            (x+1)*tileScaleX,   (y+0)*tileScaleY,
+        ]));
+    };
+
     // Static
 
     SpriteShader.FLAG_GENERATE_MIPMAP = 0x01;
     SpriteShader.FLAG_DEFAULTS = 0; //SpriteSheet.FLAG_GENERATE_MIPMAP;
 
-    var defaultModelViewMatrix = Util.translation(0,0,0); //[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+    // var defaultModelViewMatrix = Util.translation(0,0,0); //[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     var defaultColor = new Float32Array([1,1,1,1]);
 
     // Put texcoords in the buffer
@@ -238,7 +227,7 @@
     var uPMatrix, uMVMatrix, uSampler, uColor;
 
 
-    SpriteShader.RENDER_INIT = function(gl) {
+    SpriteShader.prototype.init = function(gl) {
         if(PROGRAM)
             return PROGRAM;
 
@@ -270,6 +259,7 @@
         gl.bufferData(gl.ARRAY_BUFFER, mVertexCoordinates, gl.STATIC_DRAW);
 
         PROGRAM = program;
+        return PROGRAM;
     };
 
 

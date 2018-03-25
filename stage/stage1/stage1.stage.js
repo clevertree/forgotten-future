@@ -43,18 +43,14 @@
         Stage.StagePrototype.call(this);
 
         // Players
-        var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, this);
         var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
         // RAV1.setRotate([0, 0, 1]);
         RAV1.setPosition([7, 8, 0]);
 
-        Lem.setPosition([10, 10, 0]);
-
-        this.viewPort = Lem.getViewPort();
 
         initEditorContent(this, gl);
-        Lem.setPlatform(this.platforms[19]);
-        RAV1.setPlatform(this.platforms[19]);
+        this.viewPort = this.platforms[Math.floor(Math.random()*20)].sprites[0].getViewPort();
+        RAV1.setPlatform(this.platforms[15]);
     }
 
 

@@ -25,12 +25,14 @@
         options = options || {};
 
         /** @type {Array} **/
-        this.scale          = options.scale || [1, 1, 0];
+        this.scale          = options.scale || null; // [1, 1, 0];
         this.position       = options.position || [0, 0, 0];
-        this.velocity       = options.velocity || [0.1, 0, 0];
-        this.acceleration   = options.acceleration || [Math.random() * 0.001, stage.gravity[1], 0];
+        this.velocity       = options.velocity || null; // [0.1, 0, 0];
+        this.acceleration   = options.acceleration || null; // [Math.random() * 0.001, stage.gravity[1], 0];
         this.rotation       = options.rotation || null;
         this.direction      = options.direction || 1.0;
+        this.modelView      = options.modelView || defaultModelViewMatrix;
+
         /** @type {Function} **/
         this.stateScript    = handleBounceMotion;
         /** @type {ForgottenFuture.Render.Shader.SpriteShader} **/
@@ -45,15 +47,29 @@
         this.shader.update(t, this);
     };
 
+    SpritePrototype.prototype.updateModelView = function () {
+        var mModelView = defaultModelViewMatrix;
+
+        mModelView = Util.translate(mModelView, this.position[0], this.position[1], this.position[2]);
+        if(this.rotation) {
+            if(this.rotation[0]) mModelView = Util.xRotate(mModelView, this.rotation[0]);
+            if(this.rotation[1]) mModelView = Util.yRotate(mModelView, this.rotation[1]);
+            if(this.rotation[2]) mModelView = Util.zRotate(mModelView, this.rotation[2]);
+        }
+        if(this.scale)
+            mModelView = Util.scale(mModelView, this.scale[0], this.scale[1], 1);
+        this.modelView = mModelView;
+    };
+
     // Rendering
     SpritePrototype.prototype.render = function(gl, mProjection) {
-        this.shader.render(gl, this.position, this.rotation, this.scale, mProjection);
+        this.shader.render(gl, this.modelView, mProjection);
     };
 
     // Model View
-    SpritePrototype.prototype.setScale = function(scale)                 { this.scale = scale; };
-    SpritePrototype.prototype.setRotate = function(rotation)             { this.rotation = rotation; };
-    SpritePrototype.prototype.setPosition = function(position)           { this.position = position; };
+    SpritePrototype.prototype.setScale = function(scale)                 { this.scale = scale;          this.updateModelView(); };
+    SpritePrototype.prototype.setRotate = function(rotation)             { this.rotation = rotation;    this.updateModelView(); };
+    SpritePrototype.prototype.setPosition = function(position)           { this.position = position;    this.updateModelView(); };
     SpritePrototype.prototype.setVelocity = function(velocity)           { this.velocity = velocity; };
     SpritePrototype.prototype.setAcceleration = function(acceleration) {
         if(!this.velocity)
@@ -121,13 +137,19 @@
     //     ]);
     // };
 
+    // Views
+    var defaultModelViewMatrix = Util.translation(0,0,0); //[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
+
     // Physics
+
 
     var BOUNCE_QUOTIENT = 0.25;
     function handleBounceMotion(t, platform, stage) {
         // Velocity
         // this.velocity[0] += vAcceleration[0];
         // this.velocity[1] += vAcceleration[1];
+        if(!this.velocity)
+            this.velocity = [0,0];
         this.velocity[1] += stage.gravity[1];
 
         // Position
@@ -148,6 +170,8 @@
 //             console.log("Bounce => y=", this.velocity[1]);
             this.velocity[1] = Math.abs(this.velocity[1]) * BOUNCE_QUOTIENT;
         }
+
+        this.updateModelView();
     }
 
 

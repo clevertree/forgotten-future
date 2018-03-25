@@ -36,31 +36,31 @@
         this.txGradientPattern  = options.txGradientPattern || DEFAULT_TEXTURE;
 
         // Variables
-        this.position           = options.position || [0, 0, 0];
-        this.scale              = options.scale || DEFAULT_SCALE;
-        var m4ModelView         = Util.translation(this.position[0], this.position[1], this.position[2]);
-        var m4ModelNormal       = calculateNormalMatrix(m4ModelView);
+        // this.position           = options.position || [0, 0, 0];
+        // this.scale              = options.scale || DEFAULT_SCALE;
+        // var m4ModelView         = Util.translation(this.position[0], this.position[1], this.position[2]);
+        // var m4ModelNormal       = calculateNormalMatrix(m4ModelView);
         var vHighlightColor     = defaultColor.slice(0);
         var vHighlightRange     = [64,128];
 
-        this.size               = getGridDimensions(gridData);
-
+        this.dimensions         = getGridDimensions(gridData);
+        this.size = [this.dimensions[2] - this.dimensions[0], this.dimensions[3] - this.dimensions[1]];
         // Vertex Array Object
         var VAO                 = buildVertexArray(gl, this);
 
         // Functions
 
-        this.render = function(gl, m4Projection, flags) {
+        this.render = function(gl, m4ModelView, m4Projection, flags) {
 
             // Render
             gl.useProgram(PROGRAM);
 
             gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
-            gl.uniformMatrix4fv(PROGRAM.m4ModelNormal, false, m4ModelNormal);
+            // gl.uniformMatrix4fv(PROGRAM.m4ModelNormal, false, m4ModelNormal);
 
             // GridMap2D statistics
-            gl.uniform2fv(PROGRAM.v2MapSize, [this.size[2] - this.size[0], this.size[3] - this.size[1]]);
-            gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
+            gl.uniform2fv(PROGRAM.v2MapSize, this.size);
+            gl.uniform2fv(PROGRAM.v2MapScale, [1,1]);
 
             // Editor Highlights
             gl.uniform4fv(PROGRAM.v4HighlightColor, vHighlightColor);
@@ -90,20 +90,6 @@
 
             VAO.bind();
 
-
-            // for(var i=-20; i<2; i++) {
-            //     // if(!i) continue;
-            //
-            //     gl.uniform2fv(PROGRAM.v2MapScale, [this.scale[0], (i+20)/20]);
-            //     gl.uniform2fv(PROGRAM.v2HeightTextureOffset, [i/10, 0]);
-            //     gl.uniform2fv(PROGRAM.v2HeightTextureScale, [20 + 8 * Math.sin(i), 10 + 4 * Math.cos(i)]);
-            //
-            //     gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, Util.translate(m4ModelView, 0, 0, i*2));
-            //     gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
-            // }
-
-            gl.uniform2fv(PROGRAM.v2MapScale, this.scale);
-            gl.uniformMatrix4fv(PROGRAM.m4ModelView, false, m4ModelView);
             gl.drawArrays(gl.TRIANGLE_STRIP, 0, VAO.count);
 
             VAO.unbind();
@@ -152,16 +138,16 @@
 
         // Properties
 
-        this.getViewPort = function() {
-            return new Render.ViewPort.SimpleViewPort(
-                function(vViewPosition) {
-                    vViewPosition[0] = -vPosition[0];
-                    vViewPosition[1] = -vPosition[1] + 2;
-                    if(vViewPosition[2] < 2)
-                        vViewPosition[2] += 0.004;
-                }
-            );
-        };
+        // this.getViewPort = function() {
+        //     return new Render.ViewPort.SimpleViewPort(
+        //         function(vViewPosition) {
+        //             vViewPosition[0] = -vPosition[0];
+        //             vViewPosition[1] = -vPosition[1] + 2;
+        //             if(vViewPosition[2] < 2)
+        //                 vViewPosition[2] += 0.004;
+        //         }
+        //     );
+        // };
 
         // Map Data
 
@@ -200,15 +186,16 @@
         };
 
         this.testHeight = function (spritePosition, lastIndex, indexPos) {
-            if (spritePosition[0] < this.size[0]
-                || spritePosition[0] > this.size[2]
-                || spritePosition[1] < this.size[1]
-                || spritePosition[1] > this.size[3])
+            if (spritePosition[0] < this.dimensions[0]
+                || spritePosition[0] > this.dimensions[2]
+                || spritePosition[1] < this.dimensions[1]
+                || spritePosition[1] > this.dimensions[3])
                 return null;
 
             var range =
                 (lastIndex ? this.checkLastIndex(spritePosition[0], lastIndex, indexPos) : null)
                 || this.findIndexRange(spritePosition[0], lastIndex, indexPos);
+
             return this.getHeight(spritePosition[0], range[0], range[1]) - spritePosition[1];
         };
 
@@ -224,24 +211,6 @@
                 THIS.editor = editor;
             }
         };
-
-        // Init
-
-        // function getVertexPositions(sx, sy) {
-        //     sx /= 2;
-        //     sy /= 2;
-        //
-        //     // Put a unit quad in the buffer
-        //     return new Float32Array([
-        //         -0, 0,
-        //         -0, sy,
-        //         sx, 0,
-        //         sx, 0,
-        //         -0, sy,
-        //         sx, sy,
-        //     ]);
-        // }
-
 
     }
 
@@ -276,8 +245,8 @@
         shader.bufVertexPosition = shader.bufVertexPosition || gl.createBuffer();
         var aVertexPositions = new Float32Array(shader.gridData.length*6);
         for(var i=0; i<shader.gridData.length; i++) {
-            var x = shader.gridData[i][0]  * shader.scale[0];
-            var y = shader.gridData[i][1]  * shader.scale[1];
+            var x = shader.gridData[i][0]; //  * shader.scale[0];
+            var y = shader.gridData[i][1]; //  * shader.scale[1];
             aVertexPositions[i*6+0] = x;
             aVertexPositions[i*6+1] = y;
             aVertexPositions[i*6+2] = y;
@@ -321,71 +290,6 @@
         return vSize;
     }
 
-
-    function calculateNormalMatrix(m4) {
-        m4 = mtx_inverse(m4);
-        m4 = mtx_transpose(m4);
-        return m4;
-        // return mtx_transpose(mtx_inverse(m4ModelView));
-    }
-
-
-    function mtx_zero() {
-        return [
-            0, 0, 0, 0,
-            0, 0, 0, 0,
-            0, 0, 0, 0,
-            0, 0, 0, 0
-        ];
-    }
-
-
-    function mtx_transpose(a) {
-        var b = mtx_zero();
-
-        for (var i = 0; i < 4; i++) {
-            for (var j = 0; j < 4; j++) {
-                b[i + j*4] = a[j + i*4];
-            }
-        }
-
-        return b;
-    }
-
-    function mtx_inverse(m) {
-        var inv = mtx_zero();
-        inv[0]  =  m[5] * m[10] * m[15] - m[5]  * m[11] * m[14] - m[9]  * m[6] * m[15] + m[9] * m[7] * m[14] + m[13] * m[6] * m[11] - m[13] * m[7] * m[10];
-        inv[4]  = -m[4] * m[10] * m[15] + m[4]  * m[11] * m[14] + m[8]  * m[6] * m[15] - m[8] * m[7] * m[14] - m[12] * m[6] * m[11] + m[12] * m[7] * m[10];
-        inv[8]  =  m[4] * m[9]  * m[15] - m[4]  * m[11] * m[13] - m[8]  * m[5] * m[15] + m[8] * m[7] * m[13] + m[12] * m[5] * m[11] - m[12] * m[7] * m[9];
-        inv[12] = -m[4] * m[9]  * m[14] + m[4]  * m[10] * m[13] + m[8]  * m[5] * m[14] - m[8] * m[6] * m[13] - m[12] * m[5] * m[10] + m[12] * m[6] * m[9];
-        inv[1]  = -m[1] * m[10] * m[15] + m[1]  * m[11] * m[14] + m[9]  * m[2] * m[15] - m[9] * m[3] * m[14] - m[13] * m[2] * m[11] + m[13] * m[3] * m[10];
-        inv[5]  =  m[0] * m[10] * m[15] - m[0]  * m[11] * m[14] - m[8]  * m[2] * m[15] + m[8] * m[3] * m[14] + m[12] * m[2] * m[11] - m[12] * m[3] * m[10];
-        inv[9]  = -m[0] * m[9]  * m[15] + m[0]  * m[11] * m[13] + m[8]  * m[1] * m[15] - m[8] * m[3] * m[13] - m[12] * m[1] * m[11] + m[12] * m[3] * m[9];
-        inv[13] =  m[0] * m[9]  * m[14] - m[0]  * m[10] * m[13] - m[8]  * m[1] * m[14] + m[8] * m[2] * m[13] + m[12] * m[1] * m[10] - m[12] * m[2] * m[9];
-        inv[2]  =  m[1] * m[6]  * m[15] - m[1]  * m[7]  * m[14] - m[5]  * m[2] * m[15] + m[5] * m[3] * m[14] + m[13] * m[2] * m[7]  - m[13] * m[3] * m[6];
-        inv[6]  = -m[0] * m[6]  * m[15] + m[0]  * m[7]  * m[14] + m[4]  * m[2] * m[15] - m[4] * m[3] * m[14] - m[12] * m[2] * m[7]  + m[12] * m[3] * m[6];
-        inv[10] =  m[0] * m[5]  * m[15] - m[0]  * m[7]  * m[13] - m[4]  * m[1] * m[15] + m[4] * m[3] * m[13] + m[12] * m[1] * m[7]  - m[12] * m[3] * m[5];
-        inv[14] = -m[0] * m[5]  * m[14] + m[0]  * m[6]  * m[13] + m[4]  * m[1] * m[14] - m[4] * m[2] * m[13] - m[12] * m[1] * m[6]  + m[12] * m[2] * m[5];
-        inv[3]  = -m[1] * m[6]  * m[11] + m[1]  * m[7]  * m[10] + m[5]  * m[2] * m[11] - m[5] * m[3] * m[10] - m[9]  * m[2] * m[7]  + m[9]  * m[3] * m[6];
-        inv[7]  =  m[0] * m[6]  * m[11] - m[0]  * m[7]  * m[10] - m[4]  * m[2] * m[11] + m[4] * m[3] * m[10] + m[8]  * m[2] * m[7]  - m[8]  * m[3] * m[6];
-        inv[11] = -m[0] * m[5]  * m[11] + m[0]  * m[7]  * m[9]  + m[4]  * m[1] * m[11] - m[4] * m[3] * m[9]  - m[8]  * m[1] * m[7]  + m[8]  * m[3] * m[5];
-        inv[15] =  m[0] * m[5]  * m[10] - m[0]  * m[6]  * m[9]  - m[4]  * m[1] * m[10] + m[4] * m[2] * m[9]  + m[8]  * m[1] * m[6]  - m[8]  * m[2] * m[5];
-        var det = m[0] * inv[0] + m[1] * inv[4] + m[2] * inv[8] + m[3] * inv[12];
-
-        if (det == 0) {
-            console.log("Error: Non-invertible matrix");
-            return mtx_zero();
-        }
-
-        det = 1.0 / det;
-        for (var i = 0; i < 16; i++) {
-            inv[i] *= det;
-        }
-        return inv;
-    }
-
-    // Texture Program
-
     // Shader
 
     var PROGRAM;
@@ -402,7 +306,7 @@
         // PROGRAM.v2TexturePosition = gl.getAttribLocation(PROGRAM, "v2TexturePosition");
         PROGRAM.m4Projection = gl.getUniformLocation(PROGRAM, "m4Projection");
         PROGRAM.m4ModelView = gl.getUniformLocation(PROGRAM, "m4ModelView");
-        PROGRAM.m4ModelNormal = gl.getUniformLocation(PROGRAM, "m4ModelNormal");
+        // PROGRAM.m4ModelNormal = gl.getUniformLocation(PROGRAM, "m4ModelNormal");
 
         // Statistics
         PROGRAM.v2MapSize = gl.getUniformLocation(PROGRAM, "v2MapSize");
@@ -444,7 +348,7 @@
 
         "uniform mat4 m4Projection;",
         "uniform mat4 m4ModelView;",
-        "uniform mat4 m4ModelNormal;",
+        // "uniform mat4 m4ModelNormal;",
 
         // GridMap2D statistics
         "uniform vec2 v2MapSize;",
@@ -485,7 +389,7 @@
         "   v2GradientTextureVarying = vec2(v2VertexPosition.x, v2VertexPosition.y) / v2MapSize;",
 
         "   vec4 v4Position = vec4(v2VertexPosition.x * v2MapScale.x, v2VertexPosition.y * v2MapScale.y, 0.0, 1.0);", // TODO index stream?
-        "   mat4 m4ProjectionNormal = m4Projection * m4ModelNormal;",
+        "   mat4 m4ProjectionNormal = m4Projection;", //  * m4ModelNormal;
         "   gl_Position = m4Projection * m4ModelView * v4Position;",
 
         // Lighting
