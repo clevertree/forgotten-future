@@ -64,7 +64,7 @@
             var Platform = new ForgottenFuture.Platform.MoonPlatform1(gl, options);
             stage.platforms.push(Platform);
 
-            for (var j = 0; j < 35; j++) {
+            for (var j = 0; j < 15; j++) {
                 var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, stage);
                 Lem.setPosition([10 + i, 10, -i]);
                 // Lem.setVelocity([0.1 * Math.random(), 0, 0]);
