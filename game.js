@@ -161,13 +161,13 @@ var ForgottenFuture = {
         var canvas = Render.canvas[0];
         if(canvas) {
             var gl = Render.gl;
-            if(canvas.classList.contains('fullscreen')) {
-                canvas.width = window.innerWidth;
-                canvas.height = window.innerHeight;
-                gl.viewport(0, 0, canvas.width, canvas.height);
-                Render.widthToHeightRatio = canvas.width / canvas.height;
-//                 console.log("Resized: ", canvas, canvas.width, canvas.height, Render.widthToHeightRatio);
-            }
+            // if(canvas.classList.contains('fullscreen')) {
+            canvas.width = window.innerWidth;
+            canvas.height = window.innerHeight;
+            gl.viewport(0, 0, canvas.width, canvas.height);
+            Render.widthToHeightRatio = canvas.width / canvas.height;
+                // console.log("Resized: ", canvas, canvas.width, canvas.height, Render.widthToHeightRatio);
+            // }
         }
     }
 
