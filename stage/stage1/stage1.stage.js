@@ -49,7 +49,7 @@
 
 
         initEditorContent(this, gl);
-        this.viewPort = this.platforms[Math.floor(Math.random()*20)].sprites[0].getViewPort();
+        this.viewPort = this.platforms[19].sprites[0].getViewPort(); // this.platforms[Math.floor(Math.random()*20)].sprites[0].getViewPort();
         RAV1.setPlatform(this.platforms[15]);
     }
 
