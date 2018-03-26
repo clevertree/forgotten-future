@@ -39,11 +39,13 @@
      * @augments {PlatformPrototype}
      */
     function MoonPlatform1(gl, gridData, options) {
-        options             = options || {};
-        options.txHeightPattern =  setupTexture(gl, options.txHeightPattern || iMoonHeightPattern);
-        options.txHeightNormal =  setupTexture(gl, options.txHeightNormal || iMoonHeightNormal);
+        options                     = options || {};
+
         // Constructor
         Platform.PlatformPrototype.call(this, options);
+
+        options.txHeightPattern     = setupTexture(gl, options.txHeightPattern || iMoonHeightPattern);
+        options.txHeightNormal      = setupTexture(gl, options.txHeightNormal || iMoonHeightNormal);
 
         this.hitBox = new ForgottenFuture.Render.Shader.GridMap2D(gl, gridData, options);
     }
@@ -60,7 +62,7 @@
         var gridData = []; // new Float32Array(mapLength);
         for(var ii=0;ii<options.mapLength;ii++) {
             gridData[ii] = [
-                ii*0.9,
+                ii*0.9 + Math.random() * 0.8,
                 Math.abs(Math.sin(ii / options.sineFreq) * (0.9 + Math.random()/20) * options.sineAmp * (ii/10000))
             ];
         }
