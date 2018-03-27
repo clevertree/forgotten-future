@@ -244,7 +244,7 @@
         // gl.enableVertexAttribArray(PROGRAM.v2TexturePosition);
 
         VAO.unbind();
-        VAO.count = shader.gridData.length / 2;
+        VAO.count = shader.gridData.length*2;
         return VAO;
     }
 
