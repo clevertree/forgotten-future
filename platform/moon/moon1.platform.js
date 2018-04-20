@@ -12,7 +12,7 @@
         Input = ForgottenFuture.Input;
 
     // Extends PlatformPrototype
-    Util.loadScript('platform/platform.prototype.js', function() {
+    Util.loadScript('render/prototype/platform.prototype.js', function() {
         MoonPlatform1.prototype = Object.create(Platform.PlatformPrototype.prototype, {});
         MoonPlatform1.prototype.constructor = MoonPlatform1;
     });

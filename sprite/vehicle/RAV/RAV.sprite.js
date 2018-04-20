@@ -15,7 +15,7 @@
     var DIR_SPRITESHEET = DIR + 'RAV.spritesheet.png';
 
     // Extends SpritePrototype
-    Util.loadScript('sprite/sprite.prototype.js', function() {
+    Util.loadScript('render/prototype/sprite.prototype.js', function() {
         RAV.prototype = Object.create(Sprite.SpritePrototype.prototype, {});
         RAV.prototype.constructor = RAV;
     });

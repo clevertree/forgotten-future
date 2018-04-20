@@ -12,7 +12,7 @@
         Input = ForgottenFuture.Input;
 
     // Extends StagePrototype
-    Util.loadScript('stage/stage.prototype.js', function() {
+    Util.loadScript('render/prototype/stage.prototype.js', function() {
         Stage1.prototype = Object.create(Stage.StagePrototype.prototype, {});
         Stage1.prototype.constructor = Stage1;
     });

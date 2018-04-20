@@ -14,7 +14,7 @@
         Sprite = ForgottenFuture.Sprite;
 
     // Extends SpritePrototype
-    Util.loadScript('sprite/sprite.prototype.js', function() {
+    Util.loadScript('render/prototype/sprite.prototype.js', function() {
         Lem.prototype = Object.create(Sprite.SpritePrototype.prototype, {});
         Lem.prototype.constructor = Lem;
     });
