@@ -219,7 +219,7 @@
 
         VAO.bind();
         // bindTextureCoordinates();                       // Bind Texture Coordinate
-        shader.bufVertexPosition = shader.bufVertexPosition || gl.createBuffer();
+        shader.bufVertexPosition = shader.bufVertexPosition || gl.createBuffer(); // TODO: leak - remove unneeded property
         var aVertexPositions = new Float32Array(shader.gridData.length*6);
         for(var i=0; i<shader.gridData.length; i++) {
             var x = shader.gridData[i][0]; //  * shader.scale[0];
