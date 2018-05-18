@@ -26,6 +26,9 @@
         [-0.5,0.5], [0.5,0.5], [0.5,-0.5], [-0.5,-0.5]
     ];
 
+    var aVertexList = [];
+    var aIndexList = [];
+
     Sprite.Vehicle.RAV = RAV;
 
     /**

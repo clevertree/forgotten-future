@@ -9,75 +9,91 @@
         Render = ForgottenFuture.Render;
 
     ForgottenFuture.Render.Shader.PolygonShader = PolygonShader;
-    function PolygonShader(gl, aVertexPositions, iTexture, options) {
-        options = options || {};
+    function PolygonShader(gl, aVertexList, aVertexIndices, iTexture, options) {
+        // options = options || {};
 
         // Variables
-        this.flags              = options.flags || PolygonShader.FLAG_DEFAULTS;
-        this.glLineMode         = options.glLineMode || 4;
+        // this.flags              = options.flags || PolygonShader.FLAG_DEFAULTS;
+        // this.glLineMode         = options.glLineMode || 4;
 
-        this.color              = options.color || defaultColor;
-        this.activeColor        = options.activeColor || defaultColor.slice(0);
+        // this.color              = options.color || defaultColor;
+        // this.activeColor        = options.activeColor || defaultColor.slice(0);
 
         // Initiate Program
-        this.init(gl);
+        var program = this.init(gl);
 
         // Set up Textures
         var tTexture = setupTexture(gl, iTexture);
 
+
         // Vertex Array Object
-        var bufVertexPosition = gl.createBuffer();
+        var VAO = Util.createVertexArray(gl);
 
-        gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
-        gl.bufferData(gl.ARRAY_BUFFER, aVertexPositions, gl.STATIC_DRAW);
+        VAO.bind();
 
-        gl.vertexAttribPointer(PROGRAM.v2VertexPosition, 3, gl.FLOAT, false, 0, 0);
-        gl.enableVertexAttribArray(PROGRAM.v2VertexPosition);
-        var vertexCount = aVertexPositions.length/4;
+        // Vertex Array Object
+        var bufVertexList = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
+        gl.bufferData(gl.ARRAY_BUFFER, aVertexList, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(program.attrVertexPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(program.attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(program.attrFlag, 1, gl.FLOAT, false, 0, 0);
+
+        // Index Array Object
+        var bufVertexIndices = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, aVertexIndices, gl.STATIC_DRAW);
+
+        // Texture Coordinates
+        // var bufTextureCoordinate = gl.createBuffer();
+        // gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
+        // gl.bufferData(gl.ARRAY_BUFFER, attrTextureCoordinates, gl.STATIC_DRAW);
+
+        VAO.unbind();
+        VAO.count = aVertexIndices / 3;
+
+
+
+        var vertexCount = aVertexList.length/4;
 
         // Functions
 
-        this.update = function (t, sprite, flags) {
-            // Update highlight color
-            if(flags & ForgottenFuture.Constant.RENDER_SELECTED) {
-                if(this.activeColor === this.color)
-                    this.activeColor = this.color.slice(0);
-                this.activeColor[0] = this.color[0] * Math.abs(Math.sin(t/500));
-                this.activeColor[1] = this.color[1] * Math.abs(Math.sin(t/1800));
-                this.activeColor[2] = this.color[2] * Math.abs(Math.sin(t/1000));
-                this.activeColor[3] = this.color[3] * Math.abs(Math.sin(t/300));
-            } else {
-                this.activeColor = this.color
-            }
-
-        };
-
-        this.render = function(gl, mModelView, mProjection, flags) {
+        this.render = function(gl, mModelView, mProjection) {
 
             // Render
-            gl.useProgram(PROGRAM);
+            gl.useProgram(program);
 
             // Bind Vertex Coordinate
-            gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
-            gl.vertexAttribPointer(aVertexPosition, 2, gl.FLOAT, false, 0, 0);
-            gl.vertexAttribPointer(aTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+            // gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
+            // gl.vertexAttribPointer(program.attrVertexPosition, 2, gl.FLOAT, false, 0, 0);
+            // gl.vertexAttribPointer(program.attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+
+            // gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
+            // gl.bufferData(gl.ARRAY_BUFFER, attrVertexPositions, gl.STATIC_DRAW);
 
             // Bind Texture Coordinate
             // gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
-            // gl.bufferData(gl.ARRAY_BUFFER, defaultTextureCoordinates, gl.DYNAMIC_DRAW);
+            // gl.bufferData(gl.ARRAY_BUFFER, attrTextureCoordinates, gl.DYNAMIC_DRAW);
 
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(uPMatrix, false, mProjection);
-            gl.uniformMatrix4fv(uMVMatrix, false, mModelView);
-            gl.uniform4fv(uColor, this.color);
+            gl.uniformMatrix4fv(program.uPMatrix, false, mProjection);
+            gl.uniformMatrix4fv(program.uMVMatrix, false, mModelView);
+            gl.uniform4fv(program.uColor, defaultColor);
 
             // Tell the shader to get the texture from texture unit 0
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, tTexture);
-            gl.uniform1i(uSampler, 0);
+            gl.uniform1i(program.uSampler, 0);
 
             // draw the quad (2 triangles, 6 vertices)
-            gl.drawArrays(this.glLineMode, 0, vertexCount);
+            // gl.drawArrays(4, 0, vertexCount);
+            VAO.bind();
+            gl.drawArrays(gl.TRIANGLES, 0, VAO.count);
+            VAO.unbind();
+        };
+
+        this.renderGroup = function (gl, mModelView, mProjection) {
+
         };
 
         // Vertices
@@ -138,60 +154,49 @@
 
     // Program
 
-    var PROGRAM;
-    var aVertexPosition, bufVertexPosition;
-    var aTextureCoordinate, bufTextureCoordinate;
-    var uPMatrix, uMVMatrix, uSampler, uColor;
-
-
     PolygonShader.prototype.init = function(gl) {
-        if(PROGRAM)
-            return PROGRAM;
-
         // Init Program
         var program = Util.compileProgram(gl, PolygonShader.VS, PolygonShader.FS);
         gl.useProgram(program);
 
         // Enable Vertex Position Attribute.
-        aVertexPosition = gl.getAttribLocation(program, "aVertexPosition");
-        gl.enableVertexAttribArray(aVertexPosition);
+        program.attrVertexPosition = gl.getAttribLocation(program, "attrVertexPosition");
+        gl.enableVertexAttribArray(program.attrVertexPosition);
 
         // Enable Texture Position Attribute.
-        aTextureCoordinate = gl.getAttribLocation(program, "aTextureCoordinate");
-        gl.enableVertexAttribArray(aTextureCoordinate);
+        program.attrTextureCoordinate = gl.getAttribLocation(program, "attrTextureCoordinate");
+        gl.enableVertexAttribArray(program.attrTextureCoordinate);
+
+        // Enable Texture Position Attribute.
+        program.attrFlag = gl.getAttribLocation(program, "attrFlag");
+        gl.enableVertexAttribArray(program.attrFlag);
 
         // Lookup Uniforms
-        uPMatrix = gl.getUniformLocation(program, "uPMatrix");
-        uMVMatrix = gl.getUniformLocation(program, "uMVMatrix");
-        uSampler = gl.getUniformLocation(program, "uSampler");
-        uColor = gl.getUniformLocation(program, "uColor");
-
-        // Create a Vertex Position Buffer.
-        bufVertexPosition = gl.createBuffer();
-
-        // Create a Texture Coordinates Buffer
-        bufTextureCoordinate = gl.createBuffer();
+        program.uPMatrix = gl.getUniformLocation(program, "uPMatrix");
+        program.uMVMatrix = gl.getUniformLocation(program, "uMVMatrix");
+        program.uSampler = gl.getUniformLocation(program, "uSampler");
+        program.uColor = gl.getUniformLocation(program, "uColor");
 
         gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
         gl.bufferData(gl.ARRAY_BUFFER, mVertexCoordinates, gl.STATIC_DRAW);
 
-        PROGRAM = program;
-        return PROGRAM;
+        return program;
     };
 
 
     PolygonShader.VS = [
-        "attribute vec4 aVertexPosition;",
-        "attribute vec2 aTextureCoordinate;",
+        "attribute vec4 attrVertexPosition;",
+        "attribute vec2 attrTextureCoordinate;",
+        "attribute float attrFlag;",
 
         "uniform mat4 uPMatrix;",
         "uniform mat4 uMVMatrix;",
 
-        "varying vec2 vTextureCoordinate;",
+        "varying vec2 varyTextureCoordinate;",
 
         "void main() {",
-        "    gl_Position = uPMatrix * uMVMatrix * aVertexPosition;",
-        "    vTextureCoordinate = aTextureCoordinate;",
+        "    gl_Position = uPMatrix * uMVMatrix * attrVertexPosition;",
+        "    varyTextureCoordinate = attrTextureCoordinate;",
         "}"
     ].join("\n");
 
@@ -201,10 +206,10 @@
         "uniform sampler2D uSampler;",
         "uniform vec4 uColor;",
 
-        "varying vec2 vTextureCoordinate;",
+        "varying vec2 varyTextureCoordinate;",
 
         "void main() {",
-        "    gl_FragColor = texture2D(uSampler, vTextureCoordinate) * uColor;",
+        "    gl_FragColor = texture2D(uSampler, varyTextureCoordinate) * uColor;",
         "}"
     ].join("\n");
 
