@@ -9,7 +9,7 @@
         Render = ForgottenFuture.Render;
 
     ForgottenFuture.Render.Shader.PolygonShader = PolygonShader;
-    function PolygonShader(gl, aVertexList, aVertexIndices, iTexture, options) {
+    function PolygonShader(gl, vertexList, indexList, iTexture, options) {
         // options = options || {};
 
         // Variables
@@ -34,7 +34,7 @@
         // Vertex Array Object
         var bufVertexList = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
-        gl.bufferData(gl.ARRAY_BUFFER, aVertexList, gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexList, gl.STATIC_DRAW);
         gl.vertexAttribPointer(program.attrVertexPosition, 3, gl.FLOAT, false, 0, 0);
         gl.vertexAttribPointer(program.attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
         gl.vertexAttribPointer(program.attrFlag, 1, gl.FLOAT, false, 0, 0);
@@ -42,7 +42,7 @@
         // Index Array Object
         var bufVertexIndices = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, aVertexIndices, gl.STATIC_DRAW);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexList, gl.STATIC_DRAW);
 
         // Texture Coordinates
         // var bufTextureCoordinate = gl.createBuffer();
@@ -50,11 +50,7 @@
         // gl.bufferData(gl.ARRAY_BUFFER, attrTextureCoordinates, gl.STATIC_DRAW);
 
         VAO.unbind();
-        VAO.count = aVertexIndices / 3;
-
-
-
-        var vertexCount = aVertexList.length/4;
+        VAO.count = indexList / 3;
 
         // Functions
 

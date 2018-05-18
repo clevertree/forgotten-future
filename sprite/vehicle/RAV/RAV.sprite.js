@@ -26,9 +26,6 @@
         [-0.5,0.5], [0.5,0.5], [0.5,-0.5], [-0.5,-0.5]
     ];
 
-    var aVertexList = [];
-    var aIndexList = [];
-
     Sprite.Vehicle.RAV = RAV;
 
     /**
@@ -45,8 +42,24 @@
         this.acceleration   = [Math.random() * 0.001, stage.gravity[1], 0];
 
         // Sprite Sheet
-        this.shader = new ForgottenFuture.Render.Shader.SpriteShader(gl, DIR_SPRITESHEET);
+        this.shader = initShader(gl);
+    }
 
+    // Shader
+
+    var vertexList = [
+        -1.0, 0.0, 0.0,
+        1.0, 0.0, 0.0,
+        -0.5, -0.5, 0.0,
+        0.5, -0.5, 0.0,
+    ];
+    var indexList = [
+        1, 2, 3,
+        2, 3, 4
+    ];
+    var shader = null;
+    function initShader(gl) {
+        return shader || (shader = new ForgottenFuture.Render.Shader.PolygonShader(gl, vertexList, indexList, DIR_SPRITESHEET));
     }
 
 
