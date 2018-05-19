@@ -11,44 +11,36 @@
         Render          = ForgottenFuture.Render,
         pressedKeys     = ForgottenFuture.Input.pressedKeys;
 
-    var DIR = 'sprite/vehicle/RAV/';
-    var DIR_SPRITESHEET = DIR + 'RAV.spritesheet.png';
-
-    // Extends SpritePrototype
-    // Util.loadScript('render/prototype/sprite.prototype.js', function() {
-    //     RAV.prototype = Object.create(Sprite.SpritePrototype.prototype, {});
-    //     RAV.prototype.constructor = RAV;
-    // });
-
-    // Util.loadScript('render/shader/sprite.shader.js');
-
-    // var HITPOINTS = [
-    //     [-0.5,0.5], [0.5,0.5], [0.5,-0.5], [-0.5,-0.5]
-    // ];
+    // Load textures
+    var iTexture = Util.loadImage('sprite/vehicle/RAV/RAV.spritesheet.png');
 
     Sprite.Vehicle.RAV = RAV;
 
     /**
      * Create a new shader instance
      * @param {WebGLRenderingContext} gl
-     * @param {ForgottenFuture.Stage.StagePrototype} stage
+     * @param {object} options
      * @constructor
      */
     function RAV(gl, options) {
-        options = options || {};
         // Sprite.SpritePrototype.call(this, gl, stage); // call parent constructor
 
-        // Local Variables
+        init(gl);
+
+        // Options
+        options = options || {};
         this.velocity       = options.velocity || [0.07, 0, 0];
         this.acceleration   = options.acceleration || [Math.random() * 0.001, -0.0001, 0];
         this.modelView      = options.modelView || Util.translation(0,0,0);
-
-        initTexture(gl, DIR_SPRITESHEET);
-
-        // Sprite Sheet
-        initShader(gl);
+        this.vaoOffset      = options.vaoOffset || 0;
+        this.vaoCount       = options.vaoCount || VAO.count;
     }
 
+    /**
+     * Render this instance
+     * @param {WebGLRenderingContext} gl
+     * @param {Array} mProjection
+     */
     RAV.prototype.render = function(gl, mProjection) {
         // Render
         gl.useProgram(program);
@@ -66,11 +58,15 @@
         // draw the quad (2 triangles, 6 vertices)
         // gl.drawArrays(4, 0, vertexCount);
         VAO.bind();
-        gl.drawElements(gl.TRIANGLES, 0, VAO.count);
+        gl.drawElements(gl.TRIANGLES, this.vaoCount, gl.UNSIGNED_BYTE, this.vaoOffset);
         VAO.unbind();
     };
 
-    RAV.renderAll = function(gl, spriteList, mProjection) {
+    RAV.Group = function(gl, sprites, options) {
+        this.sprites = sprites;
+    };
+
+    RAV.Group.prototype.render = function(gl, mProjection) {
         // Render
         gl.useProgram(program);
 
@@ -83,12 +79,12 @@
         gl.bindTexture(gl.TEXTURE_2D, TEXTURE);
         gl.uniform1i(uniformSampler, 0);
 
-        for(var i=0; i < spriteList.length; i++) {
+        for(var i=0; i < this.sprites.length; i++) {
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(uniformModelViewMatrix, false, spriteList[i].modelView);
+            gl.uniformMatrix4fv(uniformModelViewMatrix, false, this.sprites[i].modelView);
             // gl.uniform4fv(uniformColor, defaultColor);
 
-            gl.drawElements(gl.TRIANGLES, indexOffset[0][0], gl.UNSIGNED_BYTE, indexOffset[0][1]);
+            gl.drawElements(gl.TRIANGLES, this.sprites[i].vaoCount, gl.UNSIGNED_BYTE, this.sprites[i].vaoOffset);
         }
 
         VAO.unbind();
@@ -136,13 +132,85 @@
         this.updateModelView();
     };
 
+    // Init
+
+    var texture = null, program = null, VAO = null;
+    function init(gl) {
+        if(!program) initProgram(gl);
+        if(!texture) initTexture(gl);
+        if(!VAO) initVAO(gl);
+    }
+
+    // Texture
+
+    function initTexture(gl) {
+        texture = gl.createTexture();
+        console.log("Setting up Texture: ", iTexture);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
+        gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, iTexture);
+
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_S, gl.MIRRORED_REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_WRAP_T, gl.MIRRORED_REPEAT);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MIN_FILTER, gl.LINEAR);
+        gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.LINEAR);
+    }
+
+    // Vertex List
+
+    function initVAO(gl) {
+        var vertexList = new Float32Array([
+            // X    Y    Z        V    H      rotateX
+            // Tank Base
+            -1.0, 0.0, 0.0,     1.0, 0.0,   0.0,
+            1.0, 0.0, 0.0,     1.0, 1.0,   0.0,
+            -0.5, -0.5, 0.0,    0.0, 0.0,   0.0,
+            0.5, -0.5, 0.0,    0.0, 1.0,   0.0,
+
+            // Tank Turret
+            -0.5, 0.0, 0.0,     1.0, 0.0,   0.0,
+            0.5, 0.0, 0.0,     1.0, 1.0,   0.0,
+            -0.5, 0.5, 0.0,     0.0, 0.0,   0.0,
+
+            // Tank Cannon (3D)
+        ]);
+        var indexList = new Uint8ClampedArray([
+            1, 2, 3,
+            2, 3, 4,
+
+            5, 6, 7,
+            6, 7, 8,
+        ]);
+
+        // Vertex Array Object
+        VAO = Util.createVertexArray(gl);
+
+        VAO.bind();
+
+        // Vertex Array Object
+        var bufVertexList = gl.createBuffer();
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexList, gl.STATIC_DRAW);
+
+        // Index Array Object
+        var bufVertexIndices = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexList, gl.STATIC_DRAW);
+
+
+        VAO.unbind();
+        VAO.count = indexList / 3;
+    }
+
+    RAV.fragments = {
+        // Name     offset, count, centerX, centerY
+        default:    [0, 4],
+        base:       [0, 2],
+        turret:     [2, 4],
+    };
+
     // Shader
 
-
-    function initShader(gl) {
-        if(program)
-            return program;
-
+    function initProgram(gl) {
         // Initiate Program
         program = Util.compileProgram(gl, RAV.VS, RAV.FS);
         gl.useProgram(program);
@@ -165,33 +233,9 @@
         uniformColor = gl.getUniformLocation(program, "uniformColor");
 
         gl.enableVertexAttribArray(attrRotateX);
-
-
-
-        // Vertex Array Object
-        VAO = Util.createVertexArray(gl);
-
-        VAO.bind();
-
-        // Vertex Array Object
-        var bufVertexList = gl.createBuffer();
-        gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
-        gl.bufferData(gl.ARRAY_BUFFER, vertexList, gl.STATIC_DRAW);
-
-        // Index Array Object
-        var bufVertexIndices = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexList, gl.STATIC_DRAW);
-
-
-        VAO.unbind();
-        VAO.count = indexList / 3;
-
-        return program;
     }
 
-    var VAO, program,
-        attrVertexPosition,
+    var attrVertexPosition,
         attrTextureCoordinate,
         attrRotateX,
         uniformProjectionMatrix,
@@ -227,34 +271,4 @@
         "}"
     ].join("\n");
 
-    // Vertex List
-
-    var vertexList = [
-        // X    Y    Z        V    H      rotateX
-        // Tank Base
-        -1.0, 0.0, 0.0,     1.0, 0.0,   0.0,
-        1.0, 0.0, 0.0,     1.0, 1.0,   0.0,
-        -0.5, -0.5, 0.0,    0.0, 0.0,   0.0,
-        0.5, -0.5, 0.0,    0.0, 1.0,   0.0,
-
-        // Tank Turret
-        -0.5, 0.0, 0.0,     1.0, 0.0,   0.0,
-        0.5, 0.0, 0.0,     1.0, 1.0,   0.0,
-        -0.5, 0.5, 0.0,     0.0, 0.0,   0.0,
-        0.5, 0.5, 0.0,     0.0, 1.0,   0.0,
-
-        // Tank Cannon (3D)
-    ];
-    var indexList = [
-        1, 2, 3,
-        2, 3, 4,
-
-        5, 6, 7,
-        6, 7, 8,
-    ];
-    var indexOffset = [
-        [0, 4],
-        [0, 2],
-        [2, 4],
-    ]
 })();
