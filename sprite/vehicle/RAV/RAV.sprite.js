@@ -34,7 +34,8 @@
         this.modelView      = options.modelView || Util.translation(0,0,0);
         this.vaoOffset      = options.vaoOffset || 0;
         this.vaoCount       = options.vaoCount || VAO.count;
-        this.stateScript    = RAV.stateScripts.handleRovingMotion;
+        this.update         = RAV.stateScripts.handleRovingMotion;
+        this.platform       = options.platform;
     }
 
     /**
@@ -53,7 +54,7 @@
 
         // Tell the shader to get the texture from texture unit 0
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, TEXTURE);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.uniform1i(uniformSampler, 0);
 
         // draw the quad (2 triangles, 6 vertices)
@@ -63,10 +64,98 @@
         VAO.unbind();
     };
 
-    // Update
-    RAV.prototype.update = function(t, platform, stage) {
-        this.stateScript(t, platform, stage);
+    RAV.prototype.testHeights = function() {
+
+        var heights = new Array(RAV.wheels.length+1);
+        heights[0] = -1;
+        for(var i=0; i<RAV.wheels.length; i++) {
+            var vertexPos = RAV.wheels[i] * 6;
+
+            // Test for map height
+            heights[i] = this.platform.testHeight([
+                this.position[0]+RAV.vertexList[vertexPos],
+                this.position[1]+RAV.vertexList[vertexPos+1],
+                this.position[2]
+            ], this.lastIndex, i);
+            if(heights[i] > heights[0])
+                heights[0] = heights[i];
+        }
+
+        return heights;
+    }
+
+
+    // Physics Scripts
+
+    RAV.stateScripts = {};
+    RAV.stateScripts.handleRovingMotion = function(t) {
+        // Velocity
+        this.velocity[0] += this.acceleration[0];
+
+        // Position
+        this.position[0] += this.velocity[0];
+
+        var heights = this.testHeights();
+
+
+        // TODO: velocity
+        if(heights[0] < -0.05) {
+            // Falling
+            this.update = RAV.stateScripts.handleFallingMotion;
+            // console.log("Walking -> Falling: ", heights[0]);
+            return;
+        }
+
+        // Roving
+
+        // Adjust footing
+        this.position[1] += heights[0];
+
+        // Update Modelview
+        this.modelView = Util.translation(this.position[0], this.position[1], this.position[2]);
+
+        // mModelView = Util.translate(mModelView, this.position[0], this.position[1], this.position[2]);
+        if(this.rotation) {
+            // if(this.rotation[0]) this.modelView = Util.xRotate(this.modelView, this.rotation[0]);
+            // if(this.rotation[1]) this.modelView = Util.yRotate(this.modelView, this.rotation[1]);
+            if(this.rotation[2]) this.modelView = Util.zRotate(this.modelView, this.rotation[2]);
+        }
     };
+    RAV.stateScripts.handleFallingMotion = function(t) {
+        // Velocity
+        // this.velocity[0] += vAcceleration[0];
+        // this.velocity[1] += vAcceleration[1];
+        this.velocity[1] += this.platform.stage.gravity[1];
+
+        // Position
+        this.position[0] += this.velocity[0];
+        this.position[1] += this.velocity[1];
+
+        var heights = this.testHeights();
+
+        if(!(heights[0] > 0)) {
+            // Falling
+
+        } else {
+            // Landing
+            this.position[1] += heights[0];
+
+            // Hitting the ground
+            if(this.velocity[1] < -0.4) {
+                console.log("Bounce => y=", this.velocity[1]);
+                this.velocity[1] = Math.abs(this.velocity[1]) * BOUNCE_QUOTIENT;
+
+            } else {
+                // Landing on the ground
+                this.velocity[1] = 0;
+                this.update = RAV.stateScripts.handleRovingMotion;
+//                     console.log("Standing: ", this.position[0], " => ", leftHeight, rightHeight);
+            }
+        }
+        this.modelView = Util.translation(this.position[0], this.position[1], this.position[2]);
+    };
+
+    // Group
 
     RAV.Group = function(gl, sprites, options) {
         this.sprites = sprites;
@@ -82,7 +171,7 @@
 
         // Tell the shader to get the texture from texture unit 0
         gl.activeTexture(gl.TEXTURE0);
-        gl.bindTexture(gl.TEXTURE_2D, TEXTURE);
+        gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.uniform1i(uniformSampler, 0);
 
         for(var i=0; i < this.sprites.length; i++) {
@@ -94,50 +183,6 @@
         }
 
         VAO.unbind();
-    };
-
-
-    // Physics Scripts
-
-    RAV.stateScripts = {};
-    RAV.stateScripts.handleRovingMotion = function(t, platform, stage) {
-        // Velocity
-        this.velocity[0] += this.acceleration[0];
-
-        // Position
-        this.position[0] += this.velocity[0];
-
-        var heights = new Array(RAV.wheels.length);
-        var heightAdjust = -1;
-        for(var i=0; i<RAV.wheels.length; i++) {
-            var vertexPos = RAV.wheels[i] * 6;
-
-            // Test for map height
-            heights[i] = platform.testHeight([
-                this.position[0]+RAV.vertexList[vertexPos],
-                this.position[1]+RAV.vertexList[vertexPos+1],
-                this.position[2]
-            ], this.lastIndex, i);
-            if(heights[i] > heightAdjust)
-                heightAdjust = heights[i];
-        }
-
-
-        // TODO: velocity
-        if(heightAdjust < -0.05) {
-            // Falling
-            this.stateScript = RAV.stateScripts.handleFallingMotion;
-//             console.log("Walking -> Falling: ", heightAdjust);
-
-
-        } else {
-            // Roving
-
-            // Adjust footing
-            this.position[1] += heightAdjust;
-        }
-
-        this.updateModelView();
     };
 
     // Init
@@ -166,10 +211,14 @@
     // Vertex List
 
     function initVAO(gl) {
-        var indexList = new Uint8ClampedArray(RAV.vertexList/4); // 6 * 1.5
+        var indexList = new Uint8ClampedArray(RAV.vertexList.length/4); // 6 * 1.5
+        var indexPos = 0;
         for(var i=0; i<RAV.hitbox.length; i++) {
-            for(var j=RAV.hitbox[i][0]; j<RAV.hitbox[i][1]-2; j++) {
-                indexList.push(j, j+1, j+2);
+            for(var j=RAV.hitbox[i][0]; j<=RAV.hitbox[i][1]-2; j++) {
+                indexList[indexPos+0] = j+0;
+                indexList[indexPos+1] = j+1;
+                indexList[indexPos+2] = j+2;
+                indexPos+=3;
             }
         }
 
@@ -191,7 +240,7 @@
 
 
         VAO.unbind();
-        VAO.count = RAV.indexList / 3;
+        VAO.count = indexList.length / 3;
     }
     RAV.vertexList = new Float32Array([
         // X    Y    Z        V    H      rotateX      ID

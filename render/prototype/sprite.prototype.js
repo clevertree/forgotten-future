@@ -90,17 +90,6 @@
         );
     };
 
-    SpritePrototype.prototype.getViewPort = function() {
-        var sprite = this;
-        return new Render.ViewPort.SimpleViewPort(
-            function(vViewPosition) {
-                vViewPosition[0] = -sprite.position[0];
-                vViewPosition[1] = -sprite.position[1] + 2;
-                if(vViewPosition[2] < 2.5)
-                    vViewPosition[2] += 0.002 * (2.5 - vViewPosition[2]);
-            }
-        );
-    };
 
     SpritePrototype.prototype.testHit = function (hitBox) {
         var pixel = hitBox.testHit(this.position[0], this.position[1], this.position[2]);
