@@ -34,6 +34,7 @@
         this.modelView      = options.modelView || Util.translation(0,0,0);
         this.vaoOffset      = options.vaoOffset || 0;
         this.vaoCount       = options.vaoCount || VAO.count;
+        this.stateScript    = RAV.stateScripts.handleRovingMotion;
     }
 
     /**
@@ -60,6 +61,11 @@
         VAO.bind();
         gl.drawElements(gl.TRIANGLES, this.vaoCount, gl.UNSIGNED_BYTE, this.vaoOffset);
         VAO.unbind();
+    };
+
+    // Update
+    RAV.prototype.update = function(t, platform, stage) {
+        this.stateScript(t, platform, stage);
     };
 
     RAV.Group = function(gl, sprites, options) {
@@ -101,13 +107,15 @@
         // Position
         this.position[0] += this.velocity[0];
 
-        var heights = new Array(HITPOINTS.length);
+        var heights = new Array(RAV.wheels.length);
         var heightAdjust = -1;
-        for(var i=0; i<HITPOINTS.length; i++) {
+        for(var i=0; i<RAV.wheels.length; i++) {
+            var vertexPos = RAV.wheels[i] * 6;
+
             // Test for map height
             heights[i] = platform.testHeight([
-                this.position[0]+HITPOINTS[i][0],
-                this.position[1]+HITPOINTS[i][1],
+                this.position[0]+RAV.vertexList[vertexPos],
+                this.position[1]+RAV.vertexList[vertexPos+1],
                 this.position[2]
             ], this.lastIndex, i);
             if(heights[i] > heightAdjust)
@@ -158,28 +166,13 @@
     // Vertex List
 
     function initVAO(gl) {
-        var vertexList = new Float32Array([
-            // X    Y    Z        V    H      rotateX
-            // Tank Base
-            -1.0, 0.0, 0.0,     1.0, 0.0,   0.0,
-            1.0, 0.0, 0.0,     1.0, 1.0,   0.0,
-            -0.5, -0.5, 0.0,    0.0, 0.0,   0.0,
-            0.5, -0.5, 0.0,    0.0, 1.0,   0.0,
+        var indexList = new Uint8ClampedArray(RAV.vertexList/4); // 6 * 1.5
+        for(var i=0; i<RAV.hitbox.length; i++) {
+            for(var j=RAV.hitbox[i][0]; j<RAV.hitbox[i][1]-2; j++) {
+                indexList.push(j, j+1, j+2);
+            }
+        }
 
-            // Tank Turret
-            -0.5, 0.0, 0.0,     1.0, 0.0,   0.0,
-            0.5, 0.0, 0.0,     1.0, 1.0,   0.0,
-            -0.5, 0.5, 0.0,     0.0, 0.0,   0.0,
-
-            // Tank Cannon (3D)
-        ]);
-        var indexList = new Uint8ClampedArray([
-            1, 2, 3,
-            2, 3, 4,
-
-            5, 6, 7,
-            6, 7, 8,
-        ]);
 
         // Vertex Array Object
         VAO = Util.createVertexArray(gl);
@@ -189,7 +182,7 @@
         // Vertex Array Object
         var bufVertexList = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
-        gl.bufferData(gl.ARRAY_BUFFER, vertexList, gl.STATIC_DRAW);
+        gl.bufferData(gl.ARRAY_BUFFER, RAV.vertexList, gl.STATIC_DRAW);
 
         // Index Array Object
         var bufVertexIndices = gl.createBuffer();
@@ -198,15 +191,33 @@
 
 
         VAO.unbind();
-        VAO.count = indexList / 3;
+        VAO.count = RAV.indexList / 3;
     }
+    RAV.vertexList = new Float32Array([
+        // X    Y    Z        V    H      rotateX      ID
+        // Tank Base
+        -1.0, 0.0, 0.0,     1.0, 0.0,   0.0,        // 1
+         1.0, 0.0, 0.0,     1.0, 1.0,   0.0,        // 2
+        -0.5, -0.5, 0.0,    0.0, 0.0,   0.0,        // 3
+         0.5, -0.5, 0.0,    0.0, 1.0,   0.0,        // 4
 
-    RAV.fragments = {
-        // Name     offset, count, centerX, centerY
-        default:    [0, 4],
-        base:       [0, 2],
-        turret:     [2, 4],
-    };
+        // Tank Turret
+        -0.5, 0.0, 0.0,     1.0, 0.0,   0.0,        // 5
+         0.5, 0.0, 0.0,     1.0, 1.0,   0.0,        // 6
+        -0.5, 0.5, 0.0,     0.0, 0.0,   0.0,        // 7
+         0.5, 0.5, 0.0,     0.0, 1.0,   0.0,        // 6
+
+        // Tank Cannon (3D)
+    ]);
+
+    RAV.hitbox = [
+        [0, 3, 'hull'],
+        [4, 7, 'turret'],
+    ];
+
+    RAV.wheels = new Uint8ClampedArray([
+        0, 1, 2, 3
+    ]);
 
     // Shader
 
@@ -230,7 +241,7 @@
         uniformProjectionMatrix = gl.getUniformLocation(program, "uniformProjectionMatrix");
         uniformModelViewMatrix = gl.getUniformLocation(program, "uniformModelViewMatrix");
         uniformSampler = gl.getUniformLocation(program, "uniformSampler");
-        uniformColor = gl.getUniformLocation(program, "uniformColor");
+        // uniformColor = gl.getUniformLocation(program, "uniformColor");
 
         gl.enableVertexAttribArray(attrRotateX);
     }
@@ -240,8 +251,8 @@
         attrRotateX,
         uniformProjectionMatrix,
         uniformModelViewMatrix,
-        uniformSampler,
-        uniformColor;
+        uniformSampler;
+        // uniformColor;
     RAV.VS = [
         "attribute vec4 attrVertexPosition;",
         "attribute vec2 attrTextureCoordinate;",
@@ -262,12 +273,12 @@
         "precision mediump float;",
 
         "uniform sampler2D uniformSampler;",
-        "uniform vec4 uniformColor;",
+        // "uniform vec4 uniformColor;",
 
         "varying vec2 varyTextureCoordinate;",
 
         "void main() {",
-        "    gl_FragColor = texture2D(uniformSampler, varyTextureCoordinate) * uniformColor;",
+        "    gl_FragColor = texture2D(uniformSampler, varyTextureCoordinate);", // * uniformColor;",
         "}"
     ].join("\n");
 
