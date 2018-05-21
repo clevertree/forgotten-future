@@ -143,7 +143,7 @@
             // Hitting the ground
             if(this.velocity[1] < -0.4) {
                 console.log("Bounce => y=", this.velocity[1]);
-                this.velocity[1] = Math.abs(this.velocity[1]) * BOUNCE_QUOTIENT;
+                this.velocity[1] = Math.abs(this.velocity[1]) * 0.4;
 
             } else {
                 // Landing on the ground
@@ -198,7 +198,7 @@
 
     function initTexture(gl) {
         texture = gl.createTexture();
-        console.log("Setting up Texture: ", iTexture);
+        console.log("Setting up Sprite Texture: ", iTexture);
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, iTexture);
 
