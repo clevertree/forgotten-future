@@ -36,6 +36,7 @@
         this.vaoCount       = options.vaoCount || VAO.count;
         this.update         = RAV.stateScripts.handleRovingMotion;
         this.platform       = options.platform;
+        this.lastIndex      = [];
     }
 
     /**
@@ -67,7 +68,7 @@
     RAV.prototype.testHeights = function() {
 
         var heights = new Array(RAV.wheels.length+1);
-        heights[0] = -1;
+        var heightAdjust = -1;
         for(var i=0; i<RAV.wheels.length; i++) {
             var vertexPos = RAV.wheels[i] * 6;
 
@@ -77,10 +78,11 @@
                 this.position[1]+RAV.vertexList[vertexPos+1],
                 this.position[2]
             ], this.lastIndex, i);
-            if(heights[i] > heights[0])
-                heights[0] = heights[i];
+            if(heights[i] > heightAdjust)
+                heightAdjust = heights[i];
         }
 
+        heights[RAV.wheels.length] = heightAdjust;
         return heights;
     };
 
@@ -95,13 +97,27 @@
         // Position
         this.position[0] += this.velocity[0];
 
-        var heights = this.testHeights();
+        var heights = new Array(RAV.wheels.length);
+        var heightAdjust = -1000;
+        for(var i=0; i<RAV.wheels.length; i++) {
+            var vertexPos = RAV.wheels[i] * 6;
+
+            // Test for map height
+            heights[i] = this.platform.testHeight([
+                this.position[0]+RAV.vertexList[vertexPos],
+                this.position[1]+RAV.vertexList[vertexPos+1],
+                // this.position[2]
+            ], this.lastIndex, i);
+            if(heights[i] > heightAdjust)
+                heightAdjust = heights[i];
+        }
 
 
         // TODO: velocity
         if(heights[0] < -0.05) {
             // Falling
             this.update = RAV.stateScripts.handleFallingMotion;
+            this.update(t);
             // console.log("Walking -> Falling: ", heights[0]);
             return;
         }
@@ -109,7 +125,7 @@
         // Roving
 
         // Adjust footing
-        this.position[1] += heights[0];
+        this.position[1] += heightAdjust;
 
         // Update Modelview
         this.modelView = Util.translation(this.position[0], this.position[1], this.position[2]);
@@ -131,14 +147,27 @@
         this.position[0] += this.velocity[0];
         this.position[1] += this.velocity[1];
 
-        var heights = this.testHeights();
+        var heightAdjust = -1;
+        for(var i=0; i<RAV.wheels.length; i++) {
+            var vertexPos = RAV.wheels[i] * 6;
 
-        if(!(heights[0] > 0)) {
+            // Test for map height
+            var height = this.platform.testHeight([
+                this.position[0]+RAV.vertexList[vertexPos],
+                this.position[1]+RAV.vertexList[vertexPos+1],
+                // this.position[2]
+            ], this.lastIndex, i);
+            if(height > heightAdjust)
+                heightAdjust = height;
+        }
+
+
+        if(!(heightAdjust > 0)) {
             // Falling
 
         } else {
             // Landing
-            this.position[1] += heights[0];
+            this.position[1] += heightAdjust;
 
             // Hitting the ground
             if(this.velocity[1] < -0.4) {

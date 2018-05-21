@@ -38,7 +38,7 @@
     };
 
     StagePrototype.prototype.setSpriteViewPort = function(sprite) {
-        return new Render.ViewPort.SimpleViewPort(
+        this.viewPort = new Render.ViewPort.SimpleViewPort(
             function(vViewPosition) {
                 vViewPosition[0] = -sprite.position[0];
                 vViewPosition[1] = -sprite.position[1] + 2;
