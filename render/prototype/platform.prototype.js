@@ -25,6 +25,7 @@
         // Variables
         this.hitBox         = options.hitBox || null;
         this.sprites        = options.sprites || [];
+        this.stage          = options.stage || null;
     }
 
     PlatformPrototype.prototype.update = function(t, stage) {
@@ -46,6 +47,22 @@
 
         this.hitBox.render(gl, this.modelView, mProjection);
     };
+
+    PlatformPrototype.prototype.addSprite = function(sprite) {
+        var p = this.sprites.indexOf(sprite);
+        if(p >= 0)
+            throw new Error("Sprite already associated with platform");
+
+        // Check for existing platform assignment
+        if(sprite.platform) {
+            p = this.sprites.indexOf(this);
+            if(p >= 0)
+                this.sprites.splice(p, 1);
+        }
+        sprite.platform = this;
+        this.sprites.push(sprite);
+    };
+
 
     // PlatformPrototype.prototype.testHit = function (spritePosition) {
     //     for(var i=0; i<this.hitBox.length; i++) {

@@ -56,7 +56,7 @@
 
         // Local Variables
         this.velocity       = [0.1, 0, 0];
-        this.acceleration   = [Math.random() * 0.001, stage.gravity[1], 0];
+        this.acceleration   = [Math.random() * 0.001, -0.0001, 0];
         this.stateScript    = Lem.stateScripts.handleFallingMotion;
 
         // Sprite Sheet
@@ -70,18 +70,18 @@
     // State Scripts
 
     Lem.stateScripts = {};
-    Lem.stateScripts.handleFallingMotion = function(t, platform, stage) {
+    Lem.stateScripts.handleFallingMotion = function(t) {
         // Velocity
         // this.velocity[0] += vAcceleration[0];
         // this.velocity[1] += vAcceleration[1];
-        this.velocity[1] += stage.gravity[1];
+        this.velocity[1] += this.platform.stage.gravity[1];
 
         // Position
         this.position[0] += this.velocity[0];
         this.position[1] += this.velocity[1];
 
         // Collision
-        var heightAdjust = platform.hitBox.testHeight([
+        var heightAdjust = this.platform.hitBox.testHeight([
             this.position[0]+HIT_BOX.SIDE_FOOT[0] * this.direction,
             this.position[1]+HIT_BOX.SIDE_FOOT[1],
             this.position[2]

@@ -9,18 +9,30 @@
         Render = ForgottenFuture.Render;
 
     ForgottenFuture.Render.Shader.PolygonShader = PolygonShader;
-    function PolygonShader(gl, aVertexList, aVertexIndices, iTexture, options) {
-        // options = options || {};
-
-        // Variables
-        // this.flags              = options.flags || PolygonShader.FLAG_DEFAULTS;
-        // this.glLineMode         = options.glLineMode || 4;
-
-        // this.color              = options.color || defaultColor;
-        // this.activeColor        = options.activeColor || defaultColor.slice(0);
+    function PolygonShader(gl, vertexList, indexList, iTexture) {
 
         // Initiate Program
-        var program = this.init(gl);
+        var program = Util.compileProgram(gl, PolygonShader.VS, PolygonShader.FS);
+        gl.useProgram(program);
+
+        // Enable Vertex Position Attribute.
+        var attrVertexPosition = gl.getAttribLocation(program, "attrVertexPosition");
+        gl.enableVertexAttribArray(attrVertexPosition);
+
+        // Enable Texture Position Attribute.
+        var attrTextureCoordinate = gl.getAttribLocation(program, "attrTextureCoordinate");
+        gl.enableVertexAttribArray(attrTextureCoordinate);
+
+        // Enable Texture Position Attribute.
+        var attrFlag = gl.getAttribLocation(program, "attrFlag");
+        gl.enableVertexAttribArray(attrFlag);
+
+        // Lookup Uniforms
+        var uniformProjectionMatrix = gl.getUniformLocation(program, "uniformProjectionMatrix");
+        var uniformModelViewMatrix = gl.getUniformLocation(program, "uniformModelViewMatrix");
+        var uniformSampler = gl.getUniformLocation(program, "uniformSampler");
+        var uniformColor = gl.getUniformLocation(program, "uniformColor");
+
 
         // Set up Textures
         var tTexture = setupTexture(gl, iTexture);
@@ -34,29 +46,21 @@
         // Vertex Array Object
         var bufVertexList = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
-        gl.bufferData(gl.ARRAY_BUFFER, aVertexList, gl.STATIC_DRAW);
-        gl.vertexAttribPointer(program.attrVertexPosition, 3, gl.FLOAT, false, 0, 0);
-        gl.vertexAttribPointer(program.attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
-        gl.vertexAttribPointer(program.attrFlag, 1, gl.FLOAT, false, 0, 0);
+        gl.bufferData(gl.ARRAY_BUFFER, vertexList, gl.STATIC_DRAW);
+        gl.vertexAttribPointer(attrVertexPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(attrFlag, 1, gl.FLOAT, false, 0, 0);
 
         // Index Array Object
         var bufVertexIndices = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
-        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, aVertexIndices, gl.STATIC_DRAW);
+        gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexList, gl.STATIC_DRAW);
 
-        // Texture Coordinates
-        // var bufTextureCoordinate = gl.createBuffer();
-        // gl.bindBuffer(gl.ARRAY_BUFFER, bufTextureCoordinate);
-        // gl.bufferData(gl.ARRAY_BUFFER, attrTextureCoordinates, gl.STATIC_DRAW);
 
         VAO.unbind();
-        VAO.count = aVertexIndices / 3;
+        VAO.count = indexList / 3;
 
-
-
-        var vertexCount = aVertexList.length/4;
-
-        // Functions
+        // Render
 
         this.render = function(gl, mModelView, mProjection) {
 
@@ -65,8 +69,8 @@
 
             // Bind Vertex Coordinate
             // gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
-            // gl.vertexAttribPointer(program.attrVertexPosition, 2, gl.FLOAT, false, 0, 0);
-            // gl.vertexAttribPointer(program.attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+            // gl.vertexAttribPointer(attrVertexPosition, 2, gl.FLOAT, false, 0, 0);
+            // gl.vertexAttribPointer(attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
 
             // gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
             // gl.bufferData(gl.ARRAY_BUFFER, attrVertexPositions, gl.STATIC_DRAW);
@@ -76,14 +80,14 @@
             // gl.bufferData(gl.ARRAY_BUFFER, attrTextureCoordinates, gl.DYNAMIC_DRAW);
 
             // Set the projection and viewport.
-            gl.uniformMatrix4fv(program.uPMatrix, false, mProjection);
-            gl.uniformMatrix4fv(program.uMVMatrix, false, mModelView);
-            gl.uniform4fv(program.uColor, defaultColor);
+            gl.uniformMatrix4fv(uniformProjectionMatrix, false, mProjection);
+            gl.uniformMatrix4fv(uniformModelViewMatrix, false, mModelView);
+            gl.uniform4fv(uniformColor, defaultColor);
 
             // Tell the shader to get the texture from texture unit 0
             gl.activeTexture(gl.TEXTURE0);
             gl.bindTexture(gl.TEXTURE_2D, tTexture);
-            gl.uniform1i(program.uSampler, 0);
+            gl.uniform1i(uniformSampler, 0);
 
             // draw the quad (2 triangles, 6 vertices)
             // gl.drawArrays(4, 0, vertexCount);
@@ -95,10 +99,6 @@
         this.renderGroup = function (gl, mModelView, mProjection) {
 
         };
-
-        // Vertices
-
-
 
         // Textures
 
@@ -133,69 +133,18 @@
     // var defaultModelViewMatrix = Util.translation(0,0,0); //[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1];
     var defaultColor = new Float32Array([1,1,1,1]);
 
-    // Put texcoords in the buffer
-    var defaultTextureCoordinates = new Float32Array([
-        0, 1,
-        0, 0,
-        1, 1,
-        1, 1,
-        0, 0,
-        1, 0,
-    ]);
-
-    var mVertexCoordinates =    new Float32Array([
-        -0.5, -0.5,
-        -0.5, 0.5,
-        0.5, -0.5,
-        0.5, -0.5,
-        -0.5, 0.5,
-        0.5, 0.5,
-    ]);
-
-    // Program
-
-    PolygonShader.prototype.init = function(gl) {
-        // Init Program
-        var program = Util.compileProgram(gl, PolygonShader.VS, PolygonShader.FS);
-        gl.useProgram(program);
-
-        // Enable Vertex Position Attribute.
-        program.attrVertexPosition = gl.getAttribLocation(program, "attrVertexPosition");
-        gl.enableVertexAttribArray(program.attrVertexPosition);
-
-        // Enable Texture Position Attribute.
-        program.attrTextureCoordinate = gl.getAttribLocation(program, "attrTextureCoordinate");
-        gl.enableVertexAttribArray(program.attrTextureCoordinate);
-
-        // Enable Texture Position Attribute.
-        program.attrFlag = gl.getAttribLocation(program, "attrFlag");
-        gl.enableVertexAttribArray(program.attrFlag);
-
-        // Lookup Uniforms
-        program.uPMatrix = gl.getUniformLocation(program, "uPMatrix");
-        program.uMVMatrix = gl.getUniformLocation(program, "uMVMatrix");
-        program.uSampler = gl.getUniformLocation(program, "uSampler");
-        program.uColor = gl.getUniformLocation(program, "uColor");
-
-        gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexPosition);
-        gl.bufferData(gl.ARRAY_BUFFER, mVertexCoordinates, gl.STATIC_DRAW);
-
-        return program;
-    };
-
-
     PolygonShader.VS = [
         "attribute vec4 attrVertexPosition;",
         "attribute vec2 attrTextureCoordinate;",
         "attribute float attrFlag;",
 
-        "uniform mat4 uPMatrix;",
-        "uniform mat4 uMVMatrix;",
+        "uniform mat4 uniformProjectionMatrix;",
+        "uniform mat4 uniformModelViewMatrix;",
 
         "varying vec2 varyTextureCoordinate;",
 
         "void main() {",
-        "    gl_Position = uPMatrix * uMVMatrix * attrVertexPosition;",
+        "    gl_Position = uniformProjectionMatrix * uniformModelViewMatrix * attrVertexPosition;",
         "    varyTextureCoordinate = attrTextureCoordinate;",
         "}"
     ].join("\n");
@@ -203,13 +152,13 @@
     PolygonShader.FS = [
         "precision mediump float;",
 
-        "uniform sampler2D uSampler;",
-        "uniform vec4 uColor;",
+        "uniform sampler2D uniformSampler;",
+        "uniform vec4 uniformColor;",
 
         "varying vec2 varyTextureCoordinate;",
 
         "void main() {",
-        "    gl_FragColor = texture2D(uSampler, varyTextureCoordinate) * uColor;",
+        "    gl_FragColor = texture2D(uniformSampler, varyTextureCoordinate) * uniformColor;",
         "}"
     ].join("\n");
 

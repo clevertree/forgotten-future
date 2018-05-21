@@ -28,15 +28,30 @@
         this.viewPort = new Render.ViewPort.SimpleViewPort();
 
     }
+    StagePrototype.prototype.addPlatform = function(platform) {
+        this.platforms.push(platform);
+        platform.stage = this;
+    };
 
     StagePrototype.prototype.setViewPort = function(viewPort) {
         this.viewPort = viewPort;
     };
 
+    StagePrototype.prototype.setSpriteViewPort = function(sprite) {
+        this.viewPort = new Render.ViewPort.SimpleViewPort(
+            function(vViewPosition) {
+                vViewPosition[0] = -sprite.position[0];
+                vViewPosition[1] = -sprite.position[1] + 2;
+                if(vViewPosition[2] < 2)
+                    vViewPosition[2] += 0.004 * (2 - vViewPosition[2]);
+            }
+        );
+    };
+
     StagePrototype.prototype.update = function(t) {
         // Update
         for(var i=0; i<this.platforms.length; i++)
-            this.platforms[i].update(t, this);
+            this.platforms[i].update(t);
     };
 
     StagePrototype.prototype.render = function(gl, t) {
