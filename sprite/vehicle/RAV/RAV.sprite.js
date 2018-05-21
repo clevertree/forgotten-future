@@ -82,7 +82,7 @@
         }
 
         return heights;
-    }
+    };
 
 
     // Physics Scripts

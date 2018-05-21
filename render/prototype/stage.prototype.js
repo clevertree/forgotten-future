@@ -51,7 +51,7 @@
     StagePrototype.prototype.update = function(t) {
         // Update
         for(var i=0; i<this.platforms.length; i++)
-            this.platforms[i].update(t, this);
+            this.platforms[i].update(t);
     };
 
     StagePrototype.prototype.render = function(gl, t) {
