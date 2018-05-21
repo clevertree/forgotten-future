@@ -30,7 +30,7 @@
         // Options
         options = options || {};
         this.velocity       = options.velocity || [0.07, 0, 0];
-        this.acceleration   = options.acceleration || [Math.random() * 0.001, -0.0001, 0];
+        this.acceleration   = options.acceleration || [Math.random() * 0.0001, -0.0001, 0];
         this.modelView      = options.modelView || Util.translation(0,0,0);
         this.vaoOffset      = options.vaoOffset || 0;
         this.vaoCount       = options.vaoCount || VAO.count;
