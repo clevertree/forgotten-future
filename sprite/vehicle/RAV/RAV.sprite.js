@@ -267,23 +267,26 @@
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexList, gl.STATIC_DRAW);
 
+        gl.vertexAttribPointer(attrVertexPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.vertexAttribPointer(attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+        // gl.vertexAttribPointer(attrRotateX, 1, gl.FLOAT, false, 0, 0);
 
         VAO.unbind();
-        VAO.count = indexList.length / 3;
+        VAO.count = RAV.vertexList.length / 5;
     }
     RAV.vertexList = new Float32Array([
         // X    Y    Z        V    H      rotateX      ID
         // Tank Base
-        -1.0, 0.0, 0.0,     1.0, 0.0,   0.0,        // 1
-         1.0, 0.0, 0.0,     1.0, 1.0,   0.0,        // 2
-        -0.5, -0.5, 0.0,    0.0, 0.0,   0.0,        // 3
-         0.5, -0.5, 0.0,    0.0, 1.0,   0.0,        // 4
+        -1.0, 0.0, 0.0,     1.0, 0.0,   //0.0,        // 1
+         1.0, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 2
+        -0.5, -0.5, 0.0,    0.0, 0.0,   //0.0,        // 3
+         0.5, -0.5, 0.0,    0.0, 1.0,   //0.0,        // 4
 
         // Tank Turret
-        -0.5, 0.0, 0.0,     1.0, 0.0,   0.0,        // 5
-         0.5, 0.0, 0.0,     1.0, 1.0,   0.0,        // 6
-        -0.5, 0.5, 0.0,     0.0, 0.0,   0.0,        // 7
-         0.5, 0.5, 0.0,     0.0, 1.0,   0.0,        // 6
+        -0.5, 0.0, 0.0,     1.0, 0.0,   //0.0,        // 5
+         0.5, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 6
+        -0.5, 0.5, 0.0,     0.0, 0.0,   //0.0,        // 7
+         0.5, 0.5, 0.0,     0.0, 1.0,   //0.0,        // 6
 
         // Tank Cannon (3D)
     ]);
@@ -312,16 +315,14 @@
         attrTextureCoordinate = gl.getAttribLocation(program, "attrTextureCoordinate");
         gl.enableVertexAttribArray(attrTextureCoordinate);
 
-        attrRotateX = gl.getAttribLocation(program, "attrRotateX");
-        gl.enableVertexAttribArray(attrRotateX);
+        // attrRotateX = gl.getAttribLocation(program, "attrRotateX");
+        // gl.enableVertexAttribArray(attrRotateX);
 
         // Lookup Uniforms
         uniformProjectionMatrix = gl.getUniformLocation(program, "uniformProjectionMatrix");
         uniformModelViewMatrix = gl.getUniformLocation(program, "uniformModelViewMatrix");
         uniformSampler = gl.getUniformLocation(program, "uniformSampler");
         // uniformColor = gl.getUniformLocation(program, "uniformColor");
-
-        gl.enableVertexAttribArray(attrRotateX);
     }
 
     var attrVertexPosition,
@@ -334,16 +335,19 @@
     RAV.VS = [
         "attribute vec4 attrVertexPosition;",
         "attribute vec2 attrTextureCoordinate;",
-        "attribute float attrRotateX;",
+        // "attribute float attrRotateX;",
 
         "uniform mat4 uniformProjectionMatrix;",
         "uniform mat4 uniformModelViewMatrix;",
 
         "varying vec2 varyTextureCoordinate;",
+        // "varying float varyRotateX;",
 
         "void main() {",
+        // "    vec4 v4Position = vec4(attrVertexPosition.x, attrVertexPosition.y, attrVertexPosition.z, 1.0);",
         "    gl_Position = uniformProjectionMatrix * uniformModelViewMatrix * attrVertexPosition;",
         "    varyTextureCoordinate = attrTextureCoordinate;",
+        // "    varyRotateX = attrRotateX;",
         "}"
     ].join("\n");
 
