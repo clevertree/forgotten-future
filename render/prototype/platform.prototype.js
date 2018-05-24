@@ -45,7 +45,7 @@
         for(var i=0; i<this.sprites.length; i++)
             this.sprites[i].render(gl, mProjection);
 
-        this.hitBox.render(gl, this.modelView, mProjection);
+        // this.hitBox.render(gl, this.modelView, mProjection);
     };
 
     PlatformPrototype.prototype.addSprite = function(sprite) {

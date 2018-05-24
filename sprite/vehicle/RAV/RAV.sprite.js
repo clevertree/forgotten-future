@@ -60,9 +60,15 @@
 
         // draw the quad (2 triangles, 6 vertices)
         // gl.drawArrays(4, 0, vertexCount);
-        VAO.bind();
+        // VAO.bind();
+
+        gl.vertexAttribPointer(attrVertexPosition, 3, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
+        gl.vertexAttribPointer(attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
+
         gl.drawElements(gl.TRIANGLES, this.vaoCount, gl.UNSIGNED_BYTE, this.vaoOffset);
-        VAO.unbind();
+        // VAO.unbind();
     };
 
     RAV.prototype.testHeights = function() {
@@ -239,6 +245,7 @@
 
     // Vertex List
 
+    var bufVertexList, bufVertexIndices;
     function initVAO(gl) {
         var indexList = new Uint8ClampedArray(RAV.vertexList.length/4); // 6 * 1.5
         var indexPos = 0;
@@ -251,6 +258,7 @@
             }
         }
 
+        indexList = RAV.indexList;
 
         // Vertex Array Object
         VAO = Util.createVertexArray(gl);
@@ -258,12 +266,12 @@
         VAO.bind();
 
         // Vertex Array Object
-        var bufVertexList = gl.createBuffer();
+        bufVertexList = gl.createBuffer();
         gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
         gl.bufferData(gl.ARRAY_BUFFER, RAV.vertexList, gl.STATIC_DRAW);
 
         // Index Array Object
-        var bufVertexIndices = gl.createBuffer();
+        bufVertexIndices = gl.createBuffer();
         gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexList, gl.STATIC_DRAW);
 
@@ -278,17 +286,22 @@
         // X    Y    Z        V    H      rotateX      ID
         // Tank Base
         -1.0, 0.0, 0.0,     1.0, 0.0,   //0.0,        // 1
-         1.0, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 2
+        1.0, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 2
         -0.5, -0.5, 0.0,    0.0, 0.0,   //0.0,        // 3
-         0.5, -0.5, 0.0,    0.0, 1.0,   //0.0,        // 4
+        0.5, -0.5, 0.0,    0.0, 1.0,   //0.0,        // 4
 
         // Tank Turret
         -0.5, 0.0, 0.0,     1.0, 0.0,   //0.0,        // 5
-         0.5, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 6
+        0.5, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 6
         -0.5, 0.5, 0.0,     0.0, 0.0,   //0.0,        // 7
-         0.5, 0.5, 0.0,     0.0, 1.0,   //0.0,        // 6
+        0.5, 0.5, 0.0,     0.0, 1.0,   //0.0,        // 6
 
         // Tank Cannon (3D)
+    ]);
+
+    RAV.indexList = new Float32Array([
+        0, 1, 2,    1, 2, 3,
+        4, 5, 6,    5, 6, 7,
     ]);
 
     RAV.hitbox = [
@@ -361,6 +374,7 @@
 
         "void main() {",
         "    gl_FragColor = texture2D(uniformSampler, varyTextureCoordinate);", // * uniformColor;",
+        // "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);", // * uniformColor;",
         "}"
     ].join("\n");
 
