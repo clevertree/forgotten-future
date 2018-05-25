@@ -33,12 +33,13 @@
         this.acceleration   = options.acceleration || [Math.random() * 0.0001, -0.0001, 0];
         this.modelView      = options.modelView || Util.translation(0,0,0);
         this.vaoOffset      = options.vaoOffset || 0;
-        this.vaoCount       = options.vaoCount || VAO.count;
+        this.vaoCount       = options.vaoCount || RAV.indexList.length;
         this.update         = RAV.stateScripts.handleRovingMotion;
         this.platform       = options.platform;
         this.lastIndex      = [];
     }
 
+    const vertexAttrCount = 3
     /**
      * Render this instance
      * @param {WebGLRenderingContext} gl
@@ -62,12 +63,15 @@
         // gl.drawArrays(4, 0, vertexCount);
         // VAO.bind();
 
-        gl.vertexAttribPointer(attrVertexPosition, 3, gl.FLOAT, false, 0, 0);
         gl.bindBuffer(gl.ARRAY_BUFFER, bufVertexList);
-        gl.vertexAttribPointer(attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
 
-        gl.drawElements(gl.TRIANGLES, this.vaoCount, gl.UNSIGNED_BYTE, this.vaoOffset);
+        gl.vertexAttribPointer(attrVertexPosition, 3, gl.FLOAT, false, 4 * 5, 0);
+        gl.vertexAttribPointer(attrTextureCoordinate, 2, gl.FLOAT, false, 4 * 5, 4 * 3);
+
+
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufIndexList);
+
+        gl.drawElements(gl.TRIANGLES, this.vaoCount,  gl.UNSIGNED_SHORT, this.vaoOffset);
         // VAO.unbind();
     };
 
@@ -76,7 +80,7 @@
         var heights = new Array(RAV.wheels.length+1);
         var heightAdjust = -1;
         for(var i=0; i<RAV.wheels.length; i++) {
-            var vertexPos = RAV.wheels[i] * 6;
+            var vertexPos = RAV.wheels[i] * vertexAttrCount;
 
             // Test for map height
             heights[i] = this.platform.testHeight([
@@ -106,7 +110,7 @@
         var heights = new Array(RAV.wheels.length);
         var heightAdjust = -1000;
         for(var i=0; i<RAV.wheels.length; i++) {
-            var vertexPos = RAV.wheels[i] * 6;
+            var vertexPos = RAV.wheels[i] * vertexAttrCount;
 
             // Test for map height
             heights[i] = this.platform.testHeight([
@@ -155,7 +159,7 @@
 
         var heightAdjust = -1;
         for(var i=0; i<RAV.wheels.length; i++) {
-            var vertexPos = RAV.wheels[i] * 6;
+            var vertexPos = RAV.wheels[i] * vertexAttrCount;
 
             // Test for map height
             var height = this.platform.testHeight([
@@ -245,7 +249,7 @@
 
     // Vertex List
 
-    var bufVertexList, bufVertexIndices;
+    var bufVertexList, bufIndexList;
     function initVAO(gl) {
         var indexList = new Uint8ClampedArray(RAV.vertexList.length/4); // 6 * 1.5
         var indexPos = 0;
@@ -263,7 +267,7 @@
         // Vertex Array Object
         VAO = Util.createVertexArray(gl);
 
-        VAO.bind();
+        // VAO.bind();
 
         // Vertex Array Object
         bufVertexList = gl.createBuffer();
@@ -271,38 +275,40 @@
         gl.bufferData(gl.ARRAY_BUFFER, RAV.vertexList, gl.STATIC_DRAW);
 
         // Index Array Object
-        bufVertexIndices = gl.createBuffer();
-        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufVertexIndices);
+        bufIndexList = gl.createBuffer();
+        gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, bufIndexList);
         gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, indexList, gl.STATIC_DRAW);
 
-        gl.vertexAttribPointer(attrVertexPosition, 3, gl.FLOAT, false, 0, 0);
-        gl.vertexAttribPointer(attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
+        // gl.vertexAttribPointer(attrVertexPosition, 3, gl.FLOAT, false, 0, 0);
+        // gl.vertexAttribPointer(attrTextureCoordinate, 2, gl.FLOAT, false, 0, 0);
         // gl.vertexAttribPointer(attrRotateX, 1, gl.FLOAT, false, 0, 0);
 
-        VAO.unbind();
-        VAO.count = RAV.vertexList.length / 5;
+        // VAO.unbind();
+        // VAO.count = RAV.indexList.length;
     }
+
     RAV.vertexList = new Float32Array([
         // X    Y    Z        V    H      rotateX      ID
         // Tank Base
         -1.0, 0.0, 0.0,     1.0, 0.0,   //0.0,        // 1
-        1.0, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 2
+         1.0, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 2
         -0.5, -0.5, 0.0,    0.0, 0.0,   //0.0,        // 3
-        0.5, -0.5, 0.0,    0.0, 1.0,   //0.0,        // 4
+         0.5, -0.5, 0.0,    0.0, 1.0,   //0.0,        // 4
 
         // Tank Turret
         -0.5, 0.0, 0.0,     1.0, 0.0,   //0.0,        // 5
-        0.5, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 6
+         0.5, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 6
         -0.5, 0.5, 0.0,     0.0, 0.0,   //0.0,        // 7
-        0.5, 0.5, 0.0,     0.0, 1.0,   //0.0,        // 6
+         0.5, 0.5, 0.0,     0.0, 1.0,   //0.0,        // 6
 
         // Tank Cannon (3D)
     ]);
 
-    RAV.indexList = new Float32Array([
+    RAV.indexList = new Uint16Array([
         0, 1, 2,    1, 2, 3,
         4, 5, 6,    5, 6, 7,
     ]);
+
 
     RAV.hitbox = [
         [0, 3, 'hull'],
@@ -373,8 +379,8 @@
         "varying vec2 varyTextureCoordinate;",
 
         "void main() {",
-        "    gl_FragColor = texture2D(uniformSampler, varyTextureCoordinate);", // * uniformColor;",
-        // "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);", // * uniformColor;",
+        // "    gl_FragColor = texture2D(uniformSampler, varyTextureCoordinate);", // * uniformColor;",
+        "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);", // * uniformColor;",
         "}"
     ].join("\n");
 
