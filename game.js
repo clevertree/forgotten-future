@@ -30,6 +30,7 @@ var ForgottenFuture = {
     Stage: {},
     Platform: {},
     Util: {},
+    File: {},
     Stats: {},
     Constant: {
 
@@ -110,14 +111,14 @@ var ForgottenFuture = {
 
     /**
      * Launch the game
-     * @param {String=} stageName Specify which stage to load
+     * @param {String=} stageName Specify which stages to load
      */
     ForgottenFuture.play = function (stageName) {
         console.info("Forgotten Future initiated", ForgottenFuture);
 
         stageName = stageName || ForgottenFuture.Constant.STAGE_DEFAULT;
-        var stagePath = 'stage/' + stageName.toLowerCase() + '/' + stageName.toLowerCase() + '.stage.js';
-        // console.info("Loading stage file: " + stagePath);
+        var stagePath = 'stages/' + stageName.toLowerCase() + '/' + stageName.toLowerCase() + '.stage.js';
+        // console.info("Loading stages file: " + stagePath);
 
         if(Render.canvas.length === 0)
             throw new Error("No canvas has been added. Use ForgottenFuture.addCanvas({canvas});");
@@ -135,7 +136,7 @@ var ForgottenFuture = {
         Util.loadScript(stagePath, function() {
             // Wait for all other loading scripts to load
             Util.waitForLoadingScripts(function() {
-                // Initiate the stage
+                // Initiate the stages
                 var stage = new ForgottenFuture.Stage[stageName](gl);
 
                 canvas.width = canvas.clientWidth;
@@ -380,6 +381,54 @@ var ForgottenFuture = {
         image.texture = texture;
         return texture;
     };
+
+    // Mesh Loading
+
+
+    Util.loadVBO = function(gl, url, vbo) {
+        var xhr = new XMLHttpRequest();
+
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState == xhr.DONE) {
+                if (xhr.status == 200 && xhr.response) {
+                    var buffer = xhr.response;
+                    var reader = new DataView(buffer);
+                    //get number of vertices and faces
+                    var numVertices = reader.getUint32(0);
+                    var numFaces = reader.getUint32(4);
+                    vbo.numVertices = numVertices;
+                    vbo.numFaces = numFaces;
+                    //put that data in some arrays
+                    vbo.vertexData = new Float32Array(buffer,8,numVertices*6);
+                    vbo.indexData = new Uint16Array(buffer, numVertices*24+8, numFaces*3);
+                    //push that data to the GPU
+                    vbo.vertexBuffer = gl.createBuffer();
+                    gl.bindBuffer(gl.ARRAY_BUFFER, vbo.vertexBuffer);
+                    gl.bufferData(gl.ARRAY_BUFFER, vbo.vertexData, gl.STATIC_DRAW);
+
+                    vbo.indexBuffer = gl.createBuffer();
+                    gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vbo.indexBuffer);
+                    gl.bufferData(gl.ELEMENT_ARRAY_BUFFER, vbo.indexData, gl.STATIC_DRAW);
+                } else {
+                    console.log("Failed to download:" + xhr.status + " " + xhr.statusText);
+                }
+            }
+        }
+        // Open the request for the provided url
+        xhr.open("GET", url, true);
+        // Set the responseType to 'arraybuffer' for ArrayBuffer response
+        xhr.responseType = "arraybuffer";
+        xhr.send();
+
+//... some gl drawing stuff up here
+        // gl.bindBuffer(gl.ARRAY_BUFFER, vbo.vertexBuffer);
+        // gl.vertexAttribPointer(shaderProgram.vertexPositionAttribute, 3, gl.FLOAT, false,24,0);
+        // gl.vertexAttribPointer(shaderProgram.vertexNormalAttribute, 3, gl.FLOAT, false,24,12);
+        //
+        // gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER, vbo.indexBuffer);
+        // gl.drawElements(gl.TRIANGLES, vbo.numFaces*3, gl.UNSIGNED_SHORT, 0);
+    };
+
 
     // Editor Utils
 

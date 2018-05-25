@@ -12,7 +12,7 @@
         pressedKeys     = ForgottenFuture.Input.pressedKeys;
 
     // Load textures
-    var iTexture = Util.loadImage('sprite/vehicle/RAV/RAV.spritesheet.png');
+    var iTexture = Util.loadImage('sprites/vehicle/RAV/RAV.spritesheet.png');
 
     Sprite.Vehicle.RAV = RAV;
 
@@ -23,7 +23,7 @@
      * @constructor
      */
     function RAV(gl, options) {
-        // Sprite.SpritePrototype.call(this, gl, stage); // call parent constructor
+        // Sprite.SpritePrototype.call(this, gl, stages); // call parent constructor
 
         init(gl);
 
@@ -39,7 +39,8 @@
         this.lastIndex      = [];
     }
 
-    const vertexAttrCount = 3
+    const vertexAttrCount = 3;
+
     /**
      * Render this instance
      * @param {WebGLRenderingContext} gl

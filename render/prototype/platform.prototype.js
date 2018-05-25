@@ -37,7 +37,7 @@
         for(var i=0; i<this.sprites.length; i++)
             this.sprites[i].update(t, this, stage);
 
-        // this.hitBox.update(t, this, stage);
+        // this.hitBox.update(t, this, stages);
     };
 
     PlatformPrototype.prototype.render = function(gl, mProjection) {
@@ -51,9 +51,9 @@
     PlatformPrototype.prototype.addSprite = function(sprite) {
         var p = this.sprites.indexOf(sprite);
         if(p >= 0)
-            throw new Error("Sprite already associated with platform");
+            throw new Error("Sprite already associated with platforms");
 
-        // Check for existing platform assignment
+        // Check for existing platforms assignment
         if(sprite.platform) {
             p = this.sprites.indexOf(this);
             if(p >= 0)

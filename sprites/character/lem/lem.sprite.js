@@ -30,7 +30,7 @@
 
     // Sprite
     var SPRITE_RESOLUTION = 128;
-    var DIR_CHARACTER = 'sprite/';
+    var DIR_CHARACTER = 'sprites/';
     var DIR_SHEET = DIR_CHARACTER + 'character/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
 
     // Hit Box

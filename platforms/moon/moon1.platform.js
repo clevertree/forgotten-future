@@ -26,8 +26,8 @@
         'render/generator/render.generator.js',
     ]);
 
-    var iMoonHeightPattern = Util.loadImage('platform/moon/textures/moon.heighttexture.png');
-    var iMoonHeightNormal = Util.loadImage('platform/moon/textures/moon.normalmap.png');
+    var iMoonHeightPattern = Util.loadImage('platforms/moon/textures/moon.heighttexture.png');
+    var iMoonHeightNormal = Util.loadImage('platforms/moon/textures/moon.normalmap.png');
 
     Platform.MoonPlatform1 = MoonPlatform1;
 

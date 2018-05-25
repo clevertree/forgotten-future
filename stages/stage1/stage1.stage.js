@@ -23,11 +23,11 @@
         'render/viewport/simple.viewport.js',
 
         // Platform Maps
-        'platform/moon/moon1.platform.js',
+        'platforms/moon/moon1.platform.js',
 
         // Sprites
-        'sprite/character/lem/lem.sprite.js',
-        'sprite/vehicle/RAV/RAV.sprite.js'
+        'sprites/character/lem/lem.sprite.js',
+        'sprites/vehicle/RAV/RAV.sprite.js'
     ]);
 
 

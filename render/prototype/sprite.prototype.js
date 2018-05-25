@@ -28,7 +28,7 @@
         this.scale          = options.scale || null; // [1, 1, 0];
         this.position       = options.position || [0, 0, 0];
         this.velocity       = options.velocity || null; // [0.1, 0, 0];
-        this.acceleration   = options.acceleration || null; // [Math.random() * 0.001, stage.gravity[1], 0];
+        this.acceleration   = options.acceleration || null; // [Math.random() * 0.001, stages.gravity[1], 0];
         this.rotation       = options.rotation || null;
         this.direction      = options.direction || 1.0;
         this.modelView      = options.modelView || defaultModelViewMatrix;
@@ -101,9 +101,9 @@
     SpritePrototype.prototype.setPlatform = function(platform) {
         var p = platform.sprites.indexOf(this);
         if(p >= 0)
-            throw new Error("Sprite already associated with platform");
+            throw new Error("Sprite already associated with platforms");
 
-        // Check for existing platform assignment
+        // Check for existing platforms assignment
         if(this.platform) {
             p = this.platform.sprites.indexOf(this);
             if(p >= 0)
@@ -118,8 +118,8 @@
      * @param {PlatformPrototype} platform
      * @param {array} offset
      */
-    // SpritePrototype.prototype.testHeight = function (platform, offset) {
-    //     return platform.testHeight([
+    // SpritePrototype.prototype.testHeight = function (platforms, offset) {
+    //     return platforms.testHeight([
     //         this.position[0]+offset[0],
     //         this.position[1]+offset[1],
     //         this.position[2]+offset[2]
