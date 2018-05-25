@@ -246,6 +246,11 @@ var ForgottenFuture = {
 
     // Vertex Array Objects
 
+    /**
+     *
+     * @param gl
+     * @returns {WebGLVertexArrayObjectOES}
+     */
     Util.createVertexArray = function(gl) {
         var vao = null;
         if(gl.createVertexArray) {
