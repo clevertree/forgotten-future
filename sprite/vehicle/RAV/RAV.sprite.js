@@ -298,8 +298,8 @@
         // Tank Turret
         -0.5, 0.0, 0.0,     1.0, 0.0,   //0.0,        // 5
          0.5, 0.0, 0.0,     1.0, 1.0,   //0.0,        // 6
-        -0.5, 0.5, 0.0,     0.0, 0.0,   //0.0,        // 7
-         0.5, 0.5, 0.0,     0.0, 1.0,   //0.0,        // 6
+        -0.3, 0.5, 0.0,     0.0, 0.0,   //0.0,        // 7
+         0.3, 0.5, 0.0,     0.0, 1.0,   //0.0,        // 6
 
         // Tank Cannon (3D)
     ]);
@@ -379,8 +379,8 @@
         "varying vec2 varyTextureCoordinate;",
 
         "void main() {",
-        // "    gl_FragColor = texture2D(uniformSampler, varyTextureCoordinate);", // * uniformColor;",
-        "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);", // * uniformColor;",
+        "    gl_FragColor = texture2D(uniformSampler, varyTextureCoordinate);", // * uniformColor;",
+        // "    gl_FragColor = vec4(1.0, 1.0, 1.0, 1.0);", // * uniformColor;",
         "}"
     ].join("\n");
 
