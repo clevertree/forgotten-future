@@ -29,7 +29,7 @@
         // Initiate Program
         this.init(gl);
 
-        // Create or get the sprite texture
+        // Create or get the sprites texture
         var tSpriteSheet = loadSpriteSheetTexture(pathSpriteSheet);
 
         // Functions
