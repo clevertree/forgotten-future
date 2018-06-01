@@ -4,6 +4,17 @@
     <meta charset="UTF-8">
     <title>Title</title>
     <script src="demo.js"></script>
+    <script>
+        document.addEventListener('song:playing', function(e) {
+            console.log("Playing: ", e.detail);
+            
+            var oscillator = e.detail.oscillator;
+            setInterval(function() {
+                oscillator.frequency.value++;
+            }, 5);
+        });
+        document.dispatchEvent(new CustomEvent('song:play'));
+    </script>
 </head>
 <body>
 
