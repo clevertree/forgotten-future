@@ -7,11 +7,13 @@
     <script>
         document.addEventListener('song:playing', function(e) {
             console.log("Playing: ", e.detail);
-            
+
             var oscillator = e.detail.oscillator;
-            setInterval(function() {
-                oscillator.frequency.value++;
-            }, 5);
+            var context = oscillator.context;
+            oscillator.frequency.linearRampToValueAtTime(
+                440 * Math.pow(2, 1/12),
+                context.currentTime + 4
+            );
         });
         document.dispatchEvent(new CustomEvent('song:play'));
     </script>
