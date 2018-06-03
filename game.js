@@ -276,7 +276,7 @@ var ForgottenFuture = {
     Util.waitForLoadingScripts = function(callback) {
         if(scriptsLoading > 0) {
             scriptCallbacks.push(callback);
-            console.info("Script callback queued: ", callback);
+            // console.info("Script callback queued: ", callback);
         } else {
             callback();
         }

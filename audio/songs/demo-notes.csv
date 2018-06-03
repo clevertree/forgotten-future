@@ -1,30 +1,31 @@
 // Default note group
 
-2	// group 'beat' starts
-1,A4,1,sine;
-1,A3,.20,sawtooth;
-0,.25;
-1,C4,.20;
-0,.25;
-1,C5,.20;
-0,.25;
-1,C6,.20;
-0,.25;
+g;          // Group 'default'
+x,beat;	    // Execute 'beat'
+0,A4,1,sine;
+0,A3,.20,sawtooth;
+p,.25;
+0,C4,.20;
+p,.25;
+0,C5,.20;
+p,.25;
+0,C6,.20;
+p,.25;
 
-2	// group 'beat' starts
-1,Gs4,1,sine;
-1,A3,.20,sawtooth;
-0,.25;
-1,C4,.20;
-0,.25;
-1,C5,.20;
-0,.25;
-1,C6,.20;
-0,.25;
+x,beat;	    // Execute 'beat'
+0,Gs4,1,sine;
+0,A3,.20,sawtooth;
+p,.25;
+0,C4,.20;
+p,.25;
+0,C5,.20;
+p,.25;
+0,C6,.20;
+p,.25;
 
-// Note group 'beat' begins
-g,beat,
-1,C5,.20;
-0,.25;
-1,C6,.20;
-0,.25;
+
+g,beat;     // Group 'beat'
+0,C5,.20;
+p,.25;
+0,C6,.20;
+p,.25;

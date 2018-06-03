@@ -15,7 +15,7 @@
 
 
     function onPlay(e) {
-        if (e.detail && e.detail.title && e.detail.title !== TITLE)
+        if (e.defaultPrevented || (e.detail && e.detail.title && e.detail.title !== TITLE))
             return false;
         e.preventDefault();
 
@@ -50,7 +50,7 @@
      * Oscillator Instrument
      * @param {AudioContextBase} context
      * @param {Array} note
-     * @param {SongManager} song
+     * @param {Audio.SongManager} song
      * @returns {number}
      */
     function iOSC(context, note, song) {
@@ -61,28 +61,21 @@
         }
 
         var osc = context.createOscillator(); // instantiate an oscillator
-        osc.type = note[1]; // square, sawtooth, triangle
-        osc.frequency.value = note[2]; // Hz
+        // Set Type
+        if(note[3])     iOSC.lastType = osc.type = note[3];
+        else            osc.type = iOSC.lastType || 'square';
+
+        // Set Frequency
+        if(typeof note[1] === 'string')
+            note[1] = song.getNoteFrequency(note[1]);
+        osc.frequency.value = note[1]; // Hz
+
+        // Play note
         osc.connect(context.destination); // connect it to the destination
         osc.start(song.currentPosition); // start the oscillator
-        osc.stop(noteStartTime + note[3] * song.bpmRatio);
+        osc.stop(noteStartTime + note[2] * song.bpmRatio);
         // console.info("OSC", noteStartTime, noteEndTime);
         return 1;
-    }
-
-    // Instrument Command
-
-    /**
-     * Pause Instrument
-     * @param {AudioContextBase} context
-     * @param {Array} note
-     * @param {SongManager} song
-     * @returns {number}
-     */
-    function cPause(context, note, song) {
-        song.currentPosition += note[1] * song.bpmRatio;
-        // console.info("PAUSE", note[1]);
-        return 0;
     }
 
     // function SongManager(title, options) {

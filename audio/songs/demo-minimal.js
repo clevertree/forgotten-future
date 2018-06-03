@@ -40,7 +40,7 @@
 
     function onPlay(e) {
         var title = "Minimal Demo";
-        if (e.detail && e.detail.title && e.detail.title !== title)
+        if (e.defaultPrevented || (e.detail && e.detail.title && e.detail.title !== title))
             return false;
         e.preventDefault();
 
@@ -69,7 +69,7 @@
         }
         seekPosition += SEEK_TIME;
         if(notesPlayed > 0) {
-            console.log("Seek", seekPosition, currentPosition);
+            // console.log("Seek", seekPosition, currentPosition);
             setTimeout(startSong, SEEK_TIME * 1000);
         } else{
             console.log("Song finished")
