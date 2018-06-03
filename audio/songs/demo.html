@@ -3,19 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>Title</title>
-    <script src="demo.js"></script>
+    <script src="../../game.js"></script>
+    <script src="demo-editor.js"></script>
+    <script src="demo-minimal.js"></script>
     <script>
         document.addEventListener('song:playing', function(e) {
             console.log("Playing: ", e.detail);
 
-            var oscillator = e.detail.oscillator;
-            var context = oscillator.context;
-            oscillator.frequency.linearRampToValueAtTime(
-                440 * Math.pow(2, 1/12),
-                context.currentTime + 4
-            );
+            // var oscillator = e.detail.oscillator;
+            // var context = oscillator.context;
+            // oscillator.frequency.linearRampToValueAtTime(
+            //     440 * Math.pow(2, 1/12),
+            //     context.currentTime + 4
+            // );
         });
-        document.dispatchEvent(new CustomEvent('song:play'));
+        document.dispatchEvent(new CustomEvent('song:play', {
+            cancelable: true,
+            detail:{
+                title: 'Editor Demo' // TODO auto-play
+            }
+        }));
     </script>
 </head>
 <body>

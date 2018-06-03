@@ -19,27 +19,27 @@
 
     const notes = [
         [iOSC, 'sine', A4, 1],
-        [iOSC, 'sawtooth', C4, 0.20],
+        [iOSC, 'sawtooth', A3, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', B4, 0.20],
+        [iOSC, 'sawtooth', C4, 0.20],
         [cPause, 0.25],
         [iOSC, 'sawtooth', C5, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', D5, 0.20],
+        [iOSC, 'sawtooth', C6, 0.20],
         [cPause, 0.25],
         [iOSC, 'sine', Gs4, 1],
-        [iOSC, 'sawtooth', C4, 0.20],
+        [iOSC, 'sawtooth', A3, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', B4, 0.20],
+        [iOSC, 'sawtooth', C4, 0.20],
         [cPause, 0.25],
         [iOSC, 'sawtooth', C5, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', D5, 0.20],
+        [iOSC, 'sawtooth', C6, 0.20],
         [cPause, 0.25],
     ];
 
     function onPlay(e) {
-        var title = "Song Title";
+        var title = "Minimal Demo";
         if (e.detail && e.detail.title && e.detail.title !== title)
             return false;
         e.preventDefault();
@@ -82,8 +82,10 @@
     function iOSC(note) {
         var noteStartTime = currentPosition;
         var noteEndTime = currentPosition + note[3] * bpmRatio;
-        if(noteStartTime < seekPosition)
+        if(noteStartTime < seekPosition) {
+            console.warn("Note Skipped");
             return 0;
+        }
 
         var osc = lastContext.createOscillator(); // instantiate an oscillator
         osc.type = note[1]; // this is the default - also square, sawtooth, triangle

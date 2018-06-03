@@ -16,6 +16,9 @@ var ForgottenFuture = {
         widthToHeightRatio: 1,
         baseURL: ''
     },
+    Audio: {
+
+    },
     Sprite: {
         Character: {},
         Vehicle: {},
