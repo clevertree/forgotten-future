@@ -7,7 +7,7 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
-        Stage = ForgottenFuture.Stage,
+        Stage = ForgottenFuture.Stages,
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
@@ -43,7 +43,7 @@
         Stage.StagePrototype.call(this);
 
         // Players
-        var RAV1 = new ForgottenFuture.Sprite.Vehicle.RAV(gl, this);
+        var RAV1 = new ForgottenFuture.Sprites.Vehicles.RAV(gl, this);
         // RAV1.setRotate([0, 0, 1]);
         RAV1.position = [7, 8, 0];
 
@@ -66,7 +66,7 @@
             stage.addPlatform(Platform);
 
             for (var j = 0; j < 15; j++) {
-                var Lem = new ForgottenFuture.Sprite.Character.Lem(gl, stage);
+                var Lem = new ForgottenFuture.Sprites.Characters.Lem(gl, stage);
                 Lem.setPosition([10 + i, 10, -i]);
                 // Lem.setVelocity([0.1 * Math.random(), 0, 0]);
 //                 Platform.sprites.push(Lem);

@@ -7,14 +7,14 @@
 
 (function() {
     var Util            = ForgottenFuture.Util,
-        Sprite          = ForgottenFuture.Sprite,
+        Sprite          = ForgottenFuture.Sprites,
         Render          = ForgottenFuture.Render,
         pressedKeys     = ForgottenFuture.Input.pressedKeys;
 
     // Load textures
     var iTexture = Util.loadImage('sprites/vehicle/RAV/RAV.spritesheet.png');
 
-    Sprite.Vehicle.RAV = RAV;
+    Sprite.Vehicles.RAV = RAV;
 
     /**
      * Create a new shader instance
@@ -23,7 +23,7 @@
      * @constructor
      */
     function RAV(gl, options) {
-        // Sprite.SpritePrototype.call(this, gl, stages); // call parent constructor
+        // Sprites.SpritePrototype.call(this, gl, stages); // call parent constructor
 
         init(gl);
 
@@ -238,7 +238,7 @@
 
     function initTexture(gl) {
         texture = gl.createTexture();
-        console.log("Setting up Sprite Texture: ", iTexture);
+        console.log("Setting up Sprites Texture: ", iTexture);
         gl.bindTexture(gl.TEXTURE_2D, texture);
         gl.texImage2D(gl.TEXTURE_2D, 0, gl.RGBA, gl.RGBA, gl.UNSIGNED_BYTE, iTexture);
 

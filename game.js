@@ -17,11 +17,11 @@ var ForgottenFuture = {
         baseURL: ''
     },
     Audio: {
-
+        Instruments: {}
     },
-    Sprite: {
-        Character: {},
-        Vehicle: {},
+    Sprites: {
+        Characters: {},
+        Vehicles: {},
         Physics: {}
     }, 
     Input: { 
@@ -30,7 +30,7 @@ var ForgottenFuture = {
         keyEvents: 0, 
         lastKey: null,
     },
-    Stage: {},
+    Stages: {},
     Platform: {},
     Util: {},
     File: {},
@@ -44,7 +44,7 @@ var ForgottenFuture = {
 
         RENDER_SELECTED: 0x10,
 
-        // Stage Constants
+        // Stages Constants
         STAGE_DEFAULT: 'Stage1',
 
         // Render Constants
@@ -140,7 +140,7 @@ var ForgottenFuture = {
             // Wait for all other loading scripts to load
             Util.waitForLoadingScripts(function() {
                 // Initiate the stages
-                var stage = new ForgottenFuture.Stage[stageName](gl);
+                var stage = new ForgottenFuture.Stages[stageName](gl);
 
                 canvas.width = canvas.clientWidth;
                 canvas.height = canvas.clientHeight;
@@ -155,7 +155,7 @@ var ForgottenFuture = {
                     stage.render(gl, t);
                 }
 
-                console.info("Stage '" + stageName + "' rendering", stage);
+                console.info("Stages '" + stageName + "' rendering", stage);
             });
         });
     }

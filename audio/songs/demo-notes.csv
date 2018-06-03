@@ -5,22 +5,22 @@ x,beat;	    // Execute 'beat'
 0,A4,1,sine;
 0,A3,.20,sawtooth;
 p,.25;
-0,C4,.20;
+0,C4;
 p,.25;
-0,C5,.20;
+0,C5;
 p,.25;
-0,C6,.20;
+0,C6;
 p,.25;
 
 x,beat;	    // Execute 'beat'
 0,Gs4,1,sine;
 0,A3,.20,sawtooth;
 p,.25;
-0,C4,.20;
+0,C4;
 p,.25;
-0,C5,.20;
+0,C5;
 p,.25;
-0,C6,.20;
+0,C6;
 p,.25;
 
 

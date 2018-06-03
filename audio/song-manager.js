@@ -38,7 +38,11 @@
         // } else {
         this.loadFile(this.filePath, function() {
             this.processPlayback();
-            onPlaybackStarted(this);
+            onPlaybackStarted && onPlaybackStarted(this);
+
+            document.dispatchEvent(new CustomEvent('song:started', {
+                detail: this
+            }));
         }.bind(this));
         // }
     };
@@ -105,8 +109,17 @@
         if(notesPlayed > 0) {
             console.log("Seek", this.seekPosition, this.currentPosition);
             setTimeout(this.processPlayback.bind(this), this.seekTime * 1000);
+
+            document.dispatchEvent(new CustomEvent('song:playing', {
+                detail: this
+            }));
         } else{
-            console.log("Song finished")
+            console.log("Song finished");
+
+            // Update UI
+            document.dispatchEvent(new CustomEvent('song:finished', {
+                detail: this
+            }));
         }
     };
 

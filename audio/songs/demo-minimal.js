@@ -18,23 +18,23 @@
     var lastContext = null;
 
     const notes = [
-        [iOSC, 'sine', A4, 1],
-        [iOSC, 'sawtooth', A3, 0.20],
+        [iOscillatorSimple, 'sine', A4, 1],
+        [iOscillatorSimple, 'sawtooth', A3, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', C4, 0.20],
+        [iOscillatorSimple, 'sawtooth', C4, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', C5, 0.20],
+        [iOscillatorSimple, 'sawtooth', C5, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', C6, 0.20],
+        [iOscillatorSimple, 'sawtooth', C6, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sine', Gs4, 1],
-        [iOSC, 'sawtooth', A3, 0.20],
+        [iOscillatorSimple, 'sine', Gs4, 1],
+        [iOscillatorSimple, 'sawtooth', A3, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', C4, 0.20],
+        [iOscillatorSimple, 'sawtooth', C4, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', C5, 0.20],
+        [iOscillatorSimple, 'sawtooth', C5, 0.20],
         [cPause, 0.25],
-        [iOSC, 'sawtooth', C6, 0.20],
+        [iOscillatorSimple, 'sawtooth', C6, 0.20],
         [cPause, 0.25],
     ];
 

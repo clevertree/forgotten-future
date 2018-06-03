@@ -7,7 +7,7 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
-        Stage = ForgottenFuture.Stage,
+        Stage = ForgottenFuture.Stages,
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
@@ -21,7 +21,7 @@
         // Variables
         this.platforms = [];
 
-        // Stage Gravity
+        // Stages Gravity
         this.gravity = [0, -0.0004, 0];
 
         // Default ViewPort
@@ -106,17 +106,17 @@
     //             if(stageFlags & Constant.MODE_EDITOR) {
     //                 stageFlags &= ~Constant.MODE_EDITOR;
     //                 stageFlags |= Constant.MODE_CONSOLE;
-    //                 console.log("Stage Mode changed to: Console");
+    //                 console.log("Stages Mode changed to: Console");
     //
     //             } else if(stageFlags & Constant.MODE_CONSOLE) {
     //                 stageFlags &= ~Constant.MODE_CONSOLE;
     //                 stageFlags |= Constant.MODE_DEFAULT;
-    //                 console.log("Stage Mode changed to: Default");
+    //                 console.log("Stages Mode changed to: Default");
     //
     //             } else {
     //                 stageFlags &= ~Constant.MODE_DEFAULT;
     //                 stageFlags |= Constant.MODE_EDITOR;
-    //                 console.log("Stage Mode changed to: Editor");
+    //                 console.log("Stages Mode changed to: Editor");
     //             }
     //         }
     //
