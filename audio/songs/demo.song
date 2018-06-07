@@ -1,15 +1,15 @@
 // Libraries
-load(../library/oscillator/simple.js)
-load(../library/percussion/simple.js)
+load(../instruments/oscillator/simple.js)
+load(../instruments/percussion/simple.js)
 load(demo.song.js)
 
 // Instruments
-instrument(osc,iOscillatorSimple)
-instrument(perc,iPercussionSimple)
+instrument(iOscillatorSimple, osc)
+instrument(iPercussionSimple, perc)
 
 // Default note group
 group()         // Group 'default'
-start(beat)	    // Start group 'beat'
+start(beat)	    // Execute group 'beat'
 n(osc,A4,1,sine)
 n(osc,A3,.2,sawtooth)
 p(.25)
@@ -20,7 +20,7 @@ p(.25)
 n(osc,C6)
 p(.25)
 
-start(beat)	    // Start group 'beat'
+start(beat)	    // Execute group 'beat'
 n(osc,Gs4,1,sine)
 n(osc,A3,.2,sawtooth)
 p(.25)
@@ -32,7 +32,7 @@ n(osc,C6)
 p(.25)
 
 
-start(beat)	    // Start group 'beat'
+group(beat)	    // Create group 'beat'
 n(perc.kick)
 p(.25)
 n(perc.kick)     n(perc.snare)

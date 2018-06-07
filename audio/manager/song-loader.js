@@ -1,17 +1,4 @@
 
-function SongLoader(filePath) {
-    this.title = filePath;
-    this.instruments = [];
-    this.bpmRatio = 240 / (bpm || 160);
-    this.seekPosition = seekPosition || 0;
-
-    this.seekTime = DEFAULT_SEEK_TIME;
-    this.filePath = filePath;
-    this.currentPosition = 0;
-    this.startTime = null;
-    this.notes = [];
-    this.groups = [];
-}
 
 
 (function() {
@@ -21,25 +8,32 @@ function SongLoader(filePath) {
     var DEFAULT_SEEK_TIME = 1;
     var DEFAULT_NOTE_GROUP = 'default';
 
-    if(ForgottenFuture)
+    if(!window.SongLoader)
+        window.SongLoader = SongLoader;
+    if(typeof ForgottenFuture !== 'undefined')
         ForgottenFuture.Audio.SongLoader = SongLoader;
 
-    // Interface Methods
 
-    SongLoader.prototype.registerInstruments = function(inst1, inst2) {
-        for(var i=0; i<arguments.length; i++)
-            if(arguments[i])
-                this.instruments.push(arguments[i]);
-    };
+    function SongLoader(filePath) {
+        this.filePath = filePath;
+        this.instruments = {};
+        this.noteGroups = {};
+        this.bpmRatio = 1; // 240 / (bpm || 160);
 
-    SongLoader.prototype.startSong = function(context, onPlaybackStarted) {
-        this.context = context;
+        this.seekLength = DEFAULT_SEEK_TIME;
+        this.seekPosition = 0;
+        this.currentPosition = 0;
+        // this.groups = [];
+    }
+
+    SongLoader.prototype.play = function(context, onPlaybackStarted) {
+        this.context = (context || new (window.AudioContext || window.webkitAudioContext)());
         // if(this.notes) {
         //     this.processPlayback();
         //     onPlaybackStarted(this);
         //
         // } else {
-        this.loadFile(this.filePath, function() {
+        this.loadFile(function() {
             this.processPlayback();
             onPlaybackStarted && onPlaybackStarted(this);
 
@@ -73,28 +67,6 @@ function SongLoader(filePath) {
         return 440 * Math.pow(2, (keyNumber- 49) / 12);
     };
 
-    // File Methods
-
-    SongLoader.prototype.loadFile = function(filePath, onLoaded) {
-        var xhr = new XMLHttpRequest();
-        xhr.onreadystatechange = function () {
-            if (xhr.readyState === xhr.DONE) {
-                if (xhr.status === 200 && xhr.response) {
-                    this.processNotes(xhr.response);
-                    onLoaded && onLoaded(this);
-
-                } else {
-                    console.log("Failed to download:" + xhr.status + " " + xhr.statusText);
-                }
-            }
-        }.bind(this);
-        // Open the request for the provided url
-        xhr.open("GET", filePath, true);
-        // Set the responseType to 'arraybuffer' for ArrayBuffer response
-        xhr.responseType = "arraybuffer";
-        xhr.send();
-    };
-
 
     SongLoader.prototype.processPlayback = function() {
         this.currentPosition = 0;
@@ -105,13 +77,13 @@ function SongLoader(filePath) {
 
         for(var p=0; p<notes.length; p++) {
             notesPlayed += notes[p][0](this.context, notes[p], this);
-            if(this.seekPosition + this.seekTime <= this.currentPosition)
+            if(this.seekPosition + this.seekLength <= this.currentPosition)
                 break;
         }
-        this.seekPosition += this.seekTime;
+        this.seekPosition += this.seekLength;
         if(notesPlayed > 0) {
             console.log("Seek", this.seekPosition, this.currentPosition);
-            setTimeout(this.processPlayback.bind(this), this.seekTime * 1000);
+            setTimeout(this.processPlayback.bind(this), this.seekLength * 1000);
 
             document.dispatchEvent(new CustomEvent('song:playing', {
                 detail: this
@@ -126,78 +98,189 @@ function SongLoader(filePath) {
         }
     };
 
-    SongLoader.prototype.processNotes = function(arrayBuffer) {
+    SongLoader.prototype.loadCommandList = function(commandList, onLoaded) {
+        var noteGroups = {};
+        noteGroups[DEFAULT_NOTE_GROUP] = [];
+        var currentNoteGroup = DEFAULT_NOTE_GROUP;
+        var scriptsLoaded = 0;
+        for(var i=0; i<commandList.length; i++) {
+            var args = commandList[i];
+            switch(args[0].toLowerCase()) {
+                case 'l':
+                case 'load':
+                    var scriptPath = args[1];
+                    loadScript.call(this, scriptPath, initInstruments.bind(this));
+                    scriptsLoaded++;
+                    break;
+
+                case 'i':
+                case 'instrument':
+                    var instrumentCallback = args[1];
+                    var instrumentName = args[2].trim();
+                    this.instruments[instrumentName] = {
+                        callback: null, // function() { console.warn("Instrument is uninitiated: ", instrumentClass); }
+                        callbackName: instrumentCallback,
+                        title: instrumentName
+                    };
+                    break;
+
+                case 'g':
+                case 'group':
+                    currentNoteGroup = args[1] || DEFAULT_NOTE_GROUP;
+                    if(typeof noteGroups[currentNoteGroup] === 'undefined')
+                        noteGroups[currentNoteGroup] = [];
+                    break;
+
+                case 'p':
+                case 'pause':
+                    args[0] = cPause;
+                    args[1] = parseFloat(args[1]);
+                    break;
+
+                case 'n':
+                case 'note':
+                    args.shift();
+                    noteGroups[currentNoteGroup].push(args);
+                    break;
+            }
+        }
+        if(scriptsLoaded === 0)
+            initInstruments.call(this);
+
+        function initInstruments() {
+            var allInstrumentsLoaded = true;
+            for(var instrumentName in this.instruments) {
+                if(this.instruments.hasOwnProperty(instrumentName)) {
+                    var instrument = this.instruments[instrument];
+                    if(!instrument.callback) {
+                        var classPath = instrument.callbackName.split('.');
+                        var pathTarget = window.instruments;
+                        for (var i = 0; i < classPath.length; i++) {
+                            if (pathTarget[classPath[i]]) {
+                                pathTarget = pathTarget[classPath[i]];
+                            } else {
+                                pathTarget = null;
+                            }
+                        }
+                        if (pathTarget) {
+                            instrument.callback = pathTarget;
+                            console.log("Instrument loaded: ", instrument);
+                        }
+                    }
+                    if(!instrument.callback)
+                        allInstrumentsLoaded = false;
+                }
+            }
+
+            if(allInstrumentsLoaded && onLoaded)
+                initNotes.call(this);
+        }
+
+        function initNotes() {
+            for(var groupName in noteGroups) {
+                if(noteGroups.hasOwnProperty(groupName)) {
+                    var groupList = noteGroups[groupName];
+                    for(var i=0; i<groupList.length; i++) {
+                        var noteArgs = groupList[i];
+                        var noteInstrumentName = noteArgs[0];
+                        if(!this.instruments[noteInstrumentName])
+                            throw new Error("Instrument '" + noteInstrumentName + "' was not registered");
+                        var instrument = this.instruments[noteInstrumentName];
+                        if(typeof instrument.callback === 'undefined')
+                            throw new Error("Instrument '" + noteInstrumentName + "' was not initiated");
+                        noteArgs[0] = instrument.callback;
+                        if(instrument.callback.processArgs)
+                            instrument.callback.processArgs(noteArgs);
+                    }
+                }
+            }
+            this.noteGroups = noteGroups;
+            console.log("Finished processing notes:", noteGroups);
+
+            onLoaded && onLoaded();
+        }
+
+        function loadScript(scriptPath, onLoaded) {
+            var fileDirectory = /^.*\//.exec(this.filePath)[0];
+            var stack = fileDirectory.split("/"),
+                parts = scriptPath.split("/");
+            stack.pop(); // remove current file name (or empty string)
+            for (var i=0; i<parts.length; i++) {
+                if (parts[i] === ".")   continue;
+                if (parts[i] === "..")  stack.pop();
+                else                    stack.push(parts[i]);
+            }
+            scriptPath = stack.join("/"); // Calculate relative path
+
+            var scriptPathEsc = scriptPath.replace(/[/.]/g, '\\$&');
+            var foundScript = document.head.querySelectorAll('script[src=' + scriptPathEsc + ']');
+            if (foundScript.length === 0) {
+                var scriptElm = document.createElement('script');
+                scriptElm.src = scriptPath;
+                scriptElm.onload = onLoaded;
+                document.head.appendChild(scriptElm);
+            }
+        }
+
+    };
+
+    // File Methods
+
+    SongLoader.prototype.loadFile = function(onLoaded) {
+        var filePath = this.filePath;
+        var xhr = new XMLHttpRequest();
+        xhr.onreadystatechange = function () {
+            if (xhr.readyState === xhr.DONE) {
+                if (xhr.status === 200 && xhr.response) {
+                    this.processNoteList(xhr.response, onLoaded);
+
+                } else {
+                    console.log("Failed to download:" + xhr.status + " " + xhr.statusText);
+                }
+            }
+        }.bind(this);
+        // Open the request for the provided url
+        xhr.open("GET", filePath, true);
+        // Set the responseType to 'arraybuffer' for ArrayBuffer response
+        xhr.responseType = "arraybuffer";
+        xhr.send();
+    };
+
+    SongLoader.prototype.processNoteList = function(arrayBuffer, onLoaded) {
         var charBuffer = new Uint8Array(arrayBuffer, 0);
         var byteLength = charBuffer.byteLength;
-        console.log(arrayBuffer, byteLength);
 
         // Iterate through each character in our Array
         this.groups = {default:[]};
-        var currentNoteGroup = DEFAULT_NOTE_GROUP, currentNote = [], currentValue = '';
+
+        var lastCharBuffer = '';
+        var commandList = [];
         for (var i = 0; i < byteLength; i++) {
             // Get the character for the current iteration
             var char = String.fromCharCode(charBuffer[i]);
-
+            lastCharBuffer += char;
             switch(char) {
-                case ",":
-                    currentValue = parseValue(currentValue);
-                    currentNote.push(currentValue);
-                    currentValue = '';
-                    break;
+                case ')':
+                    lastCharBuffer = lastCharBuffer.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1').trim();
+                    var match = /([a-z]+)\(([^)]+)\)/.exec(lastCharBuffer);
+                    if(match) {
+                        var commandName = match[1];
+                        var commandArgs = match[2].split(/\s*,\s*/);
+                        commandArgs.unshift(commandName);
+                        lastCharBuffer = '';
+                        commandList.push(commandArgs);
+                        // console.log('Processed Note List: ', lastCharBuffer, commandArgs);
 
-                case ";":
-                    currentValue = parseValue(currentValue);
-                    currentNote.push(currentValue);
-                    currentValue = '';
-
-                    switch(currentNote[0][0]) {
-                        case 'g':
-                            currentNoteGroup = currentNote[1] || DEFAULT_NOTE_GROUP;
-                            break;
-
-                        case 'x':
-                            currentNote[0] = cExecute;
-                            this.groups[currentNoteGroup].push(currentNote);
-                            break;
-
-                        case 'p':
-                            currentNote[0] = cPause;
-                            this.groups[currentNoteGroup].push(currentNote);
-                            break;
-
-                        default:
-                            if(!/^\+?(0|[1-9]\d*)$/.test(currentNote[0]))
-                                throw new Error("Invalid instrument ID: " + currentNote[0]);
-                            var instrumentID = parseInt(currentNote[0]);
-                            if(!this.instruments[instrumentID])
-                                throw new Error("Instrument ID not found: " + instrumentID);
-                            var instrument = this.instruments[instrumentID];
-                            currentNote[0] = instrument;
-                            if(!this.groups[currentNoteGroup])
-                                this.groups[currentNoteGroup] = [];
-                            if(instrument.processArguments)
-                                instrument.processArguments(currentNote);
-                            this.groups[currentNoteGroup].push(currentNote);
-                            break;
                     }
-                    currentNote = []; // Clear note
                     break;
-
-                default:
-
-                    // Check if the char is a new line
-                    // if (char === "\r" || char === "\n")
-                    //     break;
-
-                    currentValue+=char;
-                // console.log("Unexpected Char: ", char);
             }
         }
-        if(this.groups[DEFAULT_NOTE_GROUP])
-            this.notes = this.groups[DEFAULT_NOTE_GROUP];
-        else
-            console.warn("Song has no '" + DEFAULT_NOTE_GROUP + "' note group:", this);
+
+        console.log('Processed Command List: ', commandList);
+        this.loadCommandList(commandList, onLoaded);
     };
+
+
 
     function parseValue(value) {
         value = value.replace(/\/\*[\s\S]*?\*\/|([^\\:]|^)\/\/.*$/gm, '$1').trim();
