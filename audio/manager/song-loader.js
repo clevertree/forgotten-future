@@ -10,17 +10,18 @@
 
     if(!window.SongLoader)
         window.SongLoader = SongLoader;
-    if(typeof ForgottenFuture !== 'undefined')
-        ForgottenFuture.Audio.SongLoader = SongLoader;
+    // if(typeof ForgottenFuture !== 'undefined')
+    //     ForgottenFuture.Audio.SongLoader = SongLoader;
 
 
     function SongLoader(filePath) {
         this.filePath = filePath;
         this.aliases = {};
         this.noteGroups = {};
-        this.bpmRatio = 1; // 240 / (bpm || 160);
+        this.bpm = 160; // 240 / (bpm || 160);
+        this.lastNotePosition = 0;
 
-        this.seekLength = DEFAULT_SEEK_TIME;
+        this.seekLength = 240 / this.bpm;
         this.seekPosition = 0;
         this.currentPosition = 0;
         // this.groups = [];
@@ -35,7 +36,10 @@
         //     onPlaybackStarted(this);
         //
         // } else {
+        this.currentPosition = null;
         this.loadFile(function() {
+            this.currentPosition = 0;
+            this.startTime = this.context.currentTime - this.seekPosition;
             this.processPlayback();
             onPlaybackStarted && onPlaybackStarted(this);
 
@@ -47,20 +51,20 @@
     };
 
     SongLoader.prototype.processPlayback = function() {
-        this.currentPosition = 0;
-        this.startTime = this.context.currentTime - this.seekPosition;
         var notesPlayed = 0;
 
         var notes = this.noteGroups[DEFAULT_NOTE_GROUP];
 
-        for(var p=0; p<notes.length; p++) {
+        for(var p=this.lastNotePosition; p<notes.length; p++) {
             notesPlayed += notes[p][0](this.context, notes[p], this);
+            this.lastNotePosition++;
+            console.log("Note played: ", notes[p], p);
             if(this.seekPosition + this.seekLength <= this.currentPosition)
                 break;
         }
         this.seekPosition += this.seekLength;
         if(notesPlayed > 0) {
-            console.log("Seek", this.seekPosition, this.currentPosition);
+            console.log("Notes Played:", notesPlayed, this.seekPosition, this.currentPosition);
             setTimeout(this.processPlayback.bind(this), this.seekLength * 1000);
 
             document.dispatchEvent(new CustomEvent('song:playing', {
@@ -77,8 +81,14 @@
     };
 
     // Interface Commands
+    SongLoader.prototype.getBPM = function()                { return this.bpm; };
+    SongLoader.prototype.getFilePath = function()           { return this.filePath; };
+    SongLoader.prototype.getCurrentPosition = function()    { return this.currentPosition; };
+    SongLoader.prototype.getStartTime = function()          { return this.startTime; };
 
     SongLoader.prototype.getInstrument = function(path) {
+        if(typeof path === 'function')
+            return path;
         if(!window.instruments)
             throw new Error("window.instruments is not loaded");
 
@@ -216,10 +226,17 @@
                         noteGroups[currentNoteGroup] = [];
                     break;
 
+                case 'ge':
+                case 'groupexecute':
+                    args[0] = cGroupExecute;
+                    noteGroups[currentNoteGroup].push(args);
+                    break;
+
                 case 'p':
                 case 'pause':
                     args[0] = cPause;
                     args[1] = parseFloat(args[1]);
+                    noteGroups[currentNoteGroup].push(args);
                     break;
 
                 case 'n':
@@ -276,7 +293,6 @@
 
     };
 
-
     // Instrument Commands
 
     /**
@@ -287,10 +303,11 @@
      * @returns {number}
      */
     function cPause(context, note, song) {
-        song.currentPosition += note[1] * song.bpmRatio;
-        // console.info("PAUSE", note[1]);
+        song.currentPosition += note[1] * (240 / (song.getBPM()));
+        console.info("PAUSE", note[1], song.currentPosition);
         return 0;
     }
+
     /**
      * Pause Instrument
      * @param {AudioContextBase} context
@@ -298,8 +315,8 @@
      * @param {SongLoader} song
      * @returns {number}
      */
-    function cExecute(context, note, song) {
-        console.info("Execute", note[1]);
+    function cGroupExecute(context, note, song) {
+        console.info("Group Start", note[1]);
         return 0;
     }
 

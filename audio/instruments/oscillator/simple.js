@@ -14,15 +14,12 @@
      * Oscillator Instrument
      * @param {AudioContextBase} context
      * @param {Array} args
-     * @param {Audio.SongManager} song
+     * @param {SongLoader} song
      * @returns {number}
      */
     function OscillatorSimple(context, args, song) {
-        var noteStartTime = song.currentPosition;
-        if(noteStartTime < song.seekPosition) {
-            console.warn("Note Skipped");
-            return 0;
-        }
+        var noteStartTime = song.getStartTime() + song.getCurrentPosition();
+        var noteLength = args[2] * (240 / (song.getBPM()));
 
         var osc = context.createOscillator(); // instantiate an oscillator
         // Set Type
@@ -36,8 +33,8 @@
 
         // Play note
         osc.connect(context.destination); // connect it to the destination
-        osc.start(song.currentPosition); // start the oscillator
-        osc.stop(noteStartTime + args[2] * song.bpmRatio);
+        osc.start(noteStartTime); // start the oscillator
+        osc.stop(noteStartTime + noteLength);
         // console.info("OSC", noteStartTime, noteEndTime);
         return 1;
     }
