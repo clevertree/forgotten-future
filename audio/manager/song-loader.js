@@ -45,6 +45,8 @@
     };
 
     SongLoader.prototype.getNoteFrequency = function (note) {
+        if(Number(note) === note && note % 1 !== 0)
+            return note;
         var notes = ['A', 'A#', 'B', 'C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#'],
             octave,
             keyNumber;
@@ -73,7 +75,7 @@
         this.startTime = this.context.currentTime - this.seekPosition;
         var notesPlayed = 0;
 
-        var notes = this.groups[DEFAULT_NOTE_GROUP];
+        var notes = this.noteGroups[DEFAULT_NOTE_GROUP];
 
         for(var p=0; p<notes.length; p++) {
             notesPlayed += notes[p][0](this.context, notes[p], this);

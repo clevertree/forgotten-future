@@ -5,7 +5,7 @@ load(../instruments/oscillator/simple.js)
 
 // Instruments
 alias(osc, oscillator)
-alias(perc, percussion)
+alias(perc, oscillator)
 
 // Default note group
 group()         // Group 'default'

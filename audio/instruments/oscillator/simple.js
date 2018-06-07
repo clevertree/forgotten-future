@@ -5,6 +5,8 @@
     if(!window.instruments.oscillator)  window.instruments.oscillator = {};
     window.instruments.oscillator.simple = OscillatorSimple;
     window.instruments.oscillator.default = OscillatorSimple;
+    window.instruments.oscillator.kick = OscillatorSimple;
+    window.instruments.oscillator.snare = OscillatorSimple;
 
     // instrument
 
@@ -40,9 +42,11 @@
         return 1;
     }
 
+    var lastArgs = null;
     OscillatorSimple.processArgs = function(args, song) {
-        args[1] = song.getNoteFrequency(args[1]);
-        args[2] = parseFloat(args[2]);
+        args[1] = song.getNoteFrequency(args[1] || lastArgs[1]);
+        args[2] = parseFloat(args[2] || lastArgs[2]);
+        lastArgs = args;
     }
 
 })();
