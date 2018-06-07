@@ -1,11 +1,11 @@
 // Libraries
 load(../instruments/oscillator/simple.js)
-load(../instruments/percussion/simple.js)
-load(demo.song.js)
+// load(../instruments/percussion/simple.js)
+// load(demo.song.js)
 
 // Instruments
-instrument(iOscillatorSimple, osc)
-instrument(iPercussionSimple, perc)
+alias(osc, oscillator)
+alias(perc, percussion)
 
 // Default note group
 group()         // Group 'default'

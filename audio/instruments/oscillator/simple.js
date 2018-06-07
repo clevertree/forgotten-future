@@ -1,9 +1,10 @@
 
 
 (function() {
-    if(!window.instrument)             window.instrument = {};
-    if(!window.instrument.oscillator)  window.instrument.oscillator = {};
-    window.instrument.oscillator.Simple = OscillatorSimple;
+    if(!window.instruments)             window.instruments = {};
+    if(!window.instruments.oscillator)  window.instruments.oscillator = {};
+    window.instruments.oscillator.simple = OscillatorSimple;
+    window.instruments.oscillator.default = OscillatorSimple;
 
     // instrument
 

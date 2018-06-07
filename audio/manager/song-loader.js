@@ -16,7 +16,7 @@
 
     function SongLoader(filePath) {
         this.filePath = filePath;
-        this.instruments = {};
+        this.aliases = {};
         this.noteGroups = {};
         this.bpmRatio = 1; // 240 / (bpm || 160);
 
@@ -102,26 +102,25 @@
         var noteGroups = {};
         noteGroups[DEFAULT_NOTE_GROUP] = [];
         var currentNoteGroup = DEFAULT_NOTE_GROUP;
-        var scriptsLoaded = 0;
+        var scriptsLoading = 0;
         for(var i=0; i<commandList.length; i++) {
             var args = commandList[i];
             switch(args[0].toLowerCase()) {
                 case 'l':
                 case 'load':
                     var scriptPath = args[1];
-                    loadScript.call(this, scriptPath, initInstruments.bind(this));
-                    scriptsLoaded++;
+                    scriptsLoading++;
+                    loadScript.call(this, scriptPath, function() {
+                        // console.log("Scripts loading: ", scriptsLoading);
+                        scriptsLoading--;
+                        if(scriptsLoading === 0)
+                            initNotes.call(this);
+                    }.bind(this));
                     break;
 
-                case 'i':
-                case 'instrument':
-                    var instrumentCallback = args[1];
-                    var instrumentName = args[2].trim();
-                    this.instruments[instrumentName] = {
-                        callback: null, // function() { console.warn("Instrument is uninitiated: ", instrumentClass); }
-                        callbackName: instrumentCallback,
-                        title: instrumentName
-                    };
+                case 'a':
+                case 'alias':
+                    this.aliases[args[1].trim()] = args[2].trim();
                     break;
 
                 case 'g':
@@ -144,37 +143,9 @@
                     break;
             }
         }
-        if(scriptsLoaded === 0)
-            initInstruments.call(this);
+        if(scriptsLoading === 0)
+            initNotes.call(this);
 
-        function initInstruments() {
-            var allInstrumentsLoaded = true;
-            for(var instrumentName in this.instruments) {
-                if(this.instruments.hasOwnProperty(instrumentName)) {
-                    var instrument = this.instruments[instrument];
-                    if(!instrument.callback) {
-                        var classPath = instrument.callbackName.split('.');
-                        var pathTarget = window.instruments;
-                        for (var i = 0; i < classPath.length; i++) {
-                            if (pathTarget[classPath[i]]) {
-                                pathTarget = pathTarget[classPath[i]];
-                            } else {
-                                pathTarget = null;
-                            }
-                        }
-                        if (pathTarget) {
-                            instrument.callback = pathTarget;
-                            console.log("Instrument loaded: ", instrument);
-                        }
-                    }
-                    if(!instrument.callback)
-                        allInstrumentsLoaded = false;
-                }
-            }
-
-            if(allInstrumentsLoaded && onLoaded)
-                initNotes.call(this);
-        }
 
         function initNotes() {
             for(var groupName in noteGroups) {
@@ -182,15 +153,10 @@
                     var groupList = noteGroups[groupName];
                     for(var i=0; i<groupList.length; i++) {
                         var noteArgs = groupList[i];
-                        var noteInstrumentName = noteArgs[0];
-                        if(!this.instruments[noteInstrumentName])
-                            throw new Error("Instrument '" + noteInstrumentName + "' was not registered");
-                        var instrument = this.instruments[noteInstrumentName];
-                        if(typeof instrument.callback === 'undefined')
-                            throw new Error("Instrument '" + noteInstrumentName + "' was not initiated");
-                        noteArgs[0] = instrument.callback;
-                        if(instrument.callback.processArgs)
-                            instrument.callback.processArgs(noteArgs);
+                        var instrument = this.getInstrument(noteArgs[0]);
+                        noteArgs[0] = instrument;
+                        if(instrument.processArgs)
+                            instrument.processArgs(noteArgs, this);
                     }
                 }
             }
@@ -222,6 +188,31 @@
             }
         }
 
+    };
+
+    SongLoader.prototype.getInstrument = function(path) {
+        if(!window.instruments)
+            throw new Error("window.instruments is not loaded");
+
+        var pathList = path.split('.');
+        var pathTarget = window.instruments;
+
+        if(this.aliases[pathList[0]])
+            pathList[0] = this.aliases[pathList[0]];
+
+        for (var i = 0; i < pathList.length; i++) {
+            if (pathTarget[pathList[i]]) {
+                pathTarget = pathTarget[pathList[i]];
+            } else {
+                pathTarget = null;
+                break;
+            }
+        }
+        if (pathTarget && typeof pathTarget === 'object')
+            pathTarget = pathTarget.default;
+        if (!pathTarget)
+            throw new Error("Instrument not found: " + pathList.join('.') + ' [alias:' + path + ']');
+        return pathTarget;
     };
 
     // File Methods
@@ -276,7 +267,7 @@
             }
         }
 
-        console.log('Processed Command List: ', commandList);
+        console.log('Loaded Command List: ', commandList);
         this.loadCommandList(commandList, onLoaded);
     };
 
