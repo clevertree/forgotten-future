@@ -51,7 +51,7 @@
     PlatformPrototype.prototype.addSprite = function(sprite) {
         var p = this.sprites.indexOf(sprite);
         if(p >= 0)
-            throw new Error("Sprites already associated with platforms");
+            throw new Error("Sprite already associated with platforms");
 
         // Check for existing platforms assignment
         if(sprite.platform) {

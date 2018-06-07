@@ -322,7 +322,7 @@
                 gl.texParameteri(gl.TEXTURE_2D, gl.TEXTURE_MAG_FILTER, gl.NEAREST);
             }
 
-            // console.log("Sprites Sheet Texture Loaded: ", image, tTileMap);
+            // console.log("Sprite Sheet Texture Loaded: ", image, tTileMap);
 
             colCount = iTileSheet.width / tileSize;
             if(colCount % 1 !== 0) console.error("Tile sheet width (" + iTileSheet.width + ") is not divisible by " + tileSize);

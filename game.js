@@ -16,12 +16,9 @@ var ForgottenFuture = {
         widthToHeightRatio: 1,
         baseURL: ''
     },
-    Audio: {
-        Instruments: {}
-    },
-    Sprites: {
-        Characters: {},
-        Vehicles: {},
+    Sprite: {
+        Character: {},
+        Vehicle: {},
         Physics: {}
     }, 
     Input: { 
@@ -30,7 +27,7 @@ var ForgottenFuture = {
         keyEvents: 0, 
         lastKey: null,
     },
-    Stages: {},
+    Stage: {},
     Platform: {},
     Util: {},
     File: {},
@@ -44,7 +41,7 @@ var ForgottenFuture = {
 
         RENDER_SELECTED: 0x10,
 
-        // Stages Constants
+        // Stage Constants
         STAGE_DEFAULT: 'Stage1',
 
         // Render Constants
@@ -140,7 +137,7 @@ var ForgottenFuture = {
             // Wait for all other loading scripts to load
             Util.waitForLoadingScripts(function() {
                 // Initiate the stages
-                var stage = new ForgottenFuture.Stages[stageName](gl);
+                var stage = new ForgottenFuture.Stage[stageName](gl);
 
                 canvas.width = canvas.clientWidth;
                 canvas.height = canvas.clientHeight;
@@ -155,7 +152,7 @@ var ForgottenFuture = {
                     stage.render(gl, t);
                 }
 
-                console.info("Stages '" + stageName + "' rendering", stage);
+                console.info("Stage '" + stageName + "' rendering", stage);
             });
         });
     }
@@ -276,7 +273,7 @@ var ForgottenFuture = {
     Util.waitForLoadingScripts = function(callback) {
         if(scriptsLoading > 0) {
             scriptCallbacks.push(callback);
-            // console.info("Script callback queued: ", callback);
+            console.info("Script callback queued: ", callback);
         } else {
             callback();
         }

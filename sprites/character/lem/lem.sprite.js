@@ -11,7 +11,7 @@
     var Util = ForgottenFuture.Util,
         Input = ForgottenFuture.Input,
         Render = ForgottenFuture.Render,
-        Sprite = ForgottenFuture.Sprites;
+        Sprite = ForgottenFuture.Sprite;
 
     // Extends SpritePrototype
     Util.loadScript('render/prototype/sprite.prototype.js', function() {
@@ -28,7 +28,7 @@
     var BOUNCE_VELOCITY = 0.4;
     var BOUNCE_QUOTIENT = 0.25;
 
-    // Sprites
+    // Sprite
     var SPRITE_RESOLUTION = 128;
     var DIR_CHARACTER = 'sprites/';
     var DIR_SHEET = DIR_CHARACTER + 'character/lem/lem-default.'+SPRITE_RESOLUTION+'.sprite-sheet.png';
@@ -40,7 +40,7 @@
     };
 
 
-    Sprite.Characters.Lem = Lem;
+    Sprite.Character.Lem = Lem;
 
     /**
      * Create a new shader instance
@@ -59,7 +59,7 @@
         this.acceleration   = [Math.random() * 0.001, -0.0001, 0];
         this.stateScript    = Lem.stateScripts.handleFallingMotion;
 
-        // Sprites Sheet
+        // Sprite Sheet
         this.shader = new ForgottenFuture.Render.Shader.SpriteShader(gl, DIR_SHEET);
         this.shader.addTileFrameSequence('run', 0, 0, 16, 8, 2);
         this.shader.setCurrentFrame('run');

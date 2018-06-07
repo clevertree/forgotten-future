@@ -13,8 +13,8 @@
         // Song Manager
         'audio/song-manager.js',
 
-        // Instruments
-        'audio/library/oscillator/simple.js',
+        // instrument
+        // 'audio/instrument/oscillator/simple.js',
     ]);
 
 
@@ -27,10 +27,10 @@
 
 
         Util.waitForLoadingScripts(function() {
-            var editableSong = new Audio.SongManager('audio/songs/demo-notes.csv', TITLE);
-            editableSong.registerInstruments(
-                Audio.Instruments.iOscillatorSimple
-            );
+            var editableSong = new Audio.SongManager('audio/songs/demo.song', TITLE);
+            // editableSong.registerInstruments(
+                // Audio.instrument.iOscillatorSimple
+            // );
 
             editableSong.startSong(context);
 

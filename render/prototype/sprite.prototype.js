@@ -7,7 +7,7 @@
 
 (function() {
     var Util = ForgottenFuture.Util,
-        Sprite = ForgottenFuture.Sprites,
+        Sprite = ForgottenFuture.Sprite,
         Render = ForgottenFuture.Render,
         Input = ForgottenFuture.Input;
 
@@ -101,7 +101,7 @@
     SpritePrototype.prototype.setPlatform = function(platform) {
         var p = platform.sprites.indexOf(this);
         if(p >= 0)
-            throw new Error("Sprites already associated with platforms");
+            throw new Error("Sprite already associated with platforms");
 
         // Check for existing platforms assignment
         if(this.platform) {
