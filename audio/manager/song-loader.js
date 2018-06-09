@@ -19,11 +19,11 @@
         this.aliases = {};
         this.noteGroups = {};
         this.bpm = 160; // 240 / (bpm || 160);
-        this.lastNotePosition = 0;
 
         this.seekLength = 240 / this.bpm;
         this.seekPosition = 0;
         this.currentPosition = 0;
+        this.activeGroups = [];
         // this.groups = [];
     }
 
@@ -38,6 +38,7 @@
         // } else {
         this.currentPosition = null;
         this.loadFile(function() {
+            this.activeGroups = [{name: DEFAULT_NOTE_GROUP}];
             this.currentPosition = 0;
             this.startTime = this.context.currentTime - this.seekPosition;
             this.processPlayback();
@@ -53,15 +54,25 @@
     SongLoader.prototype.processPlayback = function() {
         var notesPlayed = 0;
 
-        var notes = this.noteGroups[DEFAULT_NOTE_GROUP];
+        var currentPositionInitial = this.currentPosition;
+        for(var gi=0; gi<this.activeGroups.length; gi++) {
+            var activeGroup = this.activeGroups[gi];
+            var lastNotePosition = activeGroup.lastNotePosition || 0;
+            var notes = this.noteGroups[activeGroup.name];
 
-        for(var p=this.lastNotePosition; p<notes.length; p++) {
-            notesPlayed += notes[p][0](this.context, notes[p], this);
-            this.lastNotePosition++;
-            console.log("Note played: ", notes[p], p);
-            if(this.seekPosition + this.seekLength <= this.currentPosition)
-                break;
+            this.currentPosition = currentPositionInitial + (activeGroup.start || 0);
+            // Play default group notes
+            for(var p=lastNotePosition; p<notes.length; p++) {
+                notesPlayed += notes[p][0](this.context, notes[p], this);
+                lastNotePosition++;
+                console.log("Note played: ", notes[p], p);
+                if(this.seekPosition + this.seekLength <= this.currentPosition)
+                    break;
+            }
+            activeGroup.lastNotePosition = lastNotePosition;
         }
+
+
         this.seekPosition += this.seekLength;
         if(notesPlayed > 0) {
             console.log("Notes Played:", notesPlayed, this.seekPosition, this.currentPosition);
@@ -293,6 +304,32 @@
 
     };
 
+    // Note Groups
+
+    SongLoader.NoteGroup = function (noteList) {
+        
+    };
+
+    SongLoader.NoteGroup.prototype.processPlayback = function() {
+        var notesPlayed = 0;
+
+        for (var gi = 0; gi < this.activeGroups.length; gi++) {
+            var activeGroup = this.activeGroups[gi];
+            var lastNotePosition = activeGroup.lastNotePosition || 0;
+            var notes = this.noteGroups[activeGroup.name];
+
+            this.currentPosition = currentPositionInitial + (activeGroup.start || 0);
+            // Play default group notes
+            for (var p = lastNotePosition; p < notes.length; p++) {
+                notesPlayed += notes[p][0](this.context, notes[p], this);
+                lastNotePosition++;
+                console.log("Note played: ", notes[p], p);
+                if (this.seekPosition + this.seekLength <= this.currentPosition)
+                    break;
+            }
+            activeGroup.lastNotePosition = lastNotePosition;
+        }
+    }
     // Instrument Commands
 
     /**
@@ -316,7 +353,9 @@
      * @returns {number}
      */
     function cGroupExecute(context, note, song) {
-        console.info("Group Start", note[1]);
+        var groupName = note[1].trim();
+        console.info("Executing Group: ", groupName);
+        song.activeGroups.push({name: groupName, start: song.currentPosition});
         return 0;
     }
 

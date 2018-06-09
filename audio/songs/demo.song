@@ -34,6 +34,10 @@ p(.25)
 
 g(beat)	        // Create group 'beat'
 n(perc.kick)
-p(.25)
+p(.5)
 n(perc.kick)     n(perc.snare)
-p(.25)
+p(.5)
+n(perc.kick)
+p(.5)
+n(perc.kick)     n(perc.snare)
+p(.5)
