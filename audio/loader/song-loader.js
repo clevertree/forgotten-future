@@ -66,9 +66,10 @@
             this.currentPosition = currentPositionInitial + (activeGroup.start || 0);
             // Play default group notes
             for(var p=lastNotePosition; p<notes.length; p++) {
-                notesPlayed += notes[p][0](this.context, notes[p], this);
+                var note = notes[p];
+                notesPlayed += note.execute(this);
                 lastNotePosition++;
-                console.log("Note played: ", notes[p], p);
+                console.log("Note played: ", note, p);
                 if(this.seekPosition + this.seekLength <= this.currentPosition)
                     break;
             }
@@ -195,9 +196,9 @@
                     if(match) {
                         var commandName = match[1];
                         var commandArgs = match[2].split(/\s*,\s*/);
-                        commandArgs.unshift(commandName);
+                        // commandArgs.unshift(commandName);
                         lastCharBuffer = '';
-                        commandList.push(commandArgs);
+                        commandList.push([commandName, commandArgs]);
                         // console.log('Processed Note List: ', lastCharBuffer, commandArgs);
 
                     }
@@ -210,79 +211,62 @@
     };
 
     SongLoader.prototype.loadCommandList = function(commandList, onLoaded) {
-        var noteGroups = {};
-        noteGroups[DEFAULT_NOTE_GROUP] = [];
+        this.noteGroups = {};
+        this.noteGroups[DEFAULT_NOTE_GROUP] = [];
         var currentNoteGroup = DEFAULT_NOTE_GROUP;
         var scriptsLoading = 0;
+
         for(var i=0; i<commandList.length; i++) {
-            var args = commandList[i];
-            switch(args[0].toLowerCase()) {
+            var commandName = commandList[i][0];
+            var args = commandList[i][1];
+            switch(commandName.toLowerCase()) {
                 case 'l':
                 case 'load':
-                    var scriptPath = args[1];
+                    var scriptPath = args[0];
                     scriptsLoading++;
                     loadScript.call(this, scriptPath, function() {
                         // console.log("Scripts loading: ", scriptsLoading);
                         scriptsLoading--;
                         if(scriptsLoading === 0)
-                            initNotes.call(this);
+                            onLoaded && onLoaded(); // initNotes.call(this);
                     }.bind(this));
                     break;
 
                 case 'a':
                 case 'alias':
-                    this.aliases[args[1].trim()] = args[2].trim();
+                    this.aliases[args[0].trim()] = args[1].trim();
                     break;
 
                 case 'g':
                 case 'group':
-                    currentNoteGroup = args[1] || DEFAULT_NOTE_GROUP;
-                    if(typeof noteGroups[currentNoteGroup] === 'undefined')
-                        noteGroups[currentNoteGroup] = [];
+                    currentNoteGroup = args[0] || DEFAULT_NOTE_GROUP;
+                    if(typeof this.noteGroups[currentNoteGroup] === 'undefined')
+                        this.noteGroups[currentNoteGroup] = [];
                     break;
 
                 case 'ge':
                 case 'groupexecute':
-                    args[0] = cGroupExecute;
-                    noteGroups[currentNoteGroup].push(args);
+                    var groupName = args.shift();
+                    this.noteGroups[currentNoteGroup].push(
+                        new GroupExecute(groupName, args));
                     break;
 
                 case 'p':
                 case 'pause':
-                    args[0] = cPause;
-                    args[1] = parseFloat(args[1]);
-                    noteGroups[currentNoteGroup].push(args);
+                    this.noteGroups[currentNoteGroup].push(
+                        new Pause(parseFloat(args[0])));
                     break;
 
                 case 'n':
                 case 'note':
-                    args.shift();
-                    noteGroups[currentNoteGroup].push(args);
+                    var instrumentName = args.shift();
+                    this.noteGroups[currentNoteGroup].push(
+                        new Note(instrumentName, args));
                     break;
             }
         }
         if(scriptsLoading === 0)
-            initNotes.call(this);
-
-
-        function initNotes() {
-            for(var groupName in noteGroups) {
-                if(noteGroups.hasOwnProperty(groupName)) {
-                    var groupList = noteGroups[groupName];
-                    for(var i=0; i<groupList.length; i++) {
-                        var noteArgs = groupList[i];
-                        var instrument = this.getInstrument(noteArgs[0]);
-                        noteArgs[0] = instrument;
-                        if(instrument.processArgs)
-                            instrument.processArgs(noteArgs, this);
-                    }
-                }
-            }
-            this.noteGroups = noteGroups;
-            console.log("Finished processing notes:", noteGroups);
-
-            onLoaded && onLoaded();
-        }
+            onLoaded && onLoaded(); // initNotes.call(this);
 
         function loadScript(scriptPath, onLoaded) {
             var fileDirectory = /^.*\//.exec(this.filePath)[0];
@@ -308,59 +292,46 @@
 
     };
 
-    // Note Groups
 
-    SongLoader.NoteGroup = function (noteList) {
-        
-    };
-
-    SongLoader.NoteGroup.prototype.processPlayback = function() {
-        var notesPlayed = 0;
-
-        for (var gi = 0; gi < this.activeGroups.length; gi++) {
-            var activeGroup = this.activeGroups[gi];
-            var lastNotePosition = activeGroup.lastNotePosition || 0;
-            var notes = this.noteGroups[activeGroup.name];
-
-            this.currentPosition = currentPositionInitial + (activeGroup.start || 0);
-            // Play default group notes
-            for (var p = lastNotePosition; p < notes.length; p++) {
-                notesPlayed += notes[p][0](this.context, notes[p], this);
-                lastNotePosition++;
-                console.log("Note played: ", notes[p], p);
-                if (this.seekPosition + this.seekLength <= this.currentPosition)
-                    break;
-            }
-            activeGroup.lastNotePosition = lastNotePosition;
-        }
-    }
     // Instrument Commands
 
-    /**
-     * Pause Instrument
-     * @param {AudioContextBase} context
-     * @param {Array} note
-     * @param {SongLoader} song
-     * @returns {number}
-     */
-    function cPause(context, note, song) {
-        song.currentPosition += note[1] * (240 / (song.getBPM()));
-        console.info("PAUSE", note[1], song.currentPosition);
-        return 0;
+    SongLoader.Note = Note;
+    function Note(instrumentName, args) {
+        var instrument = null;
+        this.instrumentName = instrumentName;
+        this.args = args;
+        this.execute = function(song) {
+            if(!instrument) {
+                instrument = song.getInstrument(this.instrumentName);
+                if(!instrument)
+                    return 0;
+                if(instrument.processArgs)
+                    instrument.processArgs.apply(song, [this.args]);
+            }
+            if(instrument = (instrument || song.getInstrument(this.instrumentName)))
+                return instrument.apply(song, this.args);       // Execute Note
+            return 0;
+        }
     }
 
-    /**
-     * Pause Instrument
-     * @param {AudioContextBase} context
-     * @param {Array} note
-     * @param {SongLoader} song
-     * @returns {number}
-     */
-    function cGroupExecute(context, note, song) {
-        var groupName = note[1].trim();
-        console.info("Executing Group: ", groupName);
-        song.activeGroups.push({name: groupName, start: song.currentPosition});
-        return 0;
+    SongLoader.Pause = Pause;
+    function Pause(pauseLength) {
+        this.pauseLength = pauseLength;
+        this.execute = function(song) {
+            song.currentPosition += this.pauseLength * (240 / (song.getBPM()));
+            console.info("PAUSE", this.pauseLength, song.currentPosition);
+            return 0;
+        }
     }
 
+    SongLoader.GroupExecute = GroupExecute;
+    function GroupExecute(groupName, commandArgs) {
+        this.groupName = groupName;
+        this.commandArgs = commandArgs;
+        this.execute = function(song) {
+            console.info("Executing Group: ", this.groupName, this.commandArgs);
+            song.activeGroups.push({name: this.groupName, start: song.currentPosition});
+            return 0;
+        }
+    }
 })();
