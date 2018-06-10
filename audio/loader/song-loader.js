@@ -196,10 +196,10 @@
                     if(match) {
                         var commandName = match[1];
                         var commandArgs = match[2].split(/\s*,\s*/);
-                        // commandArgs.unshift(commandName);
+                        // args.unshift(commandName);
                         lastCharBuffer = '';
                         commandList.push([commandName, commandArgs]);
-                        // console.log('Processed Note List: ', lastCharBuffer, commandArgs);
+                        // console.log('Processed Note List: ', lastCharBuffer, args);
 
                     }
                     break;
@@ -301,16 +301,12 @@
         this.instrumentName = instrumentName;
         this.args = args;
         this.execute = function(song) {
+            var instrument = song.getInstrument(this.instrumentName);
             if(!instrument) {
-                instrument = song.getInstrument(this.instrumentName);
-                if(!instrument)
-                    return 0;
-                if(instrument.processArgs)
-                    instrument.processArgs.apply(song, [this.args]);
+                console.error("Instrument is not loaded: " + this.instrumentName);
+                return 0;
             }
-            if(instrument = (instrument || song.getInstrument(this.instrumentName)))
-                return instrument.apply(song, this.args);       // Execute Note
-            return 0;
+            return instrument.apply(song, this.args);       // Execute Note
         }
     }
 
@@ -325,11 +321,11 @@
     }
 
     SongLoader.GroupExecute = GroupExecute;
-    function GroupExecute(groupName, commandArgs) {
+    function GroupExecute(groupName, args) {
         this.groupName = groupName;
-        this.commandArgs = commandArgs;
+        this.args = args;
         this.execute = function(song) {
-            console.info("Executing Group: ", this.groupName, this.commandArgs);
+            console.info("Executing Group: ", this.groupName, this.args);
             song.activeGroups.push({name: this.groupName, start: song.currentPosition});
             return 0;
         }
