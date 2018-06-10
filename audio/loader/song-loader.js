@@ -37,7 +37,10 @@
         //
         // } else {
         this.currentPosition = null;
-        this.loadFile(function() {
+        this.loadFile(function(err) {
+            if(err)
+                throw new Error(err);
+
             this.activeGroups = [{name: DEFAULT_NOTE_GROUP}];
             this.currentPosition = 0;
             this.startTime = this.context.currentTime - this.seekPosition;
@@ -161,6 +164,7 @@
 
                 } else {
                     console.log("Failed to download:" + xhr.status + " " + xhr.statusText);
+                    onLoaded("Failed to download:" + xhr.status + " " + xhr.statusText);
                 }
             }
         }.bind(this);

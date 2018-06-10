@@ -11,7 +11,7 @@
     // Dependencies
     Util.loadScript([
         // Song Manager
-        'audio/song-manager.js',
+        'audio/song-loader.js',
 
         // instrument
         // 'audio/instrument/oscillator/simple.js',
