@@ -246,9 +246,8 @@
 
                 case 'ge':
                 case 'groupexecute':
-                    var groupName = args.shift();
                     this.noteGroups[currentNoteGroup].push(
-                        new GroupExecute(groupName, args));
+                        new GroupExecute(args));
                     break;
 
                 case 'p':
@@ -259,9 +258,8 @@
 
                 case 'n':
                 case 'note':
-                    var instrumentName = args.shift();
                     this.noteGroups[currentNoteGroup].push(
-                        new Note(instrumentName, args));
+                        new Note(args));
                     break;
             }
         }
@@ -296,13 +294,12 @@
     // Instrument Commands
 
     SongLoader.Note = Note;
-    function Note(instrumentName, args) {
-        this.instrumentName = instrumentName;
+    function Note(args) {
         this.args = args;
         this.execute = function(song) {
-            var instrument = song.getInstrument(this.instrumentName);
+            var instrument = song.getInstrument(this.args[0]);
             if(!instrument) {
-                console.error("Instrument is not loaded: " + this.instrumentName);
+                console.error("Instrument is not loaded: " + this.args[0]);
                 return 0;
             }
             return instrument.apply(song, this.args);       // Execute Note
@@ -320,12 +317,11 @@
     }
 
     SongLoader.GroupExecute = GroupExecute;
-    function GroupExecute(groupName, args) {
-        this.groupName = groupName;
+    function GroupExecute(args) {
         this.args = args;
         this.execute = function(song) {
-            console.info("Executing Group: ", this.groupName, this.args);
-            song.activeGroups.push({name: this.groupName, start: song.currentPosition});
+            console.info("Executing Group: ", this.args[0], this.args);
+            song.activeGroups.push({name: this.args[0], start: song.currentPosition});
             return 0;
         }
     }

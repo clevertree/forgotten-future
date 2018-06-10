@@ -13,11 +13,12 @@
     /**
      * Oscillator Instrument
      * @returns {number}
+     * @param instrumentName
      * @param noteFrequency
      * @param noteLength
      * @param oscillatorType
      */
-    function OscillatorSimple(noteFrequency, noteLength, oscillatorType) {
+    function OscillatorSimple(instrumentName, noteFrequency, noteLength, oscillatorType) {
         var context = this.getContext();
         var noteStartTime = this.getStartTime() + this.getCurrentPosition();
 
@@ -35,8 +36,10 @@
 
     var lastArgs = null;
     OscillatorSimple.processArgs = function(args) {
-        args[0] = this.getNoteFrequency(args[0] || lastArgs[0]);
-        args[1] = parseFloat(args[1] || lastArgs[1]);
+        args[0] = args[0] || lastArgs[0];
+        args[1] = this.getNoteFrequency(args[1] || lastArgs[1]);
+        args[2] = parseFloat(args[2] || lastArgs[2]);
+        args[3] = args[3] || lastArgs[3];
         lastArgs = args;
     }
 
