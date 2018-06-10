@@ -297,7 +297,6 @@
 
     SongLoader.Note = Note;
     function Note(instrumentName, args) {
-        var instrument = null;
         this.instrumentName = instrumentName;
         this.args = args;
         this.execute = function(song) {
